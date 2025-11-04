@@ -3,7 +3,37 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36623.8 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CMSBlog.API", "src\CMSBlog.API\CMSBlog.API.csproj", "{A2DF8040-4DF7-4CD4-8A31-53517B7F53C5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CMSBlog.Core", "src\CMSBlog.Core\CMSBlog.Core.csproj", "{FCC5E672-08E4-4196-B97B-BC132B36A18E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CMSBlog.Data", "src\CMSBlog.Data\CMSBlog.Data.csproj", "{865A1738-F896-4ECE-A4A5-B4535EFAB4F6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CMSBlog.WebApp", "src\CMSBlog.WebApp\CMSBlog.WebApp.csproj", "{1B283CAC-12AC-4580-AE61-BA50D2D53562}"
+EndProject
 Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A2DF8040-4DF7-4CD4-8A31-53517B7F53C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A2DF8040-4DF7-4CD4-8A31-53517B7F53C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A2DF8040-4DF7-4CD4-8A31-53517B7F53C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A2DF8040-4DF7-4CD4-8A31-53517B7F53C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FCC5E672-08E4-4196-B97B-BC132B36A18E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FCC5E672-08E4-4196-B97B-BC132B36A18E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FCC5E672-08E4-4196-B97B-BC132B36A18E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FCC5E672-08E4-4196-B97B-BC132B36A18E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{865A1738-F896-4ECE-A4A5-B4535EFAB4F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{865A1738-F896-4ECE-A4A5-B4535EFAB4F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{865A1738-F896-4ECE-A4A5-B4535EFAB4F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{865A1738-F896-4ECE-A4A5-B4535EFAB4F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1B283CAC-12AC-4580-AE61-BA50D2D53562}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1B283CAC-12AC-4580-AE61-BA50D2D53562}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1B283CAC-12AC-4580-AE61-BA50D2D53562}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1B283CAC-12AC-4580-AE61-BA50D2D53562}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
