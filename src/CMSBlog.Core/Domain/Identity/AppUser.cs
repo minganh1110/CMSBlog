@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Identity;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 namespace CMSBlog.Core.Domain.Identity
 {
     [Table("AppUsers")]
-    internal class AppUser
+    public class AppUser : IdentityUser<Guid>
     {
         [Required]
         [MaxLength(100)]
@@ -23,7 +24,7 @@ namespace CMSBlog.Core.Domain.Identity
         public DateTime? RefreshTokenExpiryTime { get; set; }
         public DateTime DateCreated { get; set; }
         public DateTime? Dob { get; set; }
-
+        
         [MaxLength(500)]
         public string? Avatar { get; set; }
         public DateTime? VipStartDate { get; set; }

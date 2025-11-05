@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace CMSBlog.Core.Domain.Content
 {
-    [Table("PostCategories")]
+    [Table("PostInSeries")]
     [Index(nameof(Slug), IsUnique = true)]
     public class PostInSeries
     {

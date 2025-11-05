@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace CMSBlog.Core.Domain.Content
 {
-    [Table("PostTags")]
+    [Table("Series")]
     [PrimaryKey(nameof(PostId), nameof(TagId))]
     public class Series
     {
