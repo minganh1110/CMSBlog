@@ -1,4 +1,5 @@
 ﻿using CMSBlog.Core.Domain.Content;
+using CMSBlog.Core.Models.Content;
 using CMSBlog.Core.SeedWorks;
 using System;
 using System.Collections.Generic;
@@ -11,5 +12,6 @@ namespace CMSBlog.Core.Repositories
     public interface IPostRepository : IRepository<Post, Guid>
     {
         Task<List<Post>> GetPostsByAuthorAsync(int count);
+        Task<List<PostInListDto>> GetPostsPagingAsync(string? keyword, Guid? categoryId, int pageIndex=1, int pageSize =10 );
     }
 }

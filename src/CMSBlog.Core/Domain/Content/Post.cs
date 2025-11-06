@@ -1,8 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Index = Microsoft.EntityFrameworkCore.Metadata.Internal.Index;
 
 namespace CMSBlog.Core.Domain.Content
 {
@@ -11,28 +9,25 @@ namespace CMSBlog.Core.Domain.Content
     public class Post
     {
         [Key]
-        public Guid Id { get; set; }
+        public Guid? Id { get; set; } // Guid có thể null
 
-        [Required]
         [MaxLength(250)]
-        public required string Name { get; set; }
+        public string? Name { get; set; }
 
-        [Required]
         [Column(TypeName = "varchar(250)")]
-        public required string Slug { get; set; }
+        public string? Slug { get; set; }
 
         [MaxLength(500)]
         public string? Description { get; set; }
 
-        [Required]
-        public Guid CategoryId { get; set; }
+        public Guid? CategoryId { get; set; }
 
         [MaxLength(500)]
         public string? Thumbnail { get; set; }
+
         public string? Content { get; set; }
 
-        [MaxLength(500)]
-        public Guid AuthorUserId { get; set; }
+        public Guid? AuthorUserId { get; set; }
 
         [MaxLength(128)]
         public string? Source { get; set; }
@@ -43,27 +38,28 @@ namespace CMSBlog.Core.Domain.Content
         [MaxLength(160)]
         public string? SeoDescription { get; set; }
 
-        public int ViewCount { get; set; }
-        public DateTime DateCreated { get; set; }
+        public int? ViewCount { get; set; }
+        public DateTime? DateCreated { get; set; }
         public DateTime? DateModified { get; set; }
-        public bool IsPaid { get; set; }
-        public double RoyaltyAmount { get; set; }
-        public PostStatus Status { get; set; }
+        public bool? IsPaid { get; set; }
+        public double? RoyaltyAmount { get; set; }
+        public PostStatus? Status { get; set; }
 
-        [Required]
         [Column(TypeName = "varchar(250)")]
-        public required string CategorySlug { set; get; }
+        public string? CategorySlug { get; set; }
 
         [MaxLength(250)]
-        [Required]
-        public required string CategoryName { set; get; }
+        public string? CategoryName { get; set; }
+
         [MaxLength(250)]
-        public string AuthorUserName { set; get; }
+        public string? AuthorUserName { get; set; }
+
         [MaxLength(250)]
-        public string AuthorName { set; get; }
+        public string? AuthorName { get; set; }
 
         public DateTime? PaidDate { get; set; }
     }
+
     public enum PostStatus
     {
         Draft = 0,

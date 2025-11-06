@@ -214,7 +214,7 @@ namespace CMSBlog.Data.Migrations
                     CategorySlug = table.Column<string>(type: "varchar(250)", nullable: false),
                     CategoryName = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: false),
                     AuthorUserName = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: false),
-                    AuthorName = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: false),
+                    AuthorName = table.Column<string>(type: "nvarchar(250)", maxLength: 250, nullable: true),
                     PaidDate = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
