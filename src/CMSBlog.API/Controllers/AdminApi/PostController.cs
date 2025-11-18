@@ -6,8 +6,11 @@ using CMSBlog.Core.SeedWorks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CMSBlog.API.Controllers
+
+// nhan request tu client
+namespace CMSBlog.API.Controllers.AdminApi
 {
+    
     [Route("api/admin/post")]
     [ApiController]
     public class PostController : ControllerBase

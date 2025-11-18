@@ -1,4 +1,6 @@
 using CMSBlog.API;
+using CMSBlog.API.Services;
+using CMSBlog.Core.ConfigOptions;
 using CMSBlog.Core.Domain.Identity;
 using CMSBlog.Core.Models.Content;
 using CMSBlog.Core.SeedWorks;
@@ -14,8 +16,14 @@ using System.Reflection;
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 var connectionString = configuration.GetConnectionString("DefaultConnection");
-
-
+var CMSCorsPolicy = "_cmsCorsPolicy";
+builder.Services.AddCors(o => o.AddPolicy(CMSCorsPolicy, builder =>
+{
+    builder.AllowAnyMethod()
+        .AllowAnyHeader()
+        .WithOrigins(configuration["AllowedOrigins"]?.Split(";"))
+        .AllowCredentials();
+}));
 
 //Config DB Context and ASP.NET Core Identity
 builder.Services.AddDbContext<CMSBlogContext>(options =>
@@ -61,8 +69,15 @@ foreach (var service in services)
         builder.Services.Add(new ServiceDescriptor(directInterface, service, ServiceLifetime.Scoped));
     }
 }
-
+// Auho mapper
 builder.Services.AddAutoMapper(typeof(PostInListDto));
+
+// Authen anf Athor
+builder.Services.Configure<JwtTokenSettings>(configuration.GetSection("JwtTokenSettings"));
+builder.Services.AddScoped<SignInManager<AppUser>, SignInManager<AppUser>>();
+builder.Services.AddScoped<UserManager<AppUser>, UserManager<AppUser>>();
+builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<RoleManager<AppRole>, RoleManager<AppRole>>();
 //Default config for ASP.NET core 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -94,7 +109,7 @@ if (app.Environment.IsDevelopment())
         c.DisplayRequestDuration();
     });
 }
-
+app.UseCors(CMSCorsPolicy);
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
