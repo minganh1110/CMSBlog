@@ -14,7 +14,8 @@ import { AppComponent } from './app.component';
 
 // Import containers
 import { DefaultFooterComponent, DefaultHeaderComponent, DefaultLayoutComponent } from './containers';
-
+// Import PrimeNG Toast module
+import { ToastModule } from 'primeng/toast';
 import {
   AvatarModule,
   BadgeModule,
@@ -37,7 +38,13 @@ import {
 } from '@coreui/angular';
 
 import { IconModule, IconSetService } from '@coreui/icons-angular';
-
+import {ADMIN_API_BASE_URL,AdminApiAuthApiClient} from './api/admin-api.service.generated';
+import { environment } from '../environments/environment';
+import { MessageService } from 'primeng/api';
+import { AlertService } from './shared/services/alert.service';
+import { HttpClientModule } from '@angular/common/http';
+import { TokenStorageService } from './shared/services/token-storage.service';
+import { AuthGuard } from './shared/auth.guard';
 const APP_CONTAINERS = [
   DefaultFooterComponent,
   DefaultHeaderComponent,
@@ -72,15 +79,30 @@ const APP_CONTAINERS = [
     BadgeModule,
     ListGroupModule,
     CardModule,
-    NgScrollbarModule
+    NgScrollbarModule,
+    ToastModule,
+    HttpClientModule
+    
+
   ],
   providers: [
+    {
+      provide: ADMIN_API_BASE_URL, useValue : environment.API_URL
+    },
     {
       provide: LocationStrategy,
       useClass: HashLocationStrategy
     },
     IconSetService,
-    Title
+    Title,
+    MessageService,
+    AlertService,
+    AdminApiAuthApiClient,
+    TokenStorageService,
+    AuthGuard
+
+    
+    
   ],
   bootstrap: [AppComponent]
 })

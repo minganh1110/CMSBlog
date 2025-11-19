@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
-
 import {
   AvatarModule,
   ButtonGroupModule,
@@ -12,19 +11,16 @@ import {
   NavModule,
   ProgressModule,
   TableModule,
-  TabsModule,
+  TabsModule
 } from '@coreui/angular';
 import { IconModule } from '@coreui/icons-angular';
 import { ChartjsModule } from '@coreui/angular-chartjs';
+import { SystemRoutingModule } from './system-routing.module';
 
-import { DashboardRoutingModule } from './dashboard-routing.module';
-import { DashboardComponent } from './dashboard.component';
-
-import { WidgetsModule } from '../widgets/widgets.module';
 
 @NgModule({
   imports: [
-    DashboardRoutingModule,
+    SystemRoutingModule,
     CardModule,
     NavModule,
     IconModule,
@@ -40,8 +36,8 @@ import { WidgetsModule } from '../widgets/widgets.module';
     ChartjsModule,
     AvatarModule,
     TableModule,
-    WidgetsModule,
   ],
-  declarations: [DashboardComponent],
+  declarations: []
 })
-export class DashboardModule {}
+export class SystemModule {
+}

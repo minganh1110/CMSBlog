@@ -1,16 +1,20 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-
-import { DashboardComponent } from './dashboard.component';
+import { UserComponent } from './users/user.component';
 import { AuthGuard } from '../../shared/auth.guard';
-
 const routes: Routes = [
   {
     path: '',
-    component: DashboardComponent,
+    redirectTo: 'users',
+    pathMatch: 'full',
+    canActivate: [AuthGuard],
+  },
+  {
+    path: 'users',
+    component: UserComponent,
     data: {
-      title: 'Trang chủ',
-      requiredPolicy: 'Permissions.Dashboard.View',
+      title: 'Người dùng',
+      requiredPolicy: 'Permissions.Users.View',
     },
     canActivate: [AuthGuard],
   },
@@ -20,4 +24,4 @@ const routes: Routes = [
   imports: [RouterModule.forChild(routes)],
   exports: [RouterModule],
 })
-export class DashboardRoutingModule {}
+export class SystemRoutingModule {}
