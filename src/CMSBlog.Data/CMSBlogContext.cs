@@ -23,7 +23,11 @@ namespace CMSBlog.Data
         public DbSet<PostActivityLog> PostActivityLogs { get; set; }
         public DbSet<Series> Series { get; set; }
         public DbSet<PostInSeries> PostInSeries { get; set; }
-       
+        public DbSet<MediaFiles> MediaFiles { get; set; }
+        public DbSet<MediaTags> MediaTags { get; set; }
+        public DbSet<MediaFileTags> MediaFileTags { get; set; }
+        public DbSet<MediaFolders> MediaFolders { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -39,6 +43,101 @@ namespace CMSBlog.Data
 
             builder.Entity<IdentityUserToken<Guid>>().ToTable("AppUserTokens")
                .HasKey(x => new { x.UserId });
+
+            builder.Entity<MediaFiles>(entity =>
+            {
+                entity.ToTable("MediaFiles");
+
+                entity.HasKey(x => x.ID);
+
+                entity.Property(x => x.FileName)
+                    .IsRequired()
+                    .HasMaxLength(250);
+
+                entity.Property(x => x.SlugName)
+                    .IsRequired()
+                    .HasMaxLength(250);
+
+                entity.Property(x => x.FilePath)
+                    .IsRequired()
+                    .HasMaxLength(500);
+
+                entity.Property(x => x.FileExtension)
+                    .HasMaxLength(50);
+
+                entity.Property(x => x.MediaType)
+                    .HasConversion<int?>();
+
+                entity.Property(x => x.UploadedAt)
+                    .IsRequired();
+
+                entity.Property(x => x.IsDeleted)
+                    .HasDefaultValue(false);
+
+                // Folder quan hệ 1-n (nếu có MediaFolders entity)
+                entity.HasOne<MediaFolders>()
+                      .WithMany()
+                      .HasForeignKey(x => x.FolderId)
+                      .OnDelete(DeleteBehavior.SetNull);
+
+                // Quan hệ với AppUser (User upload file)
+                entity.HasOne<AppUser>()
+                      .WithMany()
+                      .HasForeignKey(x => x.UploadedByUserId)
+                      .OnDelete(DeleteBehavior.SetNull);
+            });
+
+            builder.Entity<MediaFolders>(entity =>
+            {
+                entity.ToTable("MediaFolders");
+                entity.HasKey(x => x.ID);
+                entity.Property(x => x.FolderName)
+                    .IsRequired()
+                    .HasMaxLength(250);
+                entity.Property(x => x.SlugName)
+                    .IsRequired()
+                    .HasMaxLength(250);
+                entity.Property(x => x.CreatedAt)
+                    .IsRequired();
+                // Quan hệ cha-con với chính nó
+                builder.Entity<MediaFolders>()
+                    .HasOne<MediaFolders>()
+                    .WithMany()
+                    .HasForeignKey(x => x.ParentFolderId)
+                    .OnDelete(DeleteBehavior.NoAction);
+
+
+            });
+
+            builder.Entity<MediaTags>(entity =>
+            {
+                entity.ToTable("MediaTags");
+                entity.HasKey(x => x.ID);
+                entity.Property(x => x.SlugName)
+                    .IsRequired()
+                    .HasMaxLength(250);
+                entity.Property(x => x.TagName)
+                    .IsRequired()
+                    .HasMaxLength(250);
+                entity.Property(x => x.Description)
+                    .HasMaxLength(1000);
+                entity.Property(x => x.CreatedAt)
+                    .IsRequired();
+            });
+
+            builder.Entity<MediaFileTags>(entity =>
+            {
+                entity.ToTable("MediaFileTags");
+                entity.HasKey(x => new { x.MediaFileId, x.MediaTagId });
+                entity.HasOne<MediaFiles>()
+                      .WithMany()
+                      .HasForeignKey(x => x.MediaFileId)
+                      .OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne<MediaTags>()
+                      .WithMany()
+                      .HasForeignKey(x => x.MediaTagId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
         }
 
         public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

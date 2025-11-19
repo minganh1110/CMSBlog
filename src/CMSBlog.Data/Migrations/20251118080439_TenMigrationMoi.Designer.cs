@@ -4,6 +4,7 @@ using CMSBlog.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,166 +12,18 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CMSBlog.Data.Migrations
 {
     [DbContext(typeof(CMSBlogContext))]
-    partial class CMSBlogContextModelSnapshot : ModelSnapshot
+    [Migration("20251118080439_TenMigrationMoi")]
+    partial class TenMigrationMoi
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.22")
+                .HasAnnotation("ProductVersion", "8.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("CMSBlog.Core.Domain.Content.MediaFileTags", b =>
-                {
-                    b.Property<Guid>("MediaFileId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("MediaTagId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("MediaFileId", "MediaTagId");
-
-                    b.HasIndex("MediaTagId");
-
-                    b.ToTable("MediaFileTags", (string)null);
-                });
-
-            modelBuilder.Entity("CMSBlog.Core.Domain.Content.MediaFiles", b =>
-                {
-                    b.Property<Guid>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("CreateAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<double?>("Duration")
-                        .HasColumnType("float");
-
-                    b.Property<string>("FileExtension")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
-
-                    b.Property<string>("FilePath")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.Property<long>("FileSize")
-                        .HasColumnType("bigint");
-
-                    b.Property<Guid?>("FolderId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int?>("Height")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsDeleted")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.Property<int?>("MediaType")
-                        .HasMaxLength(100)
-                        .HasColumnType("int");
-
-                    b.Property<string>("SlugName")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
-
-                    b.Property<DateTime>("UploadedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("UploadedByUserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int?>("Width")
-                        .HasColumnType("int");
-
-                    b.HasKey("ID");
-
-                    b.HasIndex("FolderId");
-
-                    b.HasIndex("ID")
-                        .IsUnique();
-
-                    b.HasIndex("UploadedByUserId");
-
-                    b.ToTable("MediaFiles", (string)null);
-                });
-
-            modelBuilder.Entity("CMSBlog.Core.Domain.Content.MediaFolders", b =>
-                {
-                    b.Property<Guid>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("CreatedByUserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("FolderName")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
-
-                    b.Property<Guid?>("ParentFolderId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("SlugName")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
-
-                    b.Property<DateTime>("UpdateAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("ID");
-
-                    b.HasIndex("ParentFolderId");
-
-                    b.ToTable("MediaFolders", (string)null);
-                });
-
-            modelBuilder.Entity("CMSBlog.Core.Domain.Content.MediaTags", b =>
-                {
-                    b.Property<Guid>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
-
-                    b.Property<string>("SlugName")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
-
-                    b.Property<string>("TagName")
-                        .IsRequired()
-                        .HasMaxLength(250)
-                        .HasColumnType("nvarchar(250)");
-
-                    b.HasKey("ID");
-
-                    b.ToTable("MediaTags", (string)null);
-                });
 
             modelBuilder.Entity("CMSBlog.Core.Domain.Content.Post", b =>
                 {
@@ -646,42 +499,6 @@ namespace CMSBlog.Data.Migrations
                     b.HasKey("UserId");
 
                     b.ToTable("AppUserTokens", (string)null);
-                });
-
-            modelBuilder.Entity("CMSBlog.Core.Domain.Content.MediaFileTags", b =>
-                {
-                    b.HasOne("CMSBlog.Core.Domain.Content.MediaFiles", null)
-                        .WithMany()
-                        .HasForeignKey("MediaFileId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("CMSBlog.Core.Domain.Content.MediaTags", null)
-                        .WithMany()
-                        .HasForeignKey("MediaTagId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("CMSBlog.Core.Domain.Content.MediaFiles", b =>
-                {
-                    b.HasOne("CMSBlog.Core.Domain.Content.MediaFolders", null)
-                        .WithMany()
-                        .HasForeignKey("FolderId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.HasOne("CMSBlog.Core.Domain.Identity.AppUser", null)
-                        .WithMany()
-                        .HasForeignKey("UploadedByUserId")
-                        .OnDelete(DeleteBehavior.SetNull);
-                });
-
-            modelBuilder.Entity("CMSBlog.Core.Domain.Content.MediaFolders", b =>
-                {
-                    b.HasOne("CMSBlog.Core.Domain.Content.MediaFolders", null)
-                        .WithMany()
-                        .HasForeignKey("ParentFolderId")
-                        .OnDelete(DeleteBehavior.NoAction);
                 });
 #pragma warning restore 612, 618
         }
