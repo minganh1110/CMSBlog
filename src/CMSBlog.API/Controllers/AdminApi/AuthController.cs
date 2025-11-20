@@ -52,7 +52,7 @@ namespace CMSBlog.API.Controllers.AdminApi
             var roles = await _userManager.GetRolesAsync(user);
             var permissions = await this.GetPermissionByUserIdAsyns(user.Id.ToString());
             var claims = new[]
-           {
+            {
                     new Claim(JwtRegisteredClaimNames.Email, user.Email),
                     new Claim(UserClaims.Id, user.Id.ToString()),
                     new Claim(ClaimTypes.NameIdentifier, user.UserName),

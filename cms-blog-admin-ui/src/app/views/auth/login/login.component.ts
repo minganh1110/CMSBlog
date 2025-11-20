@@ -1,59 +1,34 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  Validators,
-} from '@angular/forms';
+import { Component, OnDestroy } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import {LoginRequest,AdminApiAuthApiClient, AuthenticatedResult } from '../../../api/admin-api.service.generated';
+import { AlertService } from '../../../shared/services/alert.service';
 import { Router } from '@angular/router';
-import {
-  AdminApiAuthApiClient,
-  AuthenticatedResult,
-  LoginRequest,
-} from 'src/app/api/admin-api.service.generated';
-import { AlertService } from 'src/app/shared/services/alert.service';
-import { UrlConstants } from 'src/app/shared/constants/url.constants';
-import { TokenStorageService } from 'src/app/shared/services/token-storage.service';
-import { Subject, takeUntil } from 'rxjs';
-import { BroadcastService } from 'src/app/shared/services/boardcast.service';
+import { UrlConstants } from '../../../shared/constants/url.constants';
+import { TokenStorageService } from '../../../shared/services/token-storage.service';
+import { Subject, take, takeUntil } from 'rxjs';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  styleUrls: ['./login.component.scss'],
+  styleUrls: ['./login.component.scss']
 })
-export class LoginComponent implements OnInit, OnDestroy{
+export class LoginComponent implements OnDestroy{
   loginForm: FormGroup;
   private ngUnsubscribe = new Subject<void>();
   loading = false;
-
-  constructor(
-    private fb: FormBuilder,
-    private authApiClient: AdminApiAuthApiClient,
-    private alertService: AlertService,
-    private router: Router,
-    private tokenSerivce: TokenStorageService,
-    private broadCastService: BroadcastService
-  ) {
+  constructor(private fb:FormBuilder , private authApiClient: AdminApiAuthApiClient, private alertService: AlertService, private router: Router, private tokenService: TokenStorageService) { 
     this.loginForm = this.fb.group({
-      userName: new FormControl('', Validators.required),
-      password: new FormControl('', Validators.required),
+      username: new FormControl('',Validators.required),
+      password: new FormControl('',Validators.required),
     });
   }
-  ngOnInit(): void {
-    this.broadCastService.httpError.asObservable().subscribe(values => {
-      this.loading = false;
-  });
-  }
-  
   ngOnDestroy(): void {
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
   }
-
-  login() {
+   login() {
     this.loading = true;
     var request: LoginRequest = new LoginRequest({
-      userName: this.loginForm.controls['userName'].value,
+      userName: this.loginForm.controls['username'].value,
       password: this.loginForm.controls['password'].value,
     });
 
@@ -62,15 +37,15 @@ export class LoginComponent implements OnInit, OnDestroy{
     .subscribe({
       next: (res: AuthenticatedResult) => {
         //Save token and refresh token to localstorage
-        this.tokenSerivce.saveToken(res.token);
-        this.tokenSerivce.saveRefreshToken(res.refreshToken);
-        this.tokenSerivce.saveUser(res);
-        //Redirect to dashboard
+        this.tokenService.saveToken(res.token);
+        this.tokenService.saveRefreshToken(res.refreshToken);
+        this.tokenService.saveUser(res);
+        // Navigate to home page
         this.router.navigate([UrlConstants.HOME]);
       },
       error: (error: any) => {
         console.log(error);
-        this.alertService.showError('Đăng nhập không đúng.');
+        this.alertService.showError('Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin đăng nhập.');
         this.loading = false;
       },
     });

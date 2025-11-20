@@ -1,7 +1,7 @@
 {
-  "name": "blog-cms-admin-ui",
+  "name": "coreui-free-angular-admin-template",
   "version": "4.5.16",
-  "copyright": "Copyright 2023 TEDU",
+  "copyright": "Copyright 2023 creativeLabs Łukasz Holeczek",
   "license": "MIT",
   "author": "The CoreUI Team (https://github.com/orgs/coreui/people) and contributors",
   "homepage": "https://coreui.io/angular",
@@ -12,8 +12,7 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build-prod": "ng build --c production",
-    "build-uat": "ng build --c uat",
+    "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "nswag-admin": "node node_modules/nswag/bin/nswag.js run nswag-admin.json"
@@ -40,10 +39,9 @@
     "chart.js": "^3.9.1",
     "lodash-es": "^4.17.21",
     "ngx-scrollbar": "^13.0.3",
-    "nswag": "^13.20.0",
+    "nswag": "^14.6.2",
     "primeicons": "^7.0.0",
-    "primeng": "^16.9.1",
-    "quill": "^1.3.7",
+    "primeng": "^16.7.1",
     "rxjs": "~7.8.1",
     "tslib": "^2.3.0",
     "zone.js": "~0.13.1"

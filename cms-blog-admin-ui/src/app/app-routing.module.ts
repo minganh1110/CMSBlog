@@ -6,40 +6,35 @@ const routes: Routes = [
   {
     path: 'auth',
     loadChildren: () =>
-      import('./views/auth/auth.module').then((m) => m.AuthModule),
+    import('./views/auth/auth.module').then((m) => m.AuthModule)
   },
   {
     path: '',
     component: DefaultLayoutComponent,
     data: {
-      title: 'Home',
+      title: 'Home'
     },
     children: [
       {
         path: 'dashboard',
         loadChildren: () =>
-          import('./views/dashboard/dashboard.module').then(
-            (m) => m.DashboardModule
-          ),
+          import('./views/dashboard/dashboard.module').then((m) => m.DashboardModule)
       },
       {
         path: 'system',
         loadChildren: () =>
-          import('./views/system/system.module').then((m) => m.SystemModule),
+          import('./views/system/system.module').then((m) => m.SystemModule)
       },
       {
         path: 'content',
         loadChildren: () =>
-          import('./views/content/content.module').then((m) => m.ContentModule),
+          import('./views/content/content.module').then((m) => m.ContentModule)
       },
-      {
-        path: 'royalty',
-        loadChildren: () =>
-          import('./views/royalty/royalty.module').then((m) => m.RoyaltyModule),
-      },
-    ],
+
+      
+    ]
   },
-  { path: '**', redirectTo: 'dashboard' },
+  {path: '**', redirectTo: 'dashboard'}
 ];
 
 @NgModule({
@@ -47,10 +42,11 @@ const routes: Routes = [
     RouterModule.forRoot(routes, {
       scrollPositionRestoration: 'top',
       anchorScrolling: 'enabled',
-      initialNavigation: 'enabledBlocking',
+      initialNavigation: 'enabledBlocking'
       // relativeLinkResolution: 'legacy'
-    }),
+    })
   ],
-  exports: [RouterModule],
+  exports: [RouterModule]
 })
-export class AppRoutingModule {}
+export class AppRoutingModule {
+}

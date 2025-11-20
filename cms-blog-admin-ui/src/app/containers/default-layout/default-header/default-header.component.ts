@@ -20,11 +20,11 @@ export class DefaultHeaderComponent extends HeaderComponent {
 
   constructor(private classToggler: ClassToggleService,
     private tokenService: TokenStorageService,
-    private router: Router) {
+    private router: Router
+
+  ) {
     super();
   }
-
-  
   logout() {
     this.tokenService.signOut();
     this.router.navigate([UrlConstants.LOGIN]);
