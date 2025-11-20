@@ -38,13 +38,15 @@ import {
 } from '@coreui/angular';
 
 import { IconModule, IconSetService } from '@coreui/icons-angular';
-import {ADMIN_API_BASE_URL,AdminApiAuthApiClient} from './api/admin-api.service.generated';
+import {ADMIN_API_BASE_URL,AdminApiAuthApiClient, AdminApiTestApiClient, AdminApiTokenApiClient} from './api/admin-api.service.generated';
 import { environment } from '../environments/environment';
 import { MessageService } from 'primeng/api';
 import { AlertService } from './shared/services/alert.service';
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClientModule, HTTP_INTERCEPTORS} from '@angular/common/http';
 import { TokenStorageService } from './shared/services/token-storage.service';
 import { AuthGuard } from './shared/auth.guard';
+import { TokenInterceptor } from './shared/interceptors/token.interceptor';
+import { GlobalHttpInterceptorService } from './shared/interceptors/error-handler.interceptor';
 const APP_CONTAINERS = [
   DefaultFooterComponent,
   DefaultHeaderComponent,
@@ -90,6 +92,16 @@ const APP_CONTAINERS = [
       provide: ADMIN_API_BASE_URL, useValue : environment.API_URL
     },
     {
+      provide: HTTP_INTERCEPTORS,
+      useClass: TokenInterceptor,
+      multi: true
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: GlobalHttpInterceptorService,
+      multi: true
+    },
+    {
       provide: LocationStrategy,
       useClass: HashLocationStrategy
     },
@@ -99,7 +111,9 @@ const APP_CONTAINERS = [
     AlertService,
     AdminApiAuthApiClient,
     TokenStorageService,
-    AuthGuard
+    AuthGuard,
+    AdminApiTestApiClient,
+    AdminApiTokenApiClient
 
     
     
