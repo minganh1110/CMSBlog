@@ -1,4 +1,5 @@
 using CMSBlog.API;
+using CMSBlog.API.Authorization;
 using CMSBlog.API.Services;
 using CMSBlog.Core.ConfigOptions;
 using CMSBlog.Core.Domain.Identity;
@@ -8,6 +9,7 @@ using CMSBlog.Data;
 using CMSBlog.Data.Repositories;
 using CMSBlog.Data.SeedWorks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,6 +22,9 @@ var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 var connectionString = configuration.GetConnectionString("DefaultConnection");
 var CMSCorsPolicy = "_cmsCorsPolicy";
+builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
+builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
+
 builder.Services.AddCors(o => o.AddPolicy(CMSCorsPolicy, builder =>
 {
     builder.AllowAnyMethod()
