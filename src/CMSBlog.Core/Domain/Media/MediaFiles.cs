@@ -3,45 +3,32 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 
-namespace CMSBlog.Core.Domain.Content
+namespace CMSBlog.Core.Domain.Media
 {
     [Table("MediaFiles")]
     [Index(nameof(ID), IsUnique = true)]
     public class MediaFiles
     {
-        [Key]
-        public Guid ID { get; set; } // Guid có thể null
-
-        [Required(ErrorMessage = "Tên file là bắt buộc")]
-        [MaxLength(250)]
+        public Guid ID { get; set; } 
         public string FileName { get; set; } =null!;
-
-        [Required(ErrorMessage = "Slug file là bắt buộc")]
-        [MaxLength(250)]
+        public string? Description { get; set; }
         public string SlugName { get; set; } = null!;
-
-        [Required(ErrorMessage = "Đường dẫn file là bắt buộc")]
-        [MaxLength(500)]
         public string FilePath { get; set; } = null!;
-        public string FileExtension { get; set; } = null!;
-
-
-        [MaxLength(100)]
+        public string? FileExtension { get; set; } = null!;
         public int? MediaType { get; set; }
-
         public long FileSize { get; set; }
         public int? Width { get; set; }
         public int? Height { get; set; }
         public double? Duration { get; set; }
-
         public Guid? FolderId { get; set; }
         public Guid? UploadedByUserId { get; set; }
-
-        public DateTime UploadedAt { get; set; }
-        public DateTime? CreateAt { get; set; }
+        public DateTime? DateModified { get; set; }
+        public DateTime? DateCreated { get; set; }
         public bool IsDeleted { get; set; }
 
-
+        public MediaFolders? Folder { get; set; }
+        public ICollection<MediaFileTags>? MediaFileTags { get; set; }
+        
     }
 
     public enum MediaType

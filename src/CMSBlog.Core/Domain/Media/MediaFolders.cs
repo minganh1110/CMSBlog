@@ -2,28 +2,20 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace CMSBlog.Core.Domain.Content
+namespace CMSBlog.Core.Domain.Media
 {
     public class MediaFolders
     {
-        [Key]
         public Guid ID { get; set; }
-
-        [Required(ErrorMessage = "Tên thư mục là bắt buộc")]
-        [MaxLength(250)]
         public string FolderName { get; set; } = null!;
-
-        [Required(ErrorMessage = "Slug thư mục là bắt buộc")]
-        [MaxLength(250)]
         public string SlugName { get; set; } = null!;
-
-        [ForeignKey("Folder")]
         public Guid? ParentFolderId { get; set; }
-
         public Guid CreatedByUserId { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime UpdateAt { get; set; }
+        public DateTime DateCreated { get; set; }
+        public DateTime DateModified { get; set; }
 
-
+        public MediaFolders ParentFolder { get; set; }     // Folder cha
+        public ICollection<MediaFolders> ChildFolders { get; set; }  // Danh sách folder con
+        public ICollection<MediaFiles> MediaFiles { get; set; }      // Danh sách file trong folder
     }
 }
