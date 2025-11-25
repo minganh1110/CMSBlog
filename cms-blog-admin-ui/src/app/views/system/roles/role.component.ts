@@ -4,9 +4,9 @@ import {
   AdminApiRoleApiClient,
   RoleDto,
   RoleDtoPagedResult,
-} from 'src/app/api/admin-api.service.generated';
+} from '../../../api/admin-api.service.generated';
 import { DialogService, DynamicDialogComponent } from 'primeng/dynamicdialog';
-import { AlertService } from 'src/app/shared/services/alert.service';
+import { AlertService } from '../../../shared/services/alert.service';
 import { ConfirmationService } from 'primeng/api';
 import { RolesDetailComponent } from './roles-detail.component';
 import { MessageConstants } from '../../../shared/constants/messages.constant';
@@ -54,12 +54,12 @@ export class RoleComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe({
         next: (response: RoleDtoPagedResult) => {
-          this.items = response.results;
-          this.totalCount = response.rowCount;
+          this.items = response.results ?? [];
+          this.totalCount = response.rowCount ?? 0;
 
           this.toggleBlockUI(false);
         },
-        error: (e) => {
+        error: (e: any) => {
           this.toggleBlockUI(false);
         },
       });
@@ -72,7 +72,7 @@ export class RoleComponent implements OnInit, OnDestroy {
   }
 
   private toggleBlockUI(enabled: boolean) {
-    if (enabled == true) {
+    if (enabled === true) {
       this.blockedPanel = true;
     } else {
       setTimeout(() => {
@@ -106,7 +106,7 @@ export class RoleComponent implements OnInit, OnDestroy {
 
 
   showEditModal() {
-     if (this.selectedItems.length == 0) {
+     if (this.selectedItems.length === 0) {
       this.alertService.showError(MessageConstants.NOT_CHOOSE_ANY_RECORD);
       return;
     }
@@ -149,15 +149,17 @@ export class RoleComponent implements OnInit, OnDestroy {
     });
   }
   deleteItems() {
-    if (this.selectedItems.length == 0) {
+    if (this.selectedItems.length === 0) {
         this.alertService.showError(
             MessageConstants.NOT_CHOOSE_ANY_RECORD
         );
         return;
     }
-    var ids = [];
+    const ids: string[] = [];
     this.selectedItems.forEach((element) => {
-        ids.push(element.id);
+        if (element.id) {
+            ids.push(element.id);
+        }
     });
     this.confirmationService.confirm({
         message: MessageConstants.CONFIRM_DELETE_MSG,
