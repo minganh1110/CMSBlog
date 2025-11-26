@@ -1,33 +1,30 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using CMSBlog.Core.Domain.Content;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CMSBlog.Core.Domain.Content
+namespace CMSBlog.Core.Models.Content
 {
-    [Table("Series")]
-    [Index(nameof(Slug), IsUnique = true)]
-    public class Series
+    public class CreateUpdateSeriesRequest
     {
-        [Key]
-        public Guid Id { get; set; }
 
         [MaxLength(250)]
-        [Required]
         public required string Name { get; set; }
 
-        [MaxLength(250)]
-        public string? Description { get; set; }
+        public required string Description { get; set; }
 
-        [Column(TypeName = "varchar(250)")]
+        [MaxLength(250)]
         public required string Slug { get; set; }
 
         public bool IsActive { get; set; }
         public int SortOrder { get; set; }
+
+        [MaxLength(250)]
+        public string? SeoKeywords { get; set; }
 
         [MaxLength(250)]
         public string? SeoDescription { get; set; }
@@ -36,7 +33,12 @@ namespace CMSBlog.Core.Domain.Content
         public string? Thumbnail { set; get; }
 
         public string? Content { get; set; }
-        public Guid AuthorUserId { get; set; }
-        public DateTime DateCreated { get; set; }
+        public class AutoMapperProfiles : Profile
+        {
+            public AutoMapperProfiles()
+            {
+                CreateMap<CreateUpdateSeriesRequest, Series>();
+            }
+        }
     }
 }
