@@ -5,7 +5,8 @@ import { forkJoin, Subject, takeUntil } from 'rxjs';
 import { UtilityService } from 'src/app/shared/services/utility.service';
 import { DomSanitizer } from '@angular/platform-browser';
 import { formatDate } from '@angular/common';
-import { AdminApiRoleApiClient, AdminApiUserApiClient, RoleDto, UserDto } from 'src/app/api/admin-api.service.generated';
+import { AdminApiRoleApiClient, AdminApiUserApiClient, RoleDto, UserDto, UserDtoPagedResult } from 'src/app/api/admin-api.service.generated';
+import { AlertService } from 'src/app/shared/services/alert.service';
 @Component({
   templateUrl: 'user-detail.component.html',
 })
@@ -32,8 +33,9 @@ export class UserDetailComponent implements OnInit, OnDestroy {
     private utilService: UtilityService,
     private fb: FormBuilder,
     private cd: ChangeDetectorRef,
-    private sanitizer: DomSanitizer
-  ) { }
+    private sanitizer: DomSanitizer,
+    private alertService: AlertService
+  ) {}
   ngOnDestroy(): void {
     if (this.ref) {
       this.ref.close();
@@ -108,7 +110,7 @@ export class UserDetailComponent implements OnInit, OnDestroy {
       });
   }
 
-  onFileChange(event) {
+  onFileChange(event: any) {
     const reader = new FileReader();
 
     if (event.target.files && event.target.files.length) {
@@ -134,34 +136,61 @@ export class UserDetailComponent implements OnInit, OnDestroy {
   private saveData() {
     this.toggleBlockUI(true);
     console.log(this.form.value);
-    if (this.utilService.isEmpty(this.config.data?.id)) {
-      this.userService
-        .createUser(this.form.value)
-        .pipe(takeUntil(this.ngUnsubscribe))
-        .subscribe({
-          next: () => {
-            this.ref.close(this.form.value);
-            this.toggleBlockUI(false);
-          },
-          error: () => {
-            this.toggleBlockUI(false);
-          },
-        });
-    } else {
-      this.userService
-        .updateUser(this.config.data?.id, this.form.value)
-        .pipe(takeUntil(this.ngUnsubscribe))
-        .subscribe({
-          next: () => {
-            this.toggleBlockUI(false);
+    const username = (this.form.get('userName')?.value || '').toString().trim();
 
-            this.ref.close(this.form.value);
-          },
-          error: () => {
+    // Check for duplicate username using paging API (search by keyword)
+    this.userService
+      .getAllUsersPaging(username, 1, 50)
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe({
+        next: (result: UserDtoPagedResult) => {
+          const users: UserDto[] = result.results || [];
+          // find exact match (case-insensitive)
+          const found = users.find((u: UserDto) => (u.userName || '').toString().trim().toLowerCase() === username.toLowerCase());
+          const isEditing = !this.utilService.isEmpty(this.config.data?.id);
+          const isSameRecord = isEditing && found && found.id === this.config.data.id;
+
+          if (found && !isSameRecord) {
+            this.alertService.showError('Tên tài khoản đã tồn tại');
             this.toggleBlockUI(false);
-          },
-        });
-    }
+            return;
+          }
+
+          // proceed to create or update
+          if (!isEditing) {
+            this.userService
+              .createUser(this.form.value)
+              .pipe(takeUntil(this.ngUnsubscribe))
+              .subscribe({
+                next: () => {
+                  this.ref.close(this.form.value);
+                  this.toggleBlockUI(false);
+                },
+                error: () => {
+                  this.toggleBlockUI(false);
+                },
+              });
+          } else {
+            this.userService
+              .updateUser(this.config.data?.id, this.form.value)
+              .pipe(takeUntil(this.ngUnsubscribe))
+              .subscribe({
+                next: () => {
+                  this.toggleBlockUI(false);
+                  this.ref.close(this.form.value);
+                },
+                error: () => {
+                  this.toggleBlockUI(false);
+                },
+              });
+          }
+        },
+        error: () => {
+          // If paging fails, fallback to attempt save but notify
+          this.alertService.showError('Không thể kiểm tra tên trùng — thử lại sau');
+          this.toggleBlockUI(false);
+        }
+      });
   }
   private toggleBlockUI(enabled: boolean) {
     if (enabled == true) {

@@ -53,14 +53,17 @@ namespace CMSBlog.API.Controllers.AdminApi
         [Authorize(PostCategories.Delete)]
         public async Task<IActionResult> DeletePostCategory([FromQuery] Guid[] ids)
         {
+            if (ids == null || ids.Length == 0)
+                return BadRequest();
+
             foreach (var id in ids)
             {
-                var post = await _unitOfWork.Posts.GetByIdAsync(id);
-                if (post == null)
+                var category = await _unitOfWork.PostCategories.GetByIdAsync(id);
+                if (category == null)
                 {
                     return NotFound();
                 }
-                _unitOfWork.Posts.Remove(post);
+                _unitOfWork.PostCategories.Remove(category);
             }
             var result = await _unitOfWork.CompleteAsync();
             return result > 0 ? Ok() : BadRequest();
