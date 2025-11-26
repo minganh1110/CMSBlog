@@ -7,9 +7,13 @@ namespace CMSBlog.Core.Application.Interfaces.Media
 {
     public interface IMediaFileRepository
     {
-        Task<MediaFiles> AddAsync(MediaFiles entity);
-        Task<MediaFiles?> GetByIdAsync(Guid id);
-        Task<IEnumerable<MediaFiles>> GetAllAsync();
+        Task<MediaFile> AddAsync(MediaFile entity);
+        Task<MediaFile?> GetByIdAsync(Guid id);
+        Task<List<MediaFile>> GetByFolderIdAsync(Guid folderId);
+        Task<IEnumerable<MediaFile>> GetAllAsync();
+        Task SaveChangesAsync();
         Task DeleteAsync(Guid id);
+        Task UpdateAsync(MediaFile entity);
+
     }
 }

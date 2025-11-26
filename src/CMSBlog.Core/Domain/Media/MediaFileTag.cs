@@ -4,12 +4,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CMSBlog.Core.Domain.Media
 {
-    public class MediaFileTags
+    public class MediaFileTag
     {
         public Guid MediaFileId { get; set; }
         public Guid MediaTagId { get; set; }
 
-        public MediaFiles MediaFile { get; set; } = null!;
-        public MediaTags MediaTag { get; set; } = null!;
+        public MediaFile MediaFile { get; set; } = null!;
+        public MediaTag MediaTag { get; set; } = null!;
     }
 }

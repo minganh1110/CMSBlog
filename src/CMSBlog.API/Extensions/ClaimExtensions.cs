@@ -1,4 +1,5 @@
-﻿using CMSBlog.Core.Domain.Identity;
+﻿using CMSBlog.Core.Application.Mapping;
+using CMSBlog.Core.Domain.Identity;
 using CMSBlog.Core.Models.System;
 using Microsoft.AspNetCore.Identity;
 using System.ComponentModel;
@@ -33,5 +34,8 @@ namespace CMSBlog.API.Extensions
                 await roleManager.AddClaimAsync(role, new Claim("Permission", permission));
             }
         }
+
+        
+
     }
 }

@@ -24,10 +24,10 @@ namespace CMSBlog.Data
         public DbSet<PostActivityLog> PostActivityLogs { get; set; }
         public DbSet<Series> Series { get; set; }
         public DbSet<PostInSeries> PostInSeries { get; set; }
-        public DbSet<MediaFiles> MediaFiles { get; set; }
-        public DbSet<MediaTags> MediaTags { get; set; }
-        public DbSet<MediaFileTags> MediaFileTags { get; set; }
-        public DbSet<MediaFolders> MediaFolders { get; set; }
+        public DbSet<MediaFile> MediaFiles { get; set; }
+        public DbSet<MediaTag> MediaTags { get; set; }
+        public DbSet<MediaFileTag> MediaFileTags { get; set; }
+        public DbSet<MediaFolder> MediaFolders { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)

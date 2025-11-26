@@ -11,6 +11,8 @@ namespace CMSBlog.Core.Application.Interfaces.Media
         Task<MediaFileDto> UploadAsync(CreatedMediaFileDto dto, CancellationToken ct = default);
         Task<IEnumerable<MediaFileDto>> GetAllAsync();
         Task<MediaFileDto?> GetByIdAsync(Guid id);
-        Task DeleteAsync(Guid id);
+        Task<List<MediaFileDto>> GetInFolderAsync(Guid folderId);
+        Task<bool> UpdateAsync(Guid id, UpdateMediaFileDto dto);
+        Task<bool> DeleteAsync(Guid id);
     }
 }

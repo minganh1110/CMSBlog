@@ -14,5 +14,16 @@ namespace CMSBlog.Core.Application.Interfaces.Media
         /// Trả về base URL public để client có thể truy cập
         /// </summary>
         string GetPublicBaseUrl();
+
+        /// <summary>
+        /// Luu thư mục vật lý trong storage
+        /// </summary>
+        Task CreateFolderAsync(string FolderName, string? currentFolder = null, CancellationToken ct = default);
+        /// <summary>
+        /// Đổi tên thư mục vật lý trong storage
+        /// </summary>
+        Task RenameFolderAsync(string oldFolderName, string newFolderName, string? currentFolder = null, CancellationToken ct = default);
+        Task DeleteFolderAsync(string folderName, string? currentFolder = null, CancellationToken ct = default);
+
     }
 }

@@ -22,10 +22,13 @@ namespace CMSBlog.Core.Application.DTOs.Media
         public string FilePath { get; set; } = null!;
         public string? Description { get; set; }
         public long FileSize { get; set; }
-        public string? FileExtension { get; set; }
         public DateTime DateCreated { get; set; }
+        public DateTime DateModified { get; set; }
         public Guid? FolderId { get; set; }
-        public string Url { get; set; } = null!;
+        public string? FolderName { get; set; }
+        public string FileUrl { get; set; } = null!;
+
+        public List<string> Tags { get; set; } = new List<string>();
     }
 
 }

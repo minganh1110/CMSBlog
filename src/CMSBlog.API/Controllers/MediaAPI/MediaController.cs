@@ -51,7 +51,8 @@ namespace CMSBlog.API.Controllers.MediaAPI
             {
                 FileContent = ms.ToArray(),
                 FileName = request.File.FileName,
-                FolderId = request.FolderId
+                FolderId = request.FolderId,
+                MimeType = request.File.ContentType
             };
 
             var result = await _mediaService.UploadAsync(dto);

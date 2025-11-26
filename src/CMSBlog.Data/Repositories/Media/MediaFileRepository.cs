@@ -16,7 +16,7 @@ namespace CMSBlog.Data.Repositories.Media
             _db = db;
         }
 
-        public async Task<MediaFiles> AddAsync(MediaFiles entity)
+        public async Task<MediaFile> AddAsync(MediaFile entity)
         {
             _db.MediaFiles.Add(entity);
             await _db.SaveChangesAsync();
@@ -33,14 +33,32 @@ namespace CMSBlog.Data.Repositories.Media
             }
         }
 
-        public async Task<IEnumerable<MediaFiles>> GetAllAsync()
+        public async Task<IEnumerable<MediaFile>> GetAllAsync()
         {
             return await _db.MediaFiles.Where(x => !x.IsDeleted).ToListAsync();
         }
 
-        public async Task<MediaFiles?> GetByIdAsync(Guid id)
+        public async Task<MediaFile?> GetByIdAsync(Guid id)
         {
             return await _db.MediaFiles.FindAsync(id);
+        }
+
+        public async Task<List<MediaFile>> GetByFolderIdAsync(Guid folderId)
+        {
+            return await _db.MediaFiles
+                .Where(x => x.FolderId == folderId && !x.IsDeleted)
+                .ToListAsync();
+        }
+
+        public async Task UpdateAsync(MediaFile entity)
+        {
+            _db.MediaFiles.Update(entity);
+            await _db.SaveChangesAsync();
+        }
+
+        public async Task SaveChangesAsync()
+        {
+            await _db.SaveChangesAsync();
         }
     }
 }

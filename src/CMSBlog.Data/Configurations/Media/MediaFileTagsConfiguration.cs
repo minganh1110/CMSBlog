@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace CMSBlog.Data.Configurations.Media
 {
-    public class MediaFileTagsConfiguration : IEntityTypeConfiguration<MediaFileTags>
+    public class MediaFileTagsConfiguration : IEntityTypeConfiguration<MediaFileTag>
     {
-        public void Configure(EntityTypeBuilder<MediaFileTags> entity)
+        public void Configure(EntityTypeBuilder<MediaFileTag> entity)
         {
             entity.ToTable("MediaFileTags");
 
@@ -19,11 +19,16 @@ namespace CMSBlog.Data.Configurations.Media
 
             entity.HasOne(x => x.MediaFile)
                   .WithMany(x => x.MediaFileTags)
-                  .HasForeignKey(x => x.MediaFileId);
+                  .HasForeignKey(x => x.MediaFileId)
+                  .OnDelete(DeleteBehavior.Cascade);
 
             entity.HasOne(x => x.MediaTag)
                   .WithMany(x => x.MediaFileTags)
-                  .HasForeignKey(x => x.MediaTagId);
+                  .HasForeignKey(x => x.MediaTagId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+
+            entity.HasIndex(x => new { x.MediaFileId, x.MediaTagId }).IsUnique(true);
         }
     }
 

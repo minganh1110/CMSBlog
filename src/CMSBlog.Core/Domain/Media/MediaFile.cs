@@ -7,15 +7,16 @@ namespace CMSBlog.Core.Domain.Media
 {
     [Table("MediaFiles")]
     [Index(nameof(ID), IsUnique = true)]
-    public class MediaFiles
+    public class MediaFile
     {
         public Guid ID { get; set; } 
         public string FileName { get; set; } =null!;
         public string? Description { get; set; }
         public string SlugName { get; set; } = null!;
         public string FilePath { get; set; } = null!;
-        public string? FileExtension { get; set; } = null!;
-        public int? MediaType { get; set; }
+        public string FileExtension { get; set; } = null!;
+        public string MimeType { get; set; } = null!;
+        public MediaType MediaType { get; set; }
         public long FileSize { get; set; }
         public int? Width { get; set; }
         public int? Height { get; set; }
@@ -25,9 +26,10 @@ namespace CMSBlog.Core.Domain.Media
         public DateTime? DateModified { get; set; }
         public DateTime? DateCreated { get; set; }
         public bool IsDeleted { get; set; }
+        public bool IsPublic { get; set; }
 
-        public MediaFolders? Folder { get; set; }
-        public ICollection<MediaFileTags>? MediaFileTags { get; set; }
+        public MediaFolder? Folder { get; set; }
+        public ICollection<MediaFileTag>? MediaFileTags { get; set; }
         
     }
 
