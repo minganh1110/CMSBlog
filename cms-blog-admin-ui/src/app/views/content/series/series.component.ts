@@ -3,21 +3,21 @@ import { ConfirmationService } from 'primeng/api';
 import { DialogService, DynamicDialogComponent } from 'primeng/dynamicdialog';
 import { Subject, takeUntil } from 'rxjs';
 import { MessageConstants } from 'src/app/shared/constants/messages.constant';
-import { PostCategoryDetailComponent } from './post-category-detail.component';
-import { AdminApiPostCategoryApiClient, PostCategoryDto, PostCategoryDtoPagedResult } from 'src/app/api/admin-api.service.generated';
+import { SeriesDetailComponent } from './series-detail.component';
+import { AdminApiSeriesApiClient, PostInListDtoPagedResult, SeriesDto, SeriesInListDto } from 'src/app/api/admin-api.service.generated';
 import { AlertService } from 'src/app/shared/services/alert.service';
+import { SeriesPostsComponent } from 'src/app/views/content/series/series-posts.component';
+import { SeriesInListDtoPagedResult } from '../../../api/admin-api.service.generated';
 
 @Component({
-  selector: 'app-post-category',
-  templateUrl: './post-category.component.html',
-  styleUrls: ['./post-category.component.scss'],
+  selector: 'app-series',
+  templateUrl: './series.component.html',
 })
-export class PostCategoryComponent implements OnInit, OnDestroy {
+export class SeriesComponent implements OnInit, OnDestroy {
 
   //System variables
   private ngUnsubscribe = new Subject<void>();
   public blockedPanel: boolean = false;
-
 
   //Paging variables
   public pageIndex: number = 1;
@@ -25,14 +25,14 @@ export class PostCategoryComponent implements OnInit, OnDestroy {
   public totalCount!: number;
 
   //Business variables
-  public items!: PostCategoryDto[];
-  public selectedItems: PostCategoryDto[] = [];
+  public items!: SeriesInListDto[];
+  public selectedItems: SeriesInListDto[] = [];
   public keyword: string = '';
 
   constructor(
-    private postCategoryService: AdminApiPostCategoryApiClient,
+    private seriesApiClient: AdminApiSeriesApiClient,
     public dialogService: DialogService,
-    private alertService: AlertService,
+    private notificationService: AlertService,
     private confirmationService: ConfirmationService) { }
 
   ngOnDestroy(): void {
@@ -44,18 +44,18 @@ export class PostCategoryComponent implements OnInit, OnDestroy {
     this.loadData();
   }
 
-  loadData() {
+  loadData(selectionId = null) {
     this.toggleBlockUI(true);
 
-    this.postCategoryService.getPostCategoriesPaging(this.keyword, this.pageIndex, this.pageSize)
+    this.seriesApiClient.getSeriesPaging(this.keyword, this.pageIndex, this.pageSize)
       .pipe(takeUntil(this.ngUnsubscribe))
       .subscribe({
-        next: (response: PostCategoryDtoPagedResult) => {
-          this.items = response.results;
-          this.totalCount = response.rowCount;
-
+        next: (response: SeriesInListDtoPagedResult) => {
+          this.items = response.results as SeriesInListDto[];
+          this.totalCount = response.rowCount as number;
           this.toggleBlockUI(false);
-        },
+        }
+        ,
         error: () => {
           this.toggleBlockUI(false);
 
@@ -64,17 +64,17 @@ export class PostCategoryComponent implements OnInit, OnDestroy {
   }
 
   showAddModal() {
-    const ref = this.dialogService.open(PostCategoryDetailComponent, {
-      header: 'Thêm mới loại bài viết',
+    const ref = this.dialogService.open(SeriesDetailComponent, {
+      header: 'Thêm mới series bài viết',
       width: '70%'
     });
     const dialogRef = this.dialogService.dialogComponentRefMap.get(ref);
     const dynamicComponent = dialogRef?.instance as DynamicDialogComponent;
     const ariaLabelledBy = dynamicComponent.getAriaLabelledBy();
     dynamicComponent.getAriaLabelledBy = () => ariaLabelledBy;
-    ref.onClose.subscribe((data: PostCategoryDto) => {
+    ref.onClose.subscribe((data: SeriesDto) => {
       if (data) {
-        this.alertService.showSuccess(MessageConstants.CREATED_OK_MSG);
+        this.notificationService.showSuccess(MessageConstants.CREATED_OK_MSG);
         this.selectedItems = [];
         this.loadData();
       }
@@ -89,37 +89,62 @@ export class PostCategoryComponent implements OnInit, OnDestroy {
 
   showEditModal() {
     if (this.selectedItems.length == 0) {
-      this.alertService.showError(MessageConstants.NOT_CHOOSE_ANY_RECORD);
+      this.notificationService.showError(MessageConstants.NOT_CHOOSE_ANY_RECORD);
       return;
     }
-
     var id = this.selectedItems[0].id;
-    const ref = this.dialogService.open(PostCategoryDetailComponent, {
+    const ref = this.dialogService.open(SeriesDetailComponent, {
       data: {
         id: id
       },
-      header: 'Cập nhật loại bài viết',
+      header: 'Cập nhật series bài viết',
       width: '70%'
     });
     const dialogRef = this.dialogService.dialogComponentRefMap.get(ref);
     const dynamicComponent = dialogRef?.instance as DynamicDialogComponent;
     const ariaLabelledBy = dynamicComponent.getAriaLabelledBy();
     dynamicComponent.getAriaLabelledBy = () => ariaLabelledBy;
-    ref.onClose.subscribe((data: PostCategoryDto) => {
+    ref.onClose.subscribe((data: SeriesDto) => {
       if (data) {
-        this.alertService.showSuccess(MessageConstants.UPDATED_OK_MSG);
+        this.notificationService.showSuccess(MessageConstants.UPDATED_OK_MSG);
         this.selectedItems = [];
-        this.loadData();
+        this.loadData(data.id);
+      }
+    });
+  }
+
+  showPosts() {
+    if (this.selectedItems.length == 0) {
+      this.notificationService.showError(MessageConstants.NOT_CHOOSE_ANY_RECORD);
+      return;
+    }
+    var id = this.selectedItems[0].id;
+    const ref = this.dialogService.open(SeriesPostsComponent, {
+      data: {
+        id: id
+      },
+      header: 'Quản lý danh sách bài viết',
+      width: '70%'
+    });
+    const dialogRef = this.dialogService.dialogComponentRefMap.get(ref);
+    const dynamicComponent = dialogRef?.instance as DynamicDialogComponent;
+    const ariaLabelledBy = dynamicComponent.getAriaLabelledBy();
+    dynamicComponent.getAriaLabelledBy = () => ariaLabelledBy;
+    ref.onClose.subscribe((data: SeriesDto) => {
+      if (data) {
+        this.notificationService.showSuccess(MessageConstants.UPDATED_OK_MSG);
+        this.selectedItems = [];
+        this.loadData(data.id);
       }
     });
   }
 
   deleteItems() {
     if (this.selectedItems.length == 0) {
-      this.alertService.showError(MessageConstants.NOT_CHOOSE_ANY_RECORD);
+      this.notificationService.showError(MessageConstants.NOT_CHOOSE_ANY_RECORD);
       return;
     }
-    var ids : any[] = [];
+    var ids = [];
     this.selectedItems.forEach(element => {
       ids.push(element.id);
     });
@@ -134,10 +159,10 @@ export class PostCategoryComponent implements OnInit, OnDestroy {
   deleteItemsConfirm(ids: any[]) {
     this.toggleBlockUI(true);
 
-    this.postCategoryService.deletePostCategory(ids)
+    this.seriesApiClient.deleteSeries(ids)
       .subscribe({
         next: () => {
-          this.alertService.showSuccess(MessageConstants.DELETED_OK_MSG);
+          this.notificationService.showSuccess(MessageConstants.DELETED_OK_MSG);
           this.loadData();
           this.selectedItems = [];
           this.toggleBlockUI(false);

@@ -111,9 +111,14 @@ namespace CMSBlog.API.Controllers.AdminApi
         [HttpGet]
         [Route("paging")]
         [Authorize(Posts.View)]
-        public async Task<ActionResult<PagedResult<PostInListDto>>> GetPostsPaging(string? keyword, Guid? categoryId,
-            int pageIndex, int pageSize = 10)
+        public async Task<ActionResult<PagedResult<PostInListDto>>> GetPostsPaging(
+            string? keyword, Guid? categoryId,
+            int pageIndex = 1, int pageSize = 10)  // mặc định pageIndex = 1
         {
+            // đảm bảo pageIndex và pageSize >= 1
+            pageIndex = Math.Max(pageIndex, 1);
+            pageSize = Math.Max(pageSize, 1);
+
             var userId = User.GetUserId();
             var result = await _unitOfWork.Posts.GetAllPaging(keyword, userId, categoryId, pageIndex, pageSize);
             return Ok(result);
