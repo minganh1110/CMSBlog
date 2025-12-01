@@ -15,11 +15,16 @@ namespace CMSBlog.Data.Configurations.Media
         {
             entity.ToTable("MediaFolders");
 
-            entity.HasKey(x => x.ID);
+            entity.HasKey(x => x.Id);
 
             entity.Property(x => x.FolderName).IsRequired().HasMaxLength(250);
             entity.Property(x => x.SlugName).IsRequired().HasMaxLength(250);
-            entity.Property(x => x.FullPath).IsRequired().HasMaxLength(500);
+
+            // sinh PathId tu dong
+            entity.Property(f => f.PathId)
+                .ValueGeneratedOnAdd();
+
+            entity.Property(x => x.Path).HasMaxLength(500);
 
             entity.Property(x => x.DateCreated)
                 .HasDefaultValueSql("GETUTCDATE()");

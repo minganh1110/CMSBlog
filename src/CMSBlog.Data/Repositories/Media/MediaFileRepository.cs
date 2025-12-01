@@ -32,23 +32,30 @@ namespace CMSBlog.Data.Repositories.Media
                 await _db.SaveChangesAsync();
             }
         }
-
-        public async Task<IEnumerable<MediaFile>> GetAllAsync()
+        public async Task<IEnumerable<MediaFile>> GetAllAsync(string providerName)
         {
-            return await _db.MediaFiles.Where(x => !x.IsDeleted).ToListAsync();
+            return await _db.MediaFiles
+                    .Where(x => !x.IsDeleted && x.Provider == providerName)
+                    .ToListAsync();
         }
+
+        public async Task<List<MediaFile>> GetByFolderIdAsync(Guid folderId, string providerName)
+        {
+            return await _db.MediaFiles
+                .Where(x =>
+                    x.FileFolderLinks.Any(link => link.MediaFolderId == folderId)
+                    && x.Provider == providerName
+                    && !x.IsDeleted)
+                .ToListAsync();
+        }
+
 
         public async Task<MediaFile?> GetByIdAsync(Guid id)
         {
             return await _db.MediaFiles.FindAsync(id);
         }
 
-        public async Task<List<MediaFile>> GetByFolderIdAsync(Guid folderId)
-        {
-            return await _db.MediaFiles
-                .Where(x => x.FolderId == folderId && !x.IsDeleted)
-                .ToListAsync();
-        }
+        
 
         public async Task UpdateAsync(MediaFile entity)
         {

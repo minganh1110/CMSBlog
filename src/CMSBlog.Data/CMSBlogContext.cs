@@ -1,4 +1,5 @@
-﻿using CMSBlog.Core.Domain.Content;
+﻿using CMSBlog.Core.Application.DTOs.Media;
+using CMSBlog.Core.Domain.Content;
 using CMSBlog.Core.Domain.Identity;
 using CMSBlog.Core.Domain.Media;
 using Microsoft.AspNetCore.Identity;
@@ -7,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -28,6 +30,8 @@ namespace CMSBlog.Data
         public DbSet<MediaTag> MediaTags { get; set; }
         public DbSet<MediaFileTag> MediaFileTags { get; set; }
         public DbSet<MediaFolder> MediaFolders { get; set; }
+        public DbSet<MediaFileFolderLink> MediaFileFolderLinks { get; set; }
+        public DbSet<MediaSetting> MediaSettings { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -49,6 +53,14 @@ namespace CMSBlog.Data
 
             //Áp dụng tất cả IEntityTypeConfiguration<T>
             builder.ApplyConfigurationsFromAssembly(typeof(CMSBlogContext).Assembly);
+
+            builder.Entity<MediaSetting>().HasData(new MediaSetting
+            {
+                Id = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                ActiveProvider = "Local",
+                UpdatedAt = DateTime.UtcNow
+            });
+
 
         }
 

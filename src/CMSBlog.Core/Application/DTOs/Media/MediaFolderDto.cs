@@ -12,7 +12,10 @@ namespace CMSBlog.Core.Application.DTOs.Media
     {
         public Guid Id { get; set; }
         public string FolderName { get; set; } = null!;
-        public Guid? ParentId { get; set; }
+        public string SlugName { get; set; } = null!;
+        public Guid? ParentFolderId { get; set; }
+        public string Path { get; set; } = null!;
+        public DateTime DateCreated { get; set; }
 
         public List<MediaFolderDto>? Children { get; set; }
         public List<MediaFileDto>? Files { get; set; }

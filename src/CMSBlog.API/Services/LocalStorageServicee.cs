@@ -10,12 +10,16 @@ namespace CMSBlog.API.Services
     {
         private readonly IWebHostEnvironment _env;
         private readonly string _baseUrl;
-        private const string _baseFolder = @"MediaLibrary";
+        private readonly string _rootPath;
 
         public LocalStorageServicee(IWebHostEnvironment env, IConfiguration config)
         {
             _env = env;
-            _baseUrl = config["AppSettings:BaseUrl"]?.TrimEnd('/') ?? "";
+            var relativePath = config["Storage:Local:RootPath"] ?? "MediaLibrary/uploads";
+            _baseUrl = config["Storage:Local:BaseUrl"] ?? "/uploads";
+
+            // Đây là đường dẫn tuyệt đối nằm cạnh API (.exe)
+            _rootPath = Path.Combine(env.ContentRootPath, relativePath);
         }
 
         // =====================
@@ -24,83 +28,21 @@ namespace CMSBlog.API.Services
         // Core interface dùng byte[]
         public async Task<string> SaveFileAsync(byte[] content, string fileName, CancellationToken ct = default)
         {
-            var baseFolder = @"MediaLibrary"; // Thư mục local
-            var folder = Path.Combine(baseFolder, "uploads");
-            Directory.CreateDirectory(folder);
+            if (!Directory.Exists(_rootPath))
+                Directory.CreateDirectory(_rootPath);
 
             var uniqueFileName = $"{Guid.NewGuid()}_{fileName}";
-            var filePath = Path.Combine(folder, uniqueFileName);
+            var filePath = Path.Combine(_rootPath, uniqueFileName);
 
             await File.WriteAllBytesAsync(filePath, content, ct);
 
-            return $"uploads/{uniqueFileName}";
+            return $"{_baseUrl}/{uniqueFileName}";
 
-        }
-
-        // =====================
-        // FOLDER
-        // =====================
-        public Task CreateFolderAsync(string folderName, string? currentFolder = null, CancellationToken ct = default)
-        {
-            var parentPath = BuildPath(currentFolder);
-            var newFolderPath = Path.Combine(parentPath, folderName);
-
-            if (!Directory.Exists(newFolderPath))
-            {
-                Directory.CreateDirectory(newFolderPath);
-            }
-
-            return Task.CompletedTask;
-        }
-
-        public Task RenameFolderAsync(string oldFolderName, string newFolderName, string? currentFolder = null, CancellationToken ct = default)
-        {
-            var parentPath = BuildPath(currentFolder);
-
-            var oldPath = Path.Combine(parentPath, oldFolderName);
-            var newPath = Path.Combine(parentPath, newFolderName);
-
-            if (!Directory.Exists(oldPath))
-                throw new DirectoryNotFoundException("Folder không tồn tại");
-
-            if (Directory.Exists(newPath))
-                throw new IOException("Folder mới đã tồn tại");
-
-            Directory.Move(oldPath, newPath);
-
-            return Task.CompletedTask;
-        }
-
-        public Task DeleteFolderAsync(string folderName, string? currentFolder = null, CancellationToken ct = default)
-        {
-            var parentPath = BuildPath(currentFolder);
-            var deletePath = Path.Combine(parentPath, folderName);
-
-            if (Directory.Exists(deletePath))
-            {
-                Directory.Delete(deletePath, true); // true = xóa cả con
-            }
-
-            return Task.CompletedTask;
         }
 
         public string GetPublicBaseUrl() => _baseUrl;
 
-        //thiet lap duong dan goc luu tru
-        private string BuildPath(string? currentFolder)
-        {
-            if (string.IsNullOrWhiteSpace(currentFolder))
-                return _baseFolder;
+        public string ProviderName => "Local";
 
-            return Path.Combine(_baseFolder, currentFolder);
-        }
-
-        private string BuildRelativePath(string? currentFolder, string fileName)
-        {
-            if (string.IsNullOrWhiteSpace(currentFolder))
-                return fileName;
-
-            return Path.Combine(currentFolder, fileName).Replace("\\", "/");
-        }
     }
 }

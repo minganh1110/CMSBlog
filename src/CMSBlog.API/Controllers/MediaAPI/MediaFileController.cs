@@ -2,17 +2,18 @@
 using CMSBlog.Core.Application.DTOs.Media;
 using CMSBlog.Core.Application.Interfaces.Media;
 using CMSBlog.Core.Application.Services.Media;
+using CMSBlog.Core.Domain.Media;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CMSBlog.API.Controllers.MediaAPI
 {
     [ApiController]
     [Route("api/media")]
-    public class MediaController : ControllerBase
+    public class MediaFileController : ControllerBase
     {
         private readonly IMediaFileService _mediaService;
 
-        public MediaController(IMediaFileService mediaService)
+        public MediaFileController(IMediaFileService mediaService)
         {
             _mediaService = mediaService;
         }
@@ -26,6 +27,13 @@ namespace CMSBlog.API.Controllers.MediaAPI
             var item = await _mediaService.GetByIdAsync(id);
             if (item == null) return NotFound();
             return Ok(item);
+        }
+
+        [HttpGet("folder/{folderId:guid}")]
+        public async Task<IActionResult> GetInFolder([FromRoute] Guid folderId)
+        {
+            var items = await _mediaService.GetInFolderAsync(folderId);
+            return Ok(items);
         }
 
         [HttpDelete("{id:guid}")]
@@ -46,19 +54,22 @@ namespace CMSBlog.API.Controllers.MediaAPI
             using var ms = new MemoryStream();
             await request.File.CopyToAsync(ms);
 
+            var mediaType = _mediaService.DetectMediaType(request.File.ContentType);
             // map sang DTO của Core
             var dto = new CreatedMediaFileDto
             {
                 FileContent = ms.ToArray(),
                 FileName = request.File.FileName,
                 FolderId = request.FolderId,
-                MimeType = request.File.ContentType
+                MimeType = request.File.ContentType,
+                MediaType = mediaType
             };
 
             var result = await _mediaService.UploadAsync(dto);
             return Ok(result);
         }
 
+        
     }
 
 }

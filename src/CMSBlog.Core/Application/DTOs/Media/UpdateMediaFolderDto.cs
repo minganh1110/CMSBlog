@@ -9,5 +9,6 @@ namespace CMSBlog.Core.Application.DTOs.Media
     public class UpdateMediaFolderDto
     {
         public string FolderName { get; set; } = null!;
+        public string NewFolderId { get; set; } = null!;
     }
 }

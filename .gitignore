@@ -426,3 +426,12 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# Ignore app settings containing secrets
+appsettings.Development.json
+appsettings.Local.json
+appsettings.*.json
+
+# In case you store secrets in environment files
+*.env
+.env*

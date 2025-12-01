@@ -21,15 +21,21 @@ namespace CMSBlog.Core.Domain.Media
         public int? Width { get; set; }
         public int? Height { get; set; }
         public double? Duration { get; set; }
-        public Guid? FolderId { get; set; }
+        //public Guid? FolderId { get; set; }
         public Guid? UploadedByUserId { get; set; }
+        public Guid? ModifiedByUserId { get; set; }
         public DateTime? DateModified { get; set; }
         public DateTime? DateCreated { get; set; }
         public bool IsDeleted { get; set; }
         public bool IsPublic { get; set; }
+        public string? AltText { get; set; }
+        public string? Caption { get; set; }
+        public string Provider { get; set; } = null!; // e.g., "Local", "AWS", "Azure", etc.
 
-        public MediaFolder? Folder { get; set; }
+        //navigation properties
+        //public MediaFolder? Folder { get; set; }
         public ICollection<MediaFileTag>? MediaFileTags { get; set; }
+        public ICollection<MediaFileFolderLink>? FileFolderLinks { get; set; }
         
     }
 

@@ -1,4 +1,7 @@
-﻿using CMSBlog.API;
+﻿using Amazon.Extensions.NETCore.Setup;
+using Amazon.Runtime;
+using Amazon.S3;
+using CMSBlog.API;
 using CMSBlog.API.Services;
 using CMSBlog.Core.Application.Interfaces.Media;
 using CMSBlog.Core.Application.Services.Media;
@@ -8,9 +11,11 @@ using CMSBlog.Core.Models.Content;
 using CMSBlog.Core.SeedWorks;
 using CMSBlog.Data;
 using CMSBlog.Data.Repositories;
+using CMSBlog.Data.Repositories.Media;
 using CMSBlog.Data.SeedWorks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Scrutor;
 using System.Text.Json.Serialization;
 
@@ -73,13 +78,38 @@ builder.Services.Scan(scan => scan
 //);
 
 //---------------------------Đăng ký interface cho StorageService-------------
-builder.Services.AddScoped<IStorageService, LocalStorageService>();
-builder.Services.AddScoped<IMediaFileService, MediaFileService>();
-builder.Services.AddScoped<IStorageServicee, LocalStorageServicee>();
 builder.Services.AddScoped(typeof(IRepository<,>), typeof(RepositoryBase<,>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IMediaFileService, MediaFileService>();
+var provider = builder.Configuration["Storage:Provider"];
 
+//--------------------------- Storage Service Registration ---------------------------
+
+// Register ALL storage providers (để StorageFactory auto chọn)
+builder.Services.AddTransient<IStorageServicee, LocalStorageServicee>();
+builder.Services.AddTransient<IStorageServicee, S3StorageService>();
+
+// Folder + File Linking
+builder.Services.AddScoped<IMediaFolderService, MediaFolderService>();
+builder.Services.AddScoped<IMediaFolderRepository, MediaFolderRepository>();
+builder.Services.AddScoped<IFileFolderLinkRepository, FileFolderLinkRepository>();
+
+// Storage Factory
+builder.Services.AddScoped<IStorageFactory, StorageFactory>();
+
+// Provider setting (đổi provider trong DB)
+builder.Services.AddScoped<IProviderService, ProviderService>();
+
+// AWS S3 Client
+var aws = builder.Configuration.GetSection("AWS");
+var credentials = new BasicAWSCredentials(aws["AccessKey"], aws["SecretKey"]);
+var s3Config = new AmazonS3Config
+{
+    RegionEndpoint = Amazon.RegionEndpoint.GetBySystemName(aws["Region"])
+};
+builder.Services.AddSingleton<IAmazonS3>(sp =>
+    new AmazonS3Client(credentials, s3Config)
+);
 
 
 
@@ -126,5 +156,7 @@ app.MapControllers();
 
 // Migrate DB + Seed
 app.MigrateDatabase();
+await SeedWorks.SeedRootFolderAsync(app.Services);
+
 
 app.Run();

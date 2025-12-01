@@ -37,16 +37,18 @@ namespace CMSBlog.Data.Configurations.Media
 
             // Indexes
             entity.HasIndex(x => x.FilePath);
-            entity.HasIndex(x => x.FolderId);
+            //entity.HasIndex(x => x.FolderId);
             entity.HasIndex(x => x.MediaType);
             entity.HasIndex(x => x.SlugName).IsUnique(false); // if you want unique, set true
 
 
             // Quan hệ với MediaFolders
-            entity.HasOne(x => x.Folder)
+            /* 
+               entity.HasOne(x => x.Folder)
                   .WithMany(f => f.MediaFiles)
                   .HasForeignKey(x => x.FolderId)
                   .OnDelete(DeleteBehavior.SetNull);
+            */
 
             //// Quan hệ User Upload
             //entity.HasOne<AppUser>()

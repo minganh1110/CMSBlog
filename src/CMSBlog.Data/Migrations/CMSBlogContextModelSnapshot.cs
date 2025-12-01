@@ -22,6 +22,34 @@ namespace CMSBlog.Data.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("CMSBlog.Core.Application.DTOs.Media.MediaSetting", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("Id");
+
+                    b.Property<string>("ActiveProvider")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("MediaSettings", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("11111111-1111-1111-1111-111111111111"),
+                            ActiveProvider = "Local",
+                            UpdatedAt = new DateTime(2025, 12, 1, 3, 0, 14, 392, DateTimeKind.Utc).AddTicks(2850)
+                        });
+                });
+
             modelBuilder.Entity("CMSBlog.Core.Domain.Content.Post", b =>
                 {
                     b.Property<Guid?>("Id")
@@ -425,6 +453,12 @@ namespace CMSBlog.Data.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("Id");
 
+                    b.Property<string>("AltText")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Caption")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime?>("DateCreated")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
@@ -459,9 +493,6 @@ namespace CMSBlog.Data.Migrations
                     b.Property<long>("FileSize")
                         .HasColumnType("bigint");
 
-                    b.Property<Guid?>("FolderId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<int?>("Height")
                         .HasColumnType("int");
 
@@ -483,6 +514,13 @@ namespace CMSBlog.Data.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<Guid?>("ModifiedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Provider")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("SlugName")
                         .IsRequired()
                         .HasMaxLength(250)
@@ -498,8 +536,6 @@ namespace CMSBlog.Data.Migrations
 
                     b.HasIndex("FilePath");
 
-                    b.HasIndex("FolderId");
-
                     b.HasIndex("ID")
                         .IsUnique();
 
@@ -508,6 +544,28 @@ namespace CMSBlog.Data.Migrations
                     b.HasIndex("SlugName");
 
                     b.ToTable("MediaFiles", (string)null);
+                });
+
+            modelBuilder.Entity("CMSBlog.Core.Domain.Media.MediaFileFolderLink", b =>
+                {
+                    b.Property<Guid>("MediaFolderId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("MediaFileId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.HasKey("MediaFolderId", "MediaFileId");
+
+                    b.HasIndex("MediaFileId", "MediaFolderId")
+                        .IsUnique();
+
+                    b.ToTable("MediaFileFolderLink", (string)null);
                 });
 
             modelBuilder.Entity("CMSBlog.Core.Domain.Media.MediaFileTag", b =>
@@ -530,7 +588,7 @@ namespace CMSBlog.Data.Migrations
 
             modelBuilder.Entity("CMSBlog.Core.Domain.Media.MediaFolder", b =>
                 {
-                    b.Property<Guid>("ID")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -552,20 +610,28 @@ namespace CMSBlog.Data.Migrations
                         .HasMaxLength(250)
                         .HasColumnType("nvarchar(250)");
 
-                    b.Property<string>("FullPath")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                    b.Property<Guid>("ModifiedByUserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("ParentFolderId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Path")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("PathId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PathId"));
 
                     b.Property<string>("SlugName")
                         .IsRequired()
                         .HasMaxLength(250)
                         .HasColumnType("nvarchar(250)");
 
-                    b.HasKey("ID");
+                    b.HasKey("Id");
 
                     b.HasIndex("ParentFolderId");
 
@@ -709,14 +775,23 @@ namespace CMSBlog.Data.Migrations
                     b.ToTable("AppUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("CMSBlog.Core.Domain.Media.MediaFile", b =>
+            modelBuilder.Entity("CMSBlog.Core.Domain.Media.MediaFileFolderLink", b =>
                 {
-                    b.HasOne("CMSBlog.Core.Domain.Media.MediaFolder", "Folder")
-                        .WithMany("MediaFiles")
-                        .HasForeignKey("FolderId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                    b.HasOne("CMSBlog.Core.Domain.Media.MediaFile", "MediaFile")
+                        .WithMany("FileFolderLinks")
+                        .HasForeignKey("MediaFileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Navigation("Folder");
+                    b.HasOne("CMSBlog.Core.Domain.Media.MediaFolder", "MediaFolder")
+                        .WithMany("FileFolderLinks")
+                        .HasForeignKey("MediaFolderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("MediaFile");
+
+                    b.Navigation("MediaFolder");
                 });
 
             modelBuilder.Entity("CMSBlog.Core.Domain.Media.MediaFileTag", b =>
@@ -801,6 +876,8 @@ namespace CMSBlog.Data.Migrations
 
             modelBuilder.Entity("CMSBlog.Core.Domain.Media.MediaFile", b =>
                 {
+                    b.Navigation("FileFolderLinks");
+
                     b.Navigation("MediaFileTags");
                 });
 
@@ -808,7 +885,7 @@ namespace CMSBlog.Data.Migrations
                 {
                     b.Navigation("ChildFolders");
 
-                    b.Navigation("MediaFiles");
+                    b.Navigation("FileFolderLinks");
                 });
 
             modelBuilder.Entity("CMSBlog.Core.Domain.Media.MediaTag", b =>

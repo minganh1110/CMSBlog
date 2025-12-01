@@ -1,4 +1,5 @@
 ﻿using CMSBlog.Core.Application.DTOs.Media;
+using CMSBlog.Core.Domain.Media;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -14,5 +15,6 @@ namespace CMSBlog.Core.Application.Interfaces.Media
         Task<List<MediaFileDto>> GetInFolderAsync(Guid folderId);
         Task<bool> UpdateAsync(Guid id, UpdateMediaFileDto dto);
         Task<bool> DeleteAsync(Guid id);
+        public MediaType DetectMediaType(string mime);
     }
 }

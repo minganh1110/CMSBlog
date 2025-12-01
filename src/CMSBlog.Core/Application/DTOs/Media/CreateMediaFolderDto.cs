@@ -9,6 +9,6 @@ namespace CMSBlog.Core.Application.DTOs.Media
     public class CreateMediaFolderDto
     {
         public string FolderName { get; set; } = null!;
-        public Guid? ParentId { get; set; }
+        public Guid? ParentFolderId { get; set; }
     }
 }
