@@ -1,5 +1,6 @@
 ﻿using CMSBlog.Core.Domain.Content;
 using CMSBlog.Core.Domain.Identity;
+using CMSBlog.Core.Domain.Royalty;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -23,7 +24,9 @@ namespace CMSBlog.Data
         public DbSet<PostActivityLog> PostActivityLogs { get; set; }
         public DbSet<Series> Series { get; set; }
         public DbSet<PostInSeries> PostInSeries { get; set; }
-       
+        public DbSet<Transaction> Transactions { get; set; }
+
+
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

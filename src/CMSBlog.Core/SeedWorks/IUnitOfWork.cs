@@ -10,6 +10,7 @@ namespace CMSBlog.Core.SeedWorks
         IPostRepository Posts { get; }
         IPostCategoryRepository PostCategories { get; }
         ISeriesRepository Series { get; }
+        ITransactionRepository Transactions { get; }
         Task<int> CompleteAsync();
     }
 }

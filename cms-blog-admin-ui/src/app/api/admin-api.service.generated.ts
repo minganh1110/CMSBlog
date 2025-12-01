@@ -83,6 +83,70 @@ export class AdminApiAuthApiClient {
 }
 
 @Injectable()
+export class AdminApiMediaApiClient {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(ADMIN_API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @param type (optional) 
+     * @return OK
+     */
+    uploadImage(type?: string | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/admin/media?";
+        if (type === null)
+            throw new globalThis.Error("The parameter 'type' cannot be null.");
+        else if (type !== undefined)
+            url_ += "type=" + encodeURIComponent("" + type) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUploadImage(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUploadImage(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processUploadImage(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable()
 export class AdminApiPostApiClient {
     private http: HttpClient;
     private baseUrl: string;
@@ -1499,6 +1563,320 @@ export class AdminApiRoleApiClient {
     }
 
     protected processSavePermission(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable()
+export class AdminApiRoyaltyApiClient {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(ADMIN_API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @param keyword (optional) 
+     * @param fromMonth (optional) 
+     * @param fromYear (optional) 
+     * @param toMonth (optional) 
+     * @param toYear (optional) 
+     * @param pageIndex (optional) 
+     * @param pageSize (optional) 
+     * @return OK
+     */
+    getTransactionHistory(keyword?: string | undefined, fromMonth?: number | undefined, fromYear?: number | undefined, toMonth?: number | undefined, toYear?: number | undefined, pageIndex?: number | undefined, pageSize?: number | undefined): Observable<TransactionDtoPagedResult> {
+        let url_ = this.baseUrl + "/api/admin/royalty/transaction-histories?";
+        if (keyword === null)
+            throw new globalThis.Error("The parameter 'keyword' cannot be null.");
+        else if (keyword !== undefined)
+            url_ += "keyword=" + encodeURIComponent("" + keyword) + "&";
+        if (fromMonth === null)
+            throw new globalThis.Error("The parameter 'fromMonth' cannot be null.");
+        else if (fromMonth !== undefined)
+            url_ += "fromMonth=" + encodeURIComponent("" + fromMonth) + "&";
+        if (fromYear === null)
+            throw new globalThis.Error("The parameter 'fromYear' cannot be null.");
+        else if (fromYear !== undefined)
+            url_ += "fromYear=" + encodeURIComponent("" + fromYear) + "&";
+        if (toMonth === null)
+            throw new globalThis.Error("The parameter 'toMonth' cannot be null.");
+        else if (toMonth !== undefined)
+            url_ += "toMonth=" + encodeURIComponent("" + toMonth) + "&";
+        if (toYear === null)
+            throw new globalThis.Error("The parameter 'toYear' cannot be null.");
+        else if (toYear !== undefined)
+            url_ += "toYear=" + encodeURIComponent("" + toYear) + "&";
+        if (pageIndex === null)
+            throw new globalThis.Error("The parameter 'pageIndex' cannot be null.");
+        else if (pageIndex !== undefined)
+            url_ += "pageIndex=" + encodeURIComponent("" + pageIndex) + "&";
+        if (pageSize === null)
+            throw new globalThis.Error("The parameter 'pageSize' cannot be null.");
+        else if (pageSize !== undefined)
+            url_ += "pageSize=" + encodeURIComponent("" + pageSize) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetTransactionHistory(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetTransactionHistory(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<TransactionDtoPagedResult>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<TransactionDtoPagedResult>;
+        }));
+    }
+
+    protected processGetTransactionHistory(response: HttpResponseBase): Observable<TransactionDtoPagedResult> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = TransactionDtoPagedResult.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param userId (optional) 
+     * @param fromMonth (optional) 
+     * @param fromYear (optional) 
+     * @param toMonth (optional) 
+     * @param toYear (optional) 
+     * @return OK
+     */
+    getRoyaltyReportByUser(userId?: string | undefined, fromMonth?: number | undefined, fromYear?: number | undefined, toMonth?: number | undefined, toYear?: number | undefined): Observable<RoyaltyReportByUserDto[]> {
+        let url_ = this.baseUrl + "/api/admin/royalty/Royalty-report-by-user?";
+        if (userId === null)
+            throw new globalThis.Error("The parameter 'userId' cannot be null.");
+        else if (userId !== undefined)
+            url_ += "userId=" + encodeURIComponent("" + userId) + "&";
+        if (fromMonth === null)
+            throw new globalThis.Error("The parameter 'fromMonth' cannot be null.");
+        else if (fromMonth !== undefined)
+            url_ += "fromMonth=" + encodeURIComponent("" + fromMonth) + "&";
+        if (fromYear === null)
+            throw new globalThis.Error("The parameter 'fromYear' cannot be null.");
+        else if (fromYear !== undefined)
+            url_ += "fromYear=" + encodeURIComponent("" + fromYear) + "&";
+        if (toMonth === null)
+            throw new globalThis.Error("The parameter 'toMonth' cannot be null.");
+        else if (toMonth !== undefined)
+            url_ += "toMonth=" + encodeURIComponent("" + toMonth) + "&";
+        if (toYear === null)
+            throw new globalThis.Error("The parameter 'toYear' cannot be null.");
+        else if (toYear !== undefined)
+            url_ += "toYear=" + encodeURIComponent("" + toYear) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetRoyaltyReportByUser(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetRoyaltyReportByUser(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<RoyaltyReportByUserDto[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<RoyaltyReportByUserDto[]>;
+        }));
+    }
+
+    protected processGetRoyaltyReportByUser(response: HttpResponseBase): Observable<RoyaltyReportByUserDto[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(RoyaltyReportByUserDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param userId (optional) 
+     * @param fromMonth (optional) 
+     * @param fromYear (optional) 
+     * @param toMonth (optional) 
+     * @param toYear (optional) 
+     * @return OK
+     */
+    getRoyaltyReportByMonth(userId?: string | undefined, fromMonth?: number | undefined, fromYear?: number | undefined, toMonth?: number | undefined, toYear?: number | undefined): Observable<RoyaltyReportByMonthDto[]> {
+        let url_ = this.baseUrl + "/api/admin/royalty/Royalty-report-by-month?";
+        if (userId === null)
+            throw new globalThis.Error("The parameter 'userId' cannot be null.");
+        else if (userId !== undefined)
+            url_ += "userId=" + encodeURIComponent("" + userId) + "&";
+        if (fromMonth === null)
+            throw new globalThis.Error("The parameter 'fromMonth' cannot be null.");
+        else if (fromMonth !== undefined)
+            url_ += "fromMonth=" + encodeURIComponent("" + fromMonth) + "&";
+        if (fromYear === null)
+            throw new globalThis.Error("The parameter 'fromYear' cannot be null.");
+        else if (fromYear !== undefined)
+            url_ += "fromYear=" + encodeURIComponent("" + fromYear) + "&";
+        if (toMonth === null)
+            throw new globalThis.Error("The parameter 'toMonth' cannot be null.");
+        else if (toMonth !== undefined)
+            url_ += "toMonth=" + encodeURIComponent("" + toMonth) + "&";
+        if (toYear === null)
+            throw new globalThis.Error("The parameter 'toYear' cannot be null.");
+        else if (toYear !== undefined)
+            url_ += "toYear=" + encodeURIComponent("" + toYear) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetRoyaltyReportByMonth(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetRoyaltyReportByMonth(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<RoyaltyReportByMonthDto[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<RoyaltyReportByMonthDto[]>;
+        }));
+    }
+
+    protected processGetRoyaltyReportByMonth(response: HttpResponseBase): Observable<RoyaltyReportByMonthDto[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(RoyaltyReportByMonthDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    payRoyalty(userId: string): Observable<void> {
+        let url_ = this.baseUrl + "/api/admin/royalty/{userId}";
+        if (userId === undefined || userId === null)
+            throw new globalThis.Error("The parameter 'userId' must be defined.");
+        url_ = url_.replace("{userId}", encodeURIComponent("" + userId));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processPayRoyalty(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processPayRoyalty(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processPayRoyalty(response: HttpResponseBase): Observable<void> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -3122,6 +3500,7 @@ export class CreateUserRequest implements ICreateUserRequest {
     dob?: Date | undefined;
     avatar?: string | undefined;
     isActive?: boolean;
+    royaltyAmountPerPost?: number;
 
     constructor(data?: ICreateUserRequest) {
         if (data) {
@@ -3143,6 +3522,7 @@ export class CreateUserRequest implements ICreateUserRequest {
             this.dob = _data["dob"] ? new Date(_data["dob"].toString()) : undefined as any;
             this.avatar = _data["avatar"];
             this.isActive = _data["isActive"];
+            this.royaltyAmountPerPost = _data["royaltyAmountPerPost"];
         }
     }
 
@@ -3164,6 +3544,7 @@ export class CreateUserRequest implements ICreateUserRequest {
         data["dob"] = this.dob ? this.dob.toISOString() : undefined as any;
         data["avatar"] = this.avatar;
         data["isActive"] = this.isActive;
+        data["royaltyAmountPerPost"] = this.royaltyAmountPerPost;
         return data;
     }
 }
@@ -3178,6 +3559,7 @@ export interface ICreateUserRequest {
     dob?: Date | undefined;
     avatar?: string | undefined;
     isActive?: boolean;
+    royaltyAmountPerPost?: number;
 }
 
 export class LoginRequest implements ILoginRequest {
@@ -3951,6 +4333,134 @@ export interface IRoleDtoPagedResult {
     results?: RoleDto[] | undefined;
 }
 
+export class RoyaltyReportByMonthDto implements IRoyaltyReportByMonthDto {
+    month?: number;
+    year?: number;
+    numberOfDraftPosts?: number;
+    numberOfWaitingApprovalPosts?: number;
+    numberOfRejectedPosts?: number;
+    numberOfUnpaidPublishPosts?: number;
+    numberOfPaidPublishPosts?: number;
+    numberOfPublishPosts?: number;
+
+    constructor(data?: IRoyaltyReportByMonthDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.month = _data["month"];
+            this.year = _data["year"];
+            this.numberOfDraftPosts = _data["numberOfDraftPosts"];
+            this.numberOfWaitingApprovalPosts = _data["numberOfWaitingApprovalPosts"];
+            this.numberOfRejectedPosts = _data["numberOfRejectedPosts"];
+            this.numberOfUnpaidPublishPosts = _data["numberOfUnpaidPublishPosts"];
+            this.numberOfPaidPublishPosts = _data["numberOfPaidPublishPosts"];
+            this.numberOfPublishPosts = _data["numberOfPublishPosts"];
+        }
+    }
+
+    static fromJS(data: any): RoyaltyReportByMonthDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new RoyaltyReportByMonthDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["month"] = this.month;
+        data["year"] = this.year;
+        data["numberOfDraftPosts"] = this.numberOfDraftPosts;
+        data["numberOfWaitingApprovalPosts"] = this.numberOfWaitingApprovalPosts;
+        data["numberOfRejectedPosts"] = this.numberOfRejectedPosts;
+        data["numberOfUnpaidPublishPosts"] = this.numberOfUnpaidPublishPosts;
+        data["numberOfPaidPublishPosts"] = this.numberOfPaidPublishPosts;
+        data["numberOfPublishPosts"] = this.numberOfPublishPosts;
+        return data;
+    }
+}
+
+export interface IRoyaltyReportByMonthDto {
+    month?: number;
+    year?: number;
+    numberOfDraftPosts?: number;
+    numberOfWaitingApprovalPosts?: number;
+    numberOfRejectedPosts?: number;
+    numberOfUnpaidPublishPosts?: number;
+    numberOfPaidPublishPosts?: number;
+    numberOfPublishPosts?: number;
+}
+
+export class RoyaltyReportByUserDto implements IRoyaltyReportByUserDto {
+    userId?: string;
+    userName!: string | undefined;
+    numberOfDraftPosts?: number;
+    numberOfWaitingApprovalPosts?: number;
+    numberOfRejectedPosts?: number;
+    numberOfUnpaidPublishPosts?: number;
+    numberOfPaidPublishPosts?: number;
+    numberOfPublishPosts?: number;
+
+    constructor(data?: IRoyaltyReportByUserDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.userId = _data["userId"];
+            this.userName = _data["userName"];
+            this.numberOfDraftPosts = _data["numberOfDraftPosts"];
+            this.numberOfWaitingApprovalPosts = _data["numberOfWaitingApprovalPosts"];
+            this.numberOfRejectedPosts = _data["numberOfRejectedPosts"];
+            this.numberOfUnpaidPublishPosts = _data["numberOfUnpaidPublishPosts"];
+            this.numberOfPaidPublishPosts = _data["numberOfPaidPublishPosts"];
+            this.numberOfPublishPosts = _data["numberOfPublishPosts"];
+        }
+    }
+
+    static fromJS(data: any): RoyaltyReportByUserDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new RoyaltyReportByUserDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["userId"] = this.userId;
+        data["userName"] = this.userName;
+        data["numberOfDraftPosts"] = this.numberOfDraftPosts;
+        data["numberOfWaitingApprovalPosts"] = this.numberOfWaitingApprovalPosts;
+        data["numberOfRejectedPosts"] = this.numberOfRejectedPosts;
+        data["numberOfUnpaidPublishPosts"] = this.numberOfUnpaidPublishPosts;
+        data["numberOfPaidPublishPosts"] = this.numberOfPaidPublishPosts;
+        data["numberOfPublishPosts"] = this.numberOfPublishPosts;
+        return data;
+    }
+}
+
+export interface IRoyaltyReportByUserDto {
+    userId?: string;
+    userName: string | undefined;
+    numberOfDraftPosts?: number;
+    numberOfWaitingApprovalPosts?: number;
+    numberOfRejectedPosts?: number;
+    numberOfUnpaidPublishPosts?: number;
+    numberOfPaidPublishPosts?: number;
+    numberOfPublishPosts?: number;
+}
+
 export class SeriesDto implements ISeriesDto {
     id?: string;
     name!: string | undefined;
@@ -4239,6 +4749,150 @@ export interface ITokenRequest {
     refreshToken: string | undefined;
 }
 
+export class TransactionDto implements ITransactionDto {
+    id?: string;
+    fromUserName!: string | undefined;
+    fromUserId?: string;
+    toUserId?: string;
+    toUserName!: string | undefined;
+    amount?: number;
+    transactionType?: TransactionType;
+    dateCreated?: Date;
+    note?: string | undefined;
+
+    constructor(data?: ITransactionDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.fromUserName = _data["fromUserName"];
+            this.fromUserId = _data["fromUserId"];
+            this.toUserId = _data["toUserId"];
+            this.toUserName = _data["toUserName"];
+            this.amount = _data["amount"];
+            this.transactionType = _data["transactionType"];
+            this.dateCreated = _data["dateCreated"] ? new Date(_data["dateCreated"].toString()) : undefined as any;
+            this.note = _data["note"];
+        }
+    }
+
+    static fromJS(data: any): TransactionDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new TransactionDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["fromUserName"] = this.fromUserName;
+        data["fromUserId"] = this.fromUserId;
+        data["toUserId"] = this.toUserId;
+        data["toUserName"] = this.toUserName;
+        data["amount"] = this.amount;
+        data["transactionType"] = this.transactionType;
+        data["dateCreated"] = this.dateCreated ? this.dateCreated.toISOString() : undefined as any;
+        data["note"] = this.note;
+        return data;
+    }
+}
+
+export interface ITransactionDto {
+    id?: string;
+    fromUserName: string | undefined;
+    fromUserId?: string;
+    toUserId?: string;
+    toUserName: string | undefined;
+    amount?: number;
+    transactionType?: TransactionType;
+    dateCreated?: Date;
+    note?: string | undefined;
+}
+
+export class TransactionDtoPagedResult implements ITransactionDtoPagedResult {
+    currentPage?: number;
+    pageCount?: number;
+    pageSize?: number;
+    rowCount?: number;
+    readonly firstRowOnPage?: number;
+    readonly lastRowOnPage?: number;
+    additionalData?: string | undefined;
+    results?: TransactionDto[] | undefined;
+
+    constructor(data?: ITransactionDtoPagedResult) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.currentPage = _data["currentPage"];
+            this.pageCount = _data["pageCount"];
+            this.pageSize = _data["pageSize"];
+            this.rowCount = _data["rowCount"];
+            (this as any).firstRowOnPage = _data["firstRowOnPage"];
+            (this as any).lastRowOnPage = _data["lastRowOnPage"];
+            this.additionalData = _data["additionalData"];
+            if (Array.isArray(_data["results"])) {
+                this.results = [] as any;
+                for (let item of _data["results"])
+                    this.results!.push(TransactionDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): TransactionDtoPagedResult {
+        data = typeof data === 'object' ? data : {};
+        let result = new TransactionDtoPagedResult();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["currentPage"] = this.currentPage;
+        data["pageCount"] = this.pageCount;
+        data["pageSize"] = this.pageSize;
+        data["rowCount"] = this.rowCount;
+        data["firstRowOnPage"] = this.firstRowOnPage;
+        data["lastRowOnPage"] = this.lastRowOnPage;
+        data["additionalData"] = this.additionalData;
+        if (Array.isArray(this.results)) {
+            data["results"] = [];
+            for (let item of this.results)
+                data["results"].push(item ? item.toJSON() : undefined as any);
+        }
+        return data;
+    }
+}
+
+export interface ITransactionDtoPagedResult {
+    currentPage?: number;
+    pageCount?: number;
+    pageSize?: number;
+    rowCount?: number;
+    firstRowOnPage?: number;
+    lastRowOnPage?: number;
+    additionalData?: string | undefined;
+    results?: TransactionDto[] | undefined;
+}
+
+export enum TransactionType {
+    _0 = 0,
+}
+
 export class UpdateUserRequest implements IUpdateUserRequest {
     firstName?: string | undefined;
     lastName?: string | undefined;
@@ -4246,6 +4900,7 @@ export class UpdateUserRequest implements IUpdateUserRequest {
     dob?: Date | undefined;
     avatar?: string | undefined;
     isActive?: boolean;
+    royaltyAmountPerPost?: number;
 
     constructor(data?: IUpdateUserRequest) {
         if (data) {
@@ -4264,6 +4919,7 @@ export class UpdateUserRequest implements IUpdateUserRequest {
             this.dob = _data["dob"] ? new Date(_data["dob"].toString()) : undefined as any;
             this.avatar = _data["avatar"];
             this.isActive = _data["isActive"];
+            this.royaltyAmountPerPost = _data["royaltyAmountPerPost"];
         }
     }
 
@@ -4282,6 +4938,7 @@ export class UpdateUserRequest implements IUpdateUserRequest {
         data["dob"] = this.dob ? this.dob.toISOString() : undefined as any;
         data["avatar"] = this.avatar;
         data["isActive"] = this.isActive;
+        data["royaltyAmountPerPost"] = this.royaltyAmountPerPost;
         return data;
     }
 }
@@ -4293,6 +4950,7 @@ export interface IUpdateUserRequest {
     dob?: Date | undefined;
     avatar?: string | undefined;
     isActive?: boolean;
+    royaltyAmountPerPost?: number;
 }
 
 export class UserDto implements IUserDto {
@@ -4310,6 +4968,7 @@ export class UserDto implements IUserDto {
     vipStartDate?: Date | undefined;
     vipExpireDate?: Date | undefined;
     lastLoginDate?: Date | undefined;
+    royaltyAmountPerPost?: number;
 
     constructor(data?: IUserDto) {
         if (data) {
@@ -4340,6 +4999,7 @@ export class UserDto implements IUserDto {
             this.vipStartDate = _data["vipStartDate"] ? new Date(_data["vipStartDate"].toString()) : undefined as any;
             this.vipExpireDate = _data["vipExpireDate"] ? new Date(_data["vipExpireDate"].toString()) : undefined as any;
             this.lastLoginDate = _data["lastLoginDate"] ? new Date(_data["lastLoginDate"].toString()) : undefined as any;
+            this.royaltyAmountPerPost = _data["royaltyAmountPerPost"];
         }
     }
 
@@ -4370,6 +5030,7 @@ export class UserDto implements IUserDto {
         data["vipStartDate"] = this.vipStartDate ? this.vipStartDate.toISOString() : undefined as any;
         data["vipExpireDate"] = this.vipExpireDate ? this.vipExpireDate.toISOString() : undefined as any;
         data["lastLoginDate"] = this.lastLoginDate ? this.lastLoginDate.toISOString() : undefined as any;
+        data["royaltyAmountPerPost"] = this.royaltyAmountPerPost;
         return data;
     }
 }
@@ -4389,6 +5050,7 @@ export interface IUserDto {
     vipStartDate?: Date | undefined;
     vipExpireDate?: Date | undefined;
     lastLoginDate?: Date | undefined;
+    royaltyAmountPerPost?: number;
 }
 
 export class UserDtoPagedResult implements IUserDtoPagedResult {
