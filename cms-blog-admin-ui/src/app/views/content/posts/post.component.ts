@@ -24,10 +24,10 @@ export class PostComponent implements OnInit, OnDestroy {
   //Paging variables
   public pageIndex: number = 1;
   public pageSize: number = 10;
-  public totalCount: number;
+  public totalCount!: number;
 
   //Business variables
-  public items: PostInListDto[];
+  public items!: PostInListDto[];
   public selectedItems: PostInListDto[] = [];
   public keyword: string = '';
 
@@ -96,7 +96,7 @@ export class PostComponent implements OnInit, OnDestroy {
   }
 
   pageChanged(event: any): void {
-    this.pageIndex = event.page;
+    this.pageIndex = event.page+1;
     this.pageSize = event.rows;
     this.loadData();
   }

@@ -17,5 +17,6 @@ namespace CMSBlog.Core.Repositories
         Task RemovePostToSeries(Guid seriesId, Guid postId);
         Task<List<PostInListDto>> GetAllPostsInSeries(Guid seriesId);
         Task<bool> IsPostInSeries(Guid seriesId, Guid postId);
+        Task<bool> HasPost(Guid seriesId);
     }
 }

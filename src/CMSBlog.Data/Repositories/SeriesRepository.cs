@@ -10,10 +10,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using static CMSBlog.Core.SeedWorks.Constants.Permissions;
 namespace CMSBlog.Data.Repositories
 {
-    public class SeriesRepository : RepositoryBase<Series, Guid>, ISeriesRepository
+    public class SeriesRepository : RepositoryBase<Core.Domain.Content.Series, Guid>, ISeriesRepository
     {
         private readonly IMapper _mapper;
         public SeriesRepository(CMSBlogContext context, IMapper mapper) : base(context)
@@ -67,7 +67,10 @@ namespace CMSBlog.Data.Repositories
                         select p;
             return await _mapper.ProjectTo<PostInListDto>(query).ToListAsync();
         }
-
+        public async Task<bool> HasPost(Guid seriesId)
+        {
+            return await _context.PostInSeries.AnyAsync(x => x.SeriesId == seriesId);
+        }
         public async Task<bool> IsPostInSeries(Guid seriesId, Guid postId)
         {
             return await _context.PostInSeries.AnyAsync(x => x.SeriesId == seriesId && x.PostId == postId);

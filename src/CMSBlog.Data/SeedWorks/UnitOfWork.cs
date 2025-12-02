@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static CMSBlog.Core.SeedWorks.Constants.Permissions;
 
 namespace CMSBlog.Data.SeedWorks
 {
@@ -23,11 +24,13 @@ namespace CMSBlog.Data.SeedWorks
             PostCategories = new PostCategoryRepository(context, mapper);
             Series = new SeriesRepository(context, mapper);
             Transactions = new TransactionRepository(context, mapper);
+            Users = new UserRepository(context);
         }
         public IPostRepository Posts { get; private set; }
         public IPostCategoryRepository PostCategories { get; private set; }
         public ISeriesRepository Series { get; private set; }
         public ITransactionRepository Transactions { get; private set; }
+        public IUserRepository Users { get; private set; }
 
         public async Task<int> CompleteAsync()
         {
