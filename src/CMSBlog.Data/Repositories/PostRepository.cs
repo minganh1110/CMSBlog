@@ -240,5 +240,12 @@ namespace CMSBlog.Data.Repositories
                 PageSize = pageSize
             };
         }
+
+        public async Task<PostDto> GetBySlug(string slug)
+        {
+            var post = await _context.Posts.FirstOrDefaultAsync(x => x.Slug == slug);
+            if (post == null) throw new Exception($"Cannot find post with Slug: {slug}");
+            return _mapper.Map<PostDto>(post);
+        }
     }
 }
