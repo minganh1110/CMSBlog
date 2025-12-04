@@ -85,45 +85,72 @@ namespace CMSBlog.API.Controllers.AdminApi
             {
                 return BadRequest("Đã tồn tại slug");
             }
+
             var post = await _unitOfWork.Posts.GetByIdAsync(id);
             if (post == null)
-            {
                 return NotFound();
-            }
+
+            // update category
             if (post.CategoryId != request.CategoryId)
             {
                 var category = await _unitOfWork.PostCategories.GetByIdAsync(request.CategoryId);
                 post.CategoryName = category.Name;
                 post.CategorySlug = category.Slug;
             }
+
             _mapper.Map(request, post);
-            //Process tag
+
+            /* =====================================================
+               XỬ LÝ TAG
+            ===================================================== */
+
+            // Lấy danh sách tag hiện tại của bài viết
+            var currentTags = await _unitOfWork.Posts.GetTagsByPostId(id);
+            var currentSlugs = currentTags.Select(x => TextHelper.ToUnsignedString(x)).ToList();
+
+            // === TRƯỜNG HỢP 1: FE GỬI MẢNG RỖNG => XÓA HẾT TAG ===
+            if (request.Tags != null && request.Tags.Length == 0)
+            {
+                await _unitOfWork.Posts.RemoveAllTagsOfPost(id);
+            }
+
+            // === TRƯỜNG HỢP 2: FE GỬI TAG MỚI => GIỮ CŨ + THÊM MỚI ===
             if (request.Tags != null && request.Tags.Length > 0)
             {
                 foreach (var tagName in request.Tags)
                 {
                     var tagSlug = TextHelper.ToUnsignedString(tagName);
+
+                    // nếu tag đã tồn tại thì bỏ qua
+                    if (currentSlugs.Contains(tagSlug))
+                        continue;
+
+                    // kiểm tra xem tag đã có trong bảng Tags chưa
                     var tag = await _unitOfWork.Tags.GetBySlug(tagSlug);
                     Guid tagId;
+
                     if (tag == null)
                     {
                         tagId = Guid.NewGuid();
-                        _unitOfWork.Tags.Add(new Tag() { Id = tagId, Name = tagName, Slug = tagSlug });
-
+                        _unitOfWork.Tags.Add(new Tag()
+                        {
+                            Id = tagId,
+                            Name = tagName,
+                            Slug = tagSlug
+                        });
                     }
                     else
                     {
                         tagId = tag.Id;
                     }
+
                     await _unitOfWork.Posts.AddTagToPost(id, tagId);
                 }
             }
 
             await _unitOfWork.CompleteAsync();
-
             return Ok();
         }
-
         [HttpDelete]
         [Authorize(Posts.Delete)]
         public async Task<IActionResult> DeletePosts([FromQuery] Guid[] ids)
@@ -230,6 +257,7 @@ namespace CMSBlog.API.Controllers.AdminApi
             var logs = await _unitOfWork.Posts.GetAllTags();
             return Ok(logs);
         }
+
         [HttpGet("tags/{postId}")]
         [Authorize(Posts.View)]
         public async Task<ActionResult<List<string>>> GetPostTags(Guid postId)

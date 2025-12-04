@@ -30,5 +30,9 @@ namespace CMSBlog.Core.Repositories
         Task AddTagToPost(Guid postId, Guid tagId);
         Task<List<string>> GetTagsByPostId(Guid postId);
 
+        Task<List<TagDto>> GetTagObjectsByPostId(Guid postId);
+        Task<PagedResult<PostInListDto>> GetPostByTagPaging(string tagSlug, int pageIndex = 1, int pageSize = 10);
+        Task RemoveAllTagsOfPost(Guid postId);
+
     }
 }
