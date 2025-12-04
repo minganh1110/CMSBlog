@@ -2,6 +2,7 @@
 using CMSBlog.API.Extensions;
 using CMSBlog.Core.Domain.Content;
 using CMSBlog.Core.Domain.Identity;
+using CMSBlog.Core.Helpers;
 using CMSBlog.Core.Models;
 using CMSBlog.Core.Models.Content;
 using CMSBlog.Core.SeedWorks;
@@ -37,6 +38,8 @@ namespace CMSBlog.API.Controllers.AdminApi
                 return BadRequest("Đã tồn tại slug");
             }
             var post = _mapper.Map<CreateUpdatePostRequest, Post>(request);
+            var postId = Guid.NewGuid();
+            post.Id = postId;
             var category = await _unitOfWork.PostCategories.GetByIdAsync(request.CategoryId);
             post.CategoryName = category.Name;
             post.CategorySlug = category.Slug;
@@ -48,6 +51,28 @@ namespace CMSBlog.API.Controllers.AdminApi
             post.AuthorUserName = user.UserName;
             _unitOfWork.Posts.Add(post);
 
+
+            //Process tag
+            if (request.Tags != null && request.Tags.Length > 0)
+            {
+                foreach (var tagName in request.Tags)
+                {
+                    var tagSlug = TextHelper.ToUnsignedString(tagName);
+                    var tag = await _unitOfWork.Tags.GetBySlug(tagSlug);
+                    Guid tagId;
+                    if (tag == null)
+                    {
+                        tagId = Guid.NewGuid();
+                        _unitOfWork.Tags.Add(new Tag() { Id = tagId, Name = tagName, Slug = tagSlug });
+
+                    }
+                    else
+                    {
+                        tagId = tag.Id;
+                    }
+                    await _unitOfWork.Posts.AddTagToPost(postId, tagId);
+                }
+            }
             var result = await _unitOfWork.CompleteAsync();
             return result > 0 ? Ok() : BadRequest();
         }
@@ -72,6 +97,27 @@ namespace CMSBlog.API.Controllers.AdminApi
                 post.CategorySlug = category.Slug;
             }
             _mapper.Map(request, post);
+            //Process tag
+            if (request.Tags != null && request.Tags.Length > 0)
+            {
+                foreach (var tagName in request.Tags)
+                {
+                    var tagSlug = TextHelper.ToUnsignedString(tagName);
+                    var tag = await _unitOfWork.Tags.GetBySlug(tagSlug);
+                    Guid tagId;
+                    if (tag == null)
+                    {
+                        tagId = Guid.NewGuid();
+                        _unitOfWork.Tags.Add(new Tag() { Id = tagId, Name = tagName, Slug = tagSlug });
+
+                    }
+                    else
+                    {
+                        tagId = tag.Id;
+                    }
+                    await _unitOfWork.Posts.AddTagToPost(id, tagId);
+                }
+            }
 
             await _unitOfWork.CompleteAsync();
 
@@ -177,5 +223,20 @@ namespace CMSBlog.API.Controllers.AdminApi
             var logs = await _unitOfWork.Posts.GetActivityLogs(id);
             return Ok(logs);
         }
+        [HttpGet("tags")]
+        [Authorize(Posts.View)]
+        public async Task<ActionResult<List<string>>> GetAllTags()
+        {
+            var logs = await _unitOfWork.Posts.GetAllTags();
+            return Ok(logs);
+        }
+        [HttpGet("tags/{postId}")]
+        [Authorize(Posts.View)]
+        public async Task<ActionResult<List<string>>> GetPostTags(Guid postId)
+        {
+            var tagNames = await _unitOfWork.Posts.GetTagsByPostId(postId);
+            return Ok(tagNames);
+        }
+
     }
 }

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using CMSBlog.Core.Domain.Content;
 using CMSBlog.Core.Domain.Identity;
 using CMSBlog.Core.Repositories;
 using CMSBlog.Core.SeedWorks;
@@ -25,12 +26,15 @@ namespace CMSBlog.Data.SeedWorks
             Series = new SeriesRepository(context, mapper);
             Transactions = new TransactionRepository(context, mapper);
             Users = new UserRepository(context);
+            Tags = new TagRepository(context, mapper);
         }
         public IPostRepository Posts { get; private set; }
         public IPostCategoryRepository PostCategories { get; private set; }
         public ISeriesRepository Series { get; private set; }
         public ITransactionRepository Transactions { get; private set; }
         public IUserRepository Users { get; private set; }
+        public ITagRepository Tags { get; private set; }
+
 
         public async Task<int> CompleteAsync()
         {

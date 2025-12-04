@@ -26,5 +26,9 @@ namespace CMSBlog.Core.Repositories
         Task<List<PostInListDto>> GetLatestPublishPost(int top);
         Task<PagedResult<PostInListDto>> GetPostByCategoryPaging(string categorySlug, int pageIndex = 1, int pageSize = 10);
         Task<PostDto> GetBySlug(string slug);
+        Task<List<string>> GetAllTags();
+        Task AddTagToPost(Guid postId, Guid tagId);
+        Task<List<string>> GetTagsByPostId(Guid postId);
+
     }
 }
