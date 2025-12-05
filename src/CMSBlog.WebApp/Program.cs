@@ -26,6 +26,7 @@ builder.Services.Configure<SystemConfig>(configuration.GetSection("SystemConfig"
 
 builder.Services.AddDbContext<CMSBlogContext>(options => options.UseSqlServer(connectionString));
 
+#region Configure Identity
 builder.Services.AddIdentity<AppUser, AppRole>(options => options.SignIn.RequireConfirmedAccount = false)
     .AddEntityFrameworkStores<CMSBlogContext>()
                   .AddDefaultTokenProviders();
@@ -51,15 +52,22 @@ builder.Services.Configure<IdentityOptions>(options =>
     options.User.RequireUniqueEmail = true;
 });
 
-// Add services to the container.
-builder.Services.AddScoped(typeof(IRepository<,>), typeof(RepositoryBase<,>));
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-builder.Services.AddAutoMapper(typeof(PostInListDto));
 
 builder.Services.AddScoped<SignInManager<AppUser>, SignInManager<AppUser>>();
 builder.Services.AddScoped<UserManager<AppUser>, UserManager<AppUser>>();
 builder.Services.AddScoped<RoleManager<AppRole>, RoleManager<AppRole>>();
+
+builder.Services.AddScoped<IUserClaimsPrincipalFactory<AppUser>,
+   CustomClaimsPrincipalFactory>();
+#endregion
+
+builder.Services.AddAutoMapper(typeof(PostInListDto));
+
+#region Configure Services
+// Add services to the container.
+builder.Services.AddScoped(typeof(IRepository<,>), typeof(RepositoryBase<,>));
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 // Business services and repositories
 var services = typeof(PostRepository).Assembly.GetTypes()
@@ -76,8 +84,7 @@ foreach (var service in services)
     }
 }
 
-builder.Services.AddScoped<IUserClaimsPrincipalFactory<AppUser>,
-   CustomClaimsPrincipalFactory>();
+#endregion
 
 //Start pipeline
 var app = builder.Build();
