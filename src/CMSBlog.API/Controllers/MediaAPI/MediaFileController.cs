@@ -71,7 +71,35 @@ namespace CMSBlog.API.Controllers.MediaAPI
             return Ok(result);
         }
 
-        
+        //[HttpPatch("{id:guid}/move")]
+        //public async Task<IActionResult> MoveToFolder([FromRoute] Guid id, [FromBody] MoveMediaFileRequest request)
+        //{
+        //    await _mediaService.MoveToFolderAsync(id, request.NewFolderId);
+        //    return NoContent();
+        //}
+
+        [HttpPatch("{id:guid}/update")]
+        public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateMediaFileRequest request)
+        {
+            if( request.File != null && request.File.Length > 0)
+            {
+                using var ms = new MemoryStream();
+                await request.File.CopyToAsync(ms);
+                await _mediaService.ReplaceMediaAsync(id, ms.ToArray());
+            }
+                
+            var dto = new UpdateMediaFileDto
+            {
+
+                FileName = request.FileName,
+                Description = request.Description,
+                AltText = request.AltText,
+                Caption = request.Caption
+            };
+            var result = await _mediaService.UpdateAsync(id, dto);
+            return Ok(result);
+        }
+
     }
 
 }
