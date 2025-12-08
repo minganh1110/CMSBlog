@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json;
 
 
 namespace CMSBlog.Core.Domain.Media
@@ -31,12 +32,26 @@ namespace CMSBlog.Core.Domain.Media
         public string? AltText { get; set; }
         public string? Caption { get; set; }
         public string Provider { get; set; } = null!; // e.g., "Local", "AWS", "Azure", etc.
+                           
+        // JSON column (Strapi formats)
+        [Column(TypeName = "NVARCHAR(MAX)")]
+        public string? FormatsJson { get; set; }
 
         //navigation properties
         //public MediaFolder? Folder { get; set; }
         public ICollection<MediaFileTag>? MediaFileTags { get; set; }
         public ICollection<MediaFileFolderLink>? FileFolderLinks { get; set; }
-        
+
+        // helper không ghi vào DB
+        [NotMapped]
+        public MediaFormats? Formats
+        {
+            get => FormatsJson == null ? null :
+                   JsonSerializer.Deserialize<MediaFormats>(FormatsJson);
+            set => FormatsJson = value == null ? null :
+                   JsonSerializer.Serialize(value);
+        }
+
     }
 
     public enum MediaType
@@ -47,4 +62,5 @@ namespace CMSBlog.Core.Domain.Media
         Document = 4,
         Other = 5
     }
+
 }

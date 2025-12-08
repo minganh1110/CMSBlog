@@ -1,0 +1,17 @@
+<li>
+  <span 
+    (click)="onSelect()" 
+    [class.active]="selectedFolderId === folder.id">
+    📁 {{ folder.folderName }}
+  </span>
+
+  <ul *ngIf="folder.children?.length">
+    <ng-container *ngFor="let child of folder.children">
+      <app-media-folder-node 
+        [folder]="child"
+        [selectedFolderId]="selectedFolderId"
+        (select)="select.emit($event)">
+      </app-media-folder-node>
+    </ng-container>
+  </ul>
+</li>

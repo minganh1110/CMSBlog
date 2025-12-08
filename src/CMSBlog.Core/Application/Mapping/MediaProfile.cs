@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using AutoMapper.Configuration.Conventions;
 using CMSBlog.Core.Application.DTOs.Media;
 using CMSBlog.Core.Domain.Media;
 
@@ -78,6 +79,17 @@ namespace CMSBlog.Core.Application.Mapping
                 .ForMember(dest => dest.Path, opt => opt.Ignore())
                 .ForMember(dest => dest.DateCreated, opt => opt.Ignore())
                 .ForMember(dest => dest.DateModified, opt => opt.Ignore());
+
+            // -----------------------------------------------------
+            // 5. UpdateMediaFolderDto → MediaFolder
+            // -----------------------------------------------------
+            CreateMap<UpdateMediaFolderDto, MediaFolder>()
+                .ForMember(dest => dest.PathId, opt => opt.Ignore())
+                .ForMember(dest => dest.ParentFolderId,
+                    opt => opt.MapFrom(src => src.NewFolderId));
+
+
+              
         }
     }
 }

@@ -1,0 +1,20 @@
+<div class="card">
+  <div class="card-header d-flex justify-content-between">
+    <h5 class="m-0">Media Explorer</h5>
+  </div>
+
+  <div class="card-body">
+    <ul class="folder-tree">
+      <ng-container *ngFor="let folder of folders">
+        <app-media-folder-node 
+          [folder]="folder" 
+          [selectedFolderId]="selectedFolderId"
+          (select)="folderSelected.emit($event)">
+        </app-media-folder-node>
+      </ng-container>
+    </ul>
+
+
+
+  </div>
+</div>

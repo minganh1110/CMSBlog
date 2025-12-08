@@ -1,6 +1,7 @@
-﻿using CMSBlog.Core.Application.Interfaces.Media;
-using Amazon.S3;
+﻿using Amazon.S3;
 using Amazon.S3.Model;
+using CMSBlog.API.Services;
+using CMSBlog.Core.Application.Interfaces.Media;
 
 public class S3StorageService : IStorageServicee
 {
@@ -36,6 +37,12 @@ public class S3StorageService : IStorageServicee
 
         // Trả về URL công khai của file
         return $"{_publicBaseUrl}/{fileName}";
+    }
+
+    public async Task<Stream> GetFileStreamAsync(string key, CancellationToken ct = default)
+    {
+        var response = await _s3Client.GetObjectAsync(_bucketName, key, ct);
+        return response.ResponseStream;
     }
 
     public string GetPublicBaseUrl() => _publicBaseUrl;

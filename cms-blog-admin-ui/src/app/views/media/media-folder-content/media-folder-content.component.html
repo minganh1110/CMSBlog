@@ -1,0 +1,22 @@
+<div *ngIf="assets">
+
+  <!-- Thumbnail -->
+  <div class="thumb-view row" *ngIf="viewMode === 'thumbnail'">
+    <div class="col-3" *ngFor="let a of filteredAssets">
+      <div class="thumb-box">
+        <img [src]="a.url" />
+        <div class="name">{{ a.fileName }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- List -->
+  <table class="table" *ngIf="viewMode === 'list'">
+    <tr *ngFor="let a of filteredAssets">
+      <td><img [src]="a.url" class="thumb-small" /></td>
+      <td>{{ a.fileName }}</td>
+      <td>{{ a.size }} KB</td>
+    </tr>
+  </table>
+
+</div>

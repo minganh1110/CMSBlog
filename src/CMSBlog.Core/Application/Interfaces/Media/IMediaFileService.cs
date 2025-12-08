@@ -15,6 +15,10 @@ namespace CMSBlog.Core.Application.Interfaces.Media
         Task<List<MediaFileDto>> GetInFolderAsync(Guid folderId);
         Task<bool> UpdateAsync(Guid id, UpdateMediaFileDto dto);
         Task<bool> DeleteAsync(Guid id);
+        Task<string> UploadAsync(byte[] content, string fileName);
+        Task<MediaFormat> GenerateFormatAsync(Stream original, string NameFile,
+            int targetWidth, string prefix, string ext, CancellationToken ct = default);
+        Task<Dictionary<string, MediaFormat>> GenerateAllFormats(Stream original, string NameFile, string ext);
         public MediaType DetectMediaType(string mime);
     }
 }

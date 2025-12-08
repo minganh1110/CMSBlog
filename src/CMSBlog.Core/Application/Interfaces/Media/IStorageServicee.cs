@@ -11,6 +11,11 @@ namespace CMSBlog.Core.Application.Interfaces.Media
         Task<string> SaveFileAsync(byte[] content, string fileName, CancellationToken ct = default);
 
         /// <summary>
+        /// Lấy stream của file từ storage
+        /// </summary>
+        Task<Stream> GetFileStreamAsync(string filePathOrKey, CancellationToken ct = default);
+
+        /// <summary>
         /// Trả về base URL public để client có thể truy cập
         /// </summary>
         string GetPublicBaseUrl();

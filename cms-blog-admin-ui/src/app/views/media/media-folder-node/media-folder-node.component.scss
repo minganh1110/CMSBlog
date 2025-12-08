@@ -1,0 +1,33 @@
+// Container của mỗi node trong cây thư mục
+li {
+  list-style: none;
+  margin: 4px 0;
+}
+
+// Style cho tên folder
+span {
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 4px;
+  display: inline-block;
+  transition: background-color 0.2s ease;
+}
+
+// Hover highlight
+span:hover {
+  background-color: #f0f0f0;
+}
+
+// Khi folder đang được chọn
+span.active {
+  background-color: #007bff;
+  color: white;
+  font-weight: bold;
+}
+
+// Danh sách con
+ul {
+  margin-left: 16px;
+  padding-left: 8px;
+  border-left: 1px dashed #ccc;
+}

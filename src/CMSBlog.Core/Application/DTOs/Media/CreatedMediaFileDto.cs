@@ -13,5 +13,6 @@ namespace CMSBlog.Core.Application.DTOs.Media
         public MediaType MediaType { get; set; }
         [Required(ErrorMessage ="MimeType là bắt buộc")]
         public string MimeType { get; set; } = null!;
+        public string? Description { get; set; } 
     }
 }

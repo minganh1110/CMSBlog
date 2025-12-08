@@ -1,0 +1,23 @@
+.folder-tree {
+  list-style: none;
+  padding-left: 10px;
+
+  li {
+    margin-bottom: 5px;
+
+    span {
+      cursor: pointer;
+      padding: 3px 6px;
+      border-radius: 4px;
+
+      &.active {
+        background: #007bff;
+        color: white;
+      }
+    }
+
+    ul {
+      padding-left: 20px;
+    }
+  }
+}

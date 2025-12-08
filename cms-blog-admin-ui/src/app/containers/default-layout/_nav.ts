@@ -50,6 +50,16 @@ export const navItems: INavData[] = [
   },
 
   {
+    name: 'Media',
+    url: '/media',
+    iconComponent: { name: 'cil-speedometer' },
+    attributes: {
+      "policyName": "Permissions.Media.View"
+    }
+
+  },
+
+  {
     name: 'Hệ thống',
     url: '/system',
     iconComponent: { name: 'cil-notes' },

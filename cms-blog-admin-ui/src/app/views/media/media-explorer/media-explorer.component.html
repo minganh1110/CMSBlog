@@ -1,0 +1,80 @@
+<div class="media-explorer">
+
+  <!-- TOOLBAR -->
+  <div class="toolbar d-flex justify-content-between align-items-center">
+    
+    
+
+    <div class="tools d-flex gap-2">
+
+      <!-- FILTER --><div class="media-container">
+
+  <h2 class="title">Media Library</h2>
+
+  <div class="toolbar">
+    <div class="left">
+      <select class="dropdown">
+        <option>Most recent uploads</option>
+        <option>Oldest uploads</option>
+        <option>By name</option>
+      </select>
+
+      <button class="btn filter-btn">
+        <i class="fa fa-filter"></i> Filters
+      </button>
+    </div>
+
+    <div class="right">
+      <button class="btn add-folder">+ Add new folder</button>
+      <button class="btn add-asset">+ Add new assets</button>
+
+      <button class="icon-btn" (click)="toggleView()">
+        <i class="fa" [ngClass]="viewMode === 'thumbnail' ? 'fa-th' : 'fa-list'"></i>
+      </button>
+
+      <input class="search-input" placeholder="Search…" />
+    </div>
+  </div>
+
+  <!-- Folders section -->
+  <div class="section-title">
+    Folders ({{ folders.length }})
+  </div>
+
+  <div class="folder-grid">
+    <div *ngFor="let folder of folders" class="folder-card">
+      <div class="folder-icon">📁</div>
+      <div class="folder-name">{{ folder.folderName }}</div>
+
+      <div class="folder-meta">
+        {{ folder.children?.length || 0 }} folder, {{ folder.file?.length || 0 }} asset
+      </div>
+    </div>
+  </div>
+
+  <!-- Assets section -->
+  <div class="section-title">
+    Assets ({{ assets.length }})
+  </div>
+
+  <div class="asset-grid" *ngIf="viewMode === 'thumbnail'">
+    <div class="asset-card" *ngFor="let a of assets">
+      <img class="thumb" [src]="a.thumbnailUrl || a.url" />
+
+      <div class="asset-info">
+        <strong>{{ a.fileName }}</strong>
+        <div>{{ a.type }} - {{ a.width }}x{{ a.height }}</div>
+      </div>
+    </div>
+  </div>
+
+  <table class="asset-list" *ngIf="viewMode === 'list'">
+    <tr *ngFor="let a of assets">
+      <td><img class="thumb-small" [src]="a.thumbnailUrl || a.url" /></td>
+      <td>{{ a.fileName }}</td>
+      <td>{{ a.type }}</td>
+      <td>{{ a.size }} KB</td>
+    </tr>
+  </table>
+
+

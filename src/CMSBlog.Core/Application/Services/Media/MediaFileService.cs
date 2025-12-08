@@ -1,8 +1,14 @@
 ﻿using AutoMapper;
 using CMSBlog.Core.Application.DTOs.Media;
 using CMSBlog.Core.Application.Interfaces.Media;
-using CMSBlog.Core.Domain.Media;
 using CMSBlog.Core.Domain.Constants;
+using CMSBlog.Core.Domain.Media;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Formats;
+using SixLabors.ImageSharp.Formats.Jpeg;
+using SixLabors.ImageSharp.Formats.Png;
+using SixLabors.ImageSharp.Formats.Webp;
+using SixLabors.ImageSharp.Processing;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -21,7 +27,8 @@ namespace CMSBlog.Core.Application.Services.Media
         private readonly IStorageFactory _storageFactory;
         private readonly IMediaFolderRepository _folderRepo;
         private readonly IFileFolderLinkRepository _fileFolderRepo;
-
+        int height;
+        int width;
         public async Task<string> UploadAsync(byte[] content, string fileName)
         {
             var provider = await _storageFactory.GetStorageServiceAsync();
@@ -37,7 +44,7 @@ namespace CMSBlog.Core.Application.Services.Media
             _folderRepo = folderrepo;
             _fileFolderRepo = linkrepo;
         }
-
+        
         public async Task<MediaFileDto> UploadAsync(CreatedMediaFileDto dto, CancellationToken ct = default)
         {
             if (dto.FileContent is null || dto.FileContent.Length == 0)
@@ -47,6 +54,7 @@ namespace CMSBlog.Core.Application.Services.Media
             var slug = GenerateSlug(Path.GetFileNameWithoutExtension(dto.FileName));
             var ext = Path.GetExtension(dto.FileName);
             var fileName = $"{slug}{ext}";
+            
 
             // 2. Lưu file qua provider
             var storage = await _storageFactory.GetStorageServiceAsync();
@@ -58,6 +66,29 @@ namespace CMSBlog.Core.Application.Services.Media
             // Kiểm tra folder có tồn tại không
             var folder = await _folderRepo.GetByIdAsync(folderId)
                         ?? throw new Exception("Folder does not exist");
+
+            // lấy chiều cao từ dto nếu có
+            if ( dto.MediaType == MediaType.Image)
+            {
+                // Cố gắng đọc chiều cao từ ảnh
+                using var image = Image.Load(dto.FileContent);
+                height = image.Height;
+                width = image.Width;
+            }
+
+            // 4. Tạo formats: thumbnail, small, medium, large
+
+            var imagee = await storage.GetFileStreamAsync(dto.FileName, ct);
+            var original = await ToMemoryStreamAsync(imagee);
+            var formats = await GenerateAllFormats(original,dto.FileName, ext);
+            var mediaFormats = new MediaFormats
+            {
+                Thumbnail = formats["thumbnail"],
+                Small = formats["small"],
+                Medium = formats["medium"],
+                Large = formats["large"]
+            };
+
 
             // 4. Tạo MediaFile
             var entity = new MediaFile
@@ -71,8 +102,13 @@ namespace CMSBlog.Core.Application.Services.Media
                 MimeType = dto.MimeType,
                 DateCreated = DateTime.UtcNow,
                 Provider = storage.ProviderName,
-                MediaType = dto.MediaType
+                MediaType = dto.MediaType,
+                Height = height,
+                Width = width,
+                Formats = mediaFormats
+
             };
+            
 
             await _repo.AddAsync(entity);
 
@@ -81,11 +117,62 @@ namespace CMSBlog.Core.Application.Services.Media
 
             // 6. Trả về DTO
             var result = _mapper.Map<MediaFileDto>(entity);
-            result.FileUrl = $"{storage.GetPublicBaseUrl()}/{storagePath}";
+            result.FileUrl = $"{storagePath}";
             result.FolderId = folderId;
 
             return result;
         }
+
+        public async Task<MediaFormat> GenerateFormatAsync(Stream original, string NameFile,
+            int targetWidth, string prefix, string ext, CancellationToken ct = default)
+        {
+            original.Position = 0;
+
+            using (var image = Image.Load(original))
+            {
+                var ratio = (double)targetWidth / image.Width;
+                var newHeight = (int)(image.Height * ratio);
+
+                image.Mutate(x => x.Resize(targetWidth, newHeight));
+
+                // 🟦 1. Lưu image vào MemoryStream thay vì Disk
+                using var ms = new MemoryStream();
+                await image.SaveAsync(ms, GetEncoder(ext));
+
+                string fileName = $"{prefix}_{NameFile}";
+
+                // 2. Lưu file qua provider
+                ms.Position = 0;
+                var content = ms.ToArray();
+                var storage = await _storageFactory.GetStorageServiceAsync();
+                var storagePath = await storage.SaveFileAsync(content, fileName, ct);
+
+                return new MediaFormat
+                {
+                    Name = fileName,
+                    Ext = ext,
+                    Mime = "image/" + ext.Trim('.'),
+                    Url = storagePath,
+                    Width = targetWidth,
+                    Height = newHeight,
+                    Size = Math.Round(content.Length / 1024.0, 2),
+                    SizeInBytes = content.Length
+                };
+            }
+        }
+
+        public async Task<Dictionary<string, MediaFormat>> GenerateAllFormats(Stream original,string NameFile, string ext)
+        {
+            var formats = new Dictionary<string, MediaFormat>();
+
+            formats["thumbnail"] = await GenerateFormatAsync(original,NameFile, 245, "thumbnail", ext);
+            formats["small"] = await GenerateFormatAsync(original,NameFile, 500, "small", ext);
+            formats["medium"] = await GenerateFormatAsync(original,NameFile, 750, "medium", ext);
+            formats["large"] = await GenerateFormatAsync(original,NameFile, 1000, "large", ext);
+
+            return formats;
+        }
+
 
 
         public async Task<IEnumerable<MediaFileDto>> GetAllAsync()
@@ -129,6 +216,50 @@ namespace CMSBlog.Core.Application.Services.Media
             // Map DTO → entity (partial update)
             _mapper.Map(dto, entity);
 
+            await _repo.UpdateAsync(entity);
+            return true;
+        }
+
+        public async Task<bool> ReplaceMediaAsync(Guid id, byte[] newContent, CancellationToken ct = default)
+        {
+            var height = 0;
+            var width = 0;
+            if (newContent is null || newContent.Length == 0)
+                throw new ArgumentException("File is empty");
+            var entity = await _repo.GetByIdAsync(id);
+            if (entity == null) return false;
+            // Lưu file mới qua provider
+            var storage = await _storageFactory.GetStorageServiceAsync();
+            var fileName = GetKeyFromPathOrUrl(entity.FilePath);
+            // lấy chiều cao từ dto nếu có
+            if (entity.MediaType == MediaType.Image)
+            {
+                // Cố gắng đọc chiều cao từ ảnh
+                using var image = Image.Load(newContent);
+                    height = image.Height;
+                    width = image.Width;    
+            }
+            
+
+            var storagePath = await storage.SaveFileAsync(newContent, fileName, ct);
+
+            // ReGenerate formats: thumbnail, small, medium, large
+            var imagee = await storage.GetFileStreamAsync(fileName, ct);
+            var original = await ToMemoryStreamAsync(imagee);
+            var formats = await GenerateAllFormats(original, fileName, entity.FileExtension);
+            var mediaFormats = new MediaFormats
+            {
+                Thumbnail = formats["thumbnail"],
+                Small = formats["small"],
+                Medium = formats["medium"],
+                Large = formats["large"]
+            };
+            entity.Formats = mediaFormats;
+            // Cập nhật thông tin file trong entity
+            entity.FileSize = newContent.Length;
+            entity.Height= height;
+            entity.Width= width;
+            entity.DateModified = DateTime.UtcNow;
             await _repo.UpdateAsync(entity);
             return true;
         }
@@ -182,5 +313,38 @@ namespace CMSBlog.Core.Application.Services.Media
             return MediaType.Other;
         }
 
+        private IImageEncoder GetEncoder(string ext)
+        {
+            return ext.ToLower() switch
+            {
+                ".png" => new PngEncoder(),
+                ".jpg" or ".jpeg" => new JpegEncoder(),
+                ".webp" => new WebpEncoder(),
+                _ => new PngEncoder()
+            };
+        }
+
+        private async Task<MemoryStream> ToMemoryStreamAsync(Stream input)
+        {
+            var ms = new MemoryStream();
+            await input.CopyToAsync(ms);
+            ms.Position = 0;
+            return ms;
+        }
+
+        private static string GetKeyFromPathOrUrl(string pathOrUrl)
+        {
+            if (string.IsNullOrEmpty(pathOrUrl)) return Guid.NewGuid().ToString("N");
+
+            if (Uri.IsWellFormedUriString(pathOrUrl, UriKind.Absolute))
+            {
+                var uri = new Uri(pathOrUrl);
+                // AbsolutePath like /bucket/key/file.png -> take last segment or whole path as key depending on your S3 mapping
+                // Here we take last segment to keep filename (if your S3 uses folder keys, adjust accordingly)
+                return Path.GetFileName(uri.AbsolutePath);
+            }
+            // otherwise assume it's already a key or filepath; if it's a full local path, take filename
+            return Path.GetFileName(pathOrUrl);
+        }
     }
 }

@@ -3,6 +3,7 @@ using CMSBlog.Core.Application.DTOs.Media;
 using CMSBlog.Core.Application.Interfaces.Media;
 using CMSBlog.Core.Application.Services.Media;
 using CMSBlog.Core.Domain.Media;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CMSBlog.API.Controllers.MediaAPI
@@ -21,6 +22,7 @@ namespace CMSBlog.API.Controllers.MediaAPI
         [HttpGet]
         public async Task<IActionResult> GetAll() => Ok(await _mediaService.GetAllAsync());
 
+        [AllowAnonymous]
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetById([FromRoute] Guid id)
         {

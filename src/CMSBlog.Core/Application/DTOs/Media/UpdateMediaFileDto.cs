@@ -10,5 +10,7 @@ namespace CMSBlog.Core.Application.DTOs.Media
     {
         public string FileName { get; set; } = null!;
         public string? Description { get; set; }
+        public string? AltText { get; set; }
+        public string? Caption { get; set; }
     }
 }

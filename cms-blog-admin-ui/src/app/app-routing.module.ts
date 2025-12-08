@@ -30,6 +30,12 @@ const routes: Routes = [
         loadChildren: () =>
           import('./views/content/content.module').then((m) => m.ContentModule)
       },
+      {
+        path: 'media',
+        loadChildren: () =>
+          import('./views/media/media.module').then(m => m.MediaModule)
+      },
+
 
       
     ]

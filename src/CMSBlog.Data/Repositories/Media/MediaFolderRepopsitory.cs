@@ -52,10 +52,14 @@ namespace CMSBlog.Data.Repositories.Media
                 .ToListAsync();
         }
 
-        public Task UpdateAsync(MediaFolder entity)
+        public async Task  UpdateAsync(MediaFolder entity)
         {
+            
             _db.MediaFolders.Update(entity);
-            return Task.CompletedTask;
+            _db.Entry(entity).Property(x => x.PathId).IsModified = false;
+
+            await _db.SaveChangesAsync();
+            //return await Task.CompletedTask;
         }
 
         public Task DeleteRangeAsync(IEnumerable<MediaFolder> entities)

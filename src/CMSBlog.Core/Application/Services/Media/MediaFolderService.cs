@@ -123,12 +123,31 @@ namespace CMSBlog.Core.Application.Services.Media
             var folder = await _repo.GetByIdAsync(id);
             if (folder == null) return false;
 
-            _mapper.Map(dto, folder);
-            folder.DateModified = DateTime.UtcNow;
+            await _repo.BeginTransactionAsync();
+            try
+            {
+                bool isRenamed = false;
+                bool isMoved = false;
 
-            await _repo.UpdateAsync(folder);
-            await _repo.SaveChangesAsync();
+                if (!string.IsNullOrWhiteSpace(dto.FolderName)
+                && dto.FolderName != folder.FolderName)
+                {
+                    
+                    isRenamed = await RenameAsync(id, dto.FolderName);
+                }
 
+                if (dto.NewFolderId != folder.ParentFolderId)
+                {
+                    
+                    isMoved = await MoveAsync(id, dto.NewFolderId);
+                }
+            }
+            catch
+            {
+                await _repo.RollbackAsync();
+                throw;
+            }
+       
             return true;
         }
 
@@ -154,12 +173,12 @@ namespace CMSBlog.Core.Application.Services.Media
                     throw new InvalidOperationException("Cannot move folder into its descendant");
 
                 folder.ParentFolderId = parentId;
-                newPath = $"{parent.Path}/{folder.Id}";
+                newPath = $"{parent.Path}/{folder.PathId}";
             }
             else
             {
                 folder.ParentFolderId = null;
-                newPath = $"/{folder.Id}";
+                newPath = $"/{folder.PathId}";
             }
 
             // Transaction handled by repository
@@ -182,7 +201,7 @@ namespace CMSBlog.Core.Application.Services.Media
                     await _repo.UpdateAsync(d);
                 }
 
-                await _repo.SaveChangesAsync();
+                //await _repo.SaveChangesAsync();
                 await _repo.CommitAsync();
 
                 return true;

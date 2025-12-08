@@ -2,6 +2,7 @@
 using CMSBlog.Core.Application.DTOs.Media;
 using CMSBlog.Core.Application.Interfaces.Media;
 using CMSBlog.Core.Application.Services.Media;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CMSBlog.API.Controllers.SettingAPI
