@@ -1,13 +1,17 @@
 using CMSBlog.Core.ConfigOptions;
 using CMSBlog.Core.Domain.Identity;
+using CMSBlog.Core.Events.LoginSuccessed;
 using CMSBlog.Core.Models.Content;
 using CMSBlog.Core.SeedWorks;
 using CMSBlog.Data;
 using CMSBlog.Data.Repositories;
 using CMSBlog.Data.SeedWorks;
 using CMSBlog.WebApp.Helpers;
+using CMSBlog.WebApp.Services;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -23,6 +27,9 @@ builder.Services.AddControllersWithViews();
 
 //Custom setup
 builder.Services.Configure<SystemConfig>(configuration.GetSection("SystemConfig"));
+builder.Services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
+
+
 
 builder.Services.AddDbContext<CMSBlogContext>(options => options.UseSqlServer(connectionString));
 
@@ -63,11 +70,13 @@ builder.Services.AddScoped<IUserClaimsPrincipalFactory<AppUser>,
 #endregion
 
 builder.Services.AddAutoMapper(typeof(PostInListDto));
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(LoginSuccessedEvent).Assembly));
 
 #region Configure Services
 // Add services to the container.
 builder.Services.AddScoped(typeof(IRepository<,>), typeof(RepositoryBase<,>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<CMSBlog.WebApp.Services.IEmailSender,EmailSender>();
 
 // Business services and repositories
 var services = typeof(PostRepository).Assembly.GetTypes()
