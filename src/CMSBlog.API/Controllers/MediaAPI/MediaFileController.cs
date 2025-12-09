@@ -71,15 +71,15 @@ namespace CMSBlog.API.Controllers.MediaAPI
             return Ok(result);
         }
 
-        //[HttpPatch("{id:guid}/move")]
-        //public async Task<IActionResult> MoveToFolder([FromRoute] Guid id, [FromBody] MoveMediaFileRequest request)
-        //{
-        //    await _mediaService.MoveToFolderAsync(id, request.NewFolderId);
-        //    return NoContent();
-        //}
+        [HttpPatch("{id:guid}/move")]
+        public async Task<IActionResult> MoveToFolder([FromRoute] Guid id, [FromBody] MoveMediaFileDto dto)
+        {
+            await _mediaService.MoveToFolderAsync(id, dto.NewFolderId);
+            return NoContent();
+        }
 
         [HttpPatch("{id:guid}/update")]
-        public async Task<IActionResult> Update([FromRoute] Guid id, [FromBody] UpdateMediaFileRequest request)
+        public async Task<IActionResult> Update([FromRoute] Guid id, [FromForm] UpdateMediaFileRequest request)
         {
             if( request.File != null && request.File.Length > 0)
             {
@@ -87,7 +87,12 @@ namespace CMSBlog.API.Controllers.MediaAPI
                 await request.File.CopyToAsync(ms);
                 await _mediaService.ReplaceMediaAsync(id, ms.ToArray());
             }
-                
+
+            if(request.FolderId != null)
+            {
+                await _mediaService.MoveToFolderAsync(id, request.FolderId.Value);
+            }
+
             var dto = new UpdateMediaFileDto
             {
 

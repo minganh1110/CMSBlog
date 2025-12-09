@@ -186,7 +186,21 @@ namespace CMSBlog.Core.Application.Services.Media
             var result = _mapper.Map<List<MediaFileDto>>(items);
 
             foreach (var file in result)
-                file.FileUrl = $"{baseUrl}/{file.FilePath}";
+            {
+                if (file.Formats != null)
+                {
+                    //lấy full url cho file chính
+                    file.FileUrl = $"{baseUrl}/{file.FilePath}";
+                    //lấy full url cho từng format
+                    foreach (var fmt in new[] { file.Formats.Thumbnail, file.Formats.Small,
+                                file.Formats.Medium, file.Formats.Large })
+                    {
+                        if (fmt != null)
+                            fmt.Url = $"{baseUrl}/{fmt.Path}";
+                    }
+                }
+            }
+                
 
             return result;
         }
@@ -203,9 +217,45 @@ namespace CMSBlog.Core.Application.Services.Media
             var result = _mapper.Map<List<MediaFileDto>>(items);
 
             foreach (var file in result)
+            {
+                //lấy full url cho file chính
                 file.FileUrl = $"{baseUrl}/{file.FilePath}";
+                //lấy full url cho từng format
+                if (file.Formats != null)
+                {
+                    foreach (var fmt in new[] { file.Formats.Thumbnail, file.Formats.Small,
+                                file.Formats.Medium, file.Formats.Large })
+                    {
+                        if (fmt != null)
+                            fmt.Url = $"{baseUrl}/{fmt.Path}";
+                    }
+                }
+            }
+                
 
             return result;
+        }
+
+        public async Task<MediaFileDto?> GetByIdAsync(Guid id)
+        {
+            var entity = await _repo.GetByIdAsync(id);
+            if (entity == null) return null;
+
+            var storage = await _storageFactory.GetStorageServiceAsync();
+            var baseUrl = storage.GetPublicBaseUrl();
+            var dto = _mapper.Map<MediaFileDto>(entity);
+            dto.FileUrl = $"{baseUrl}/{dto.FilePath}";
+            if (dto.Formats != null)
+            {
+                foreach (var fmt in new[] { dto.Formats.Thumbnail, dto.Formats.Small,
+                                dto.Formats.Medium, dto.Formats.Large })
+                {
+                    if (fmt != null)
+                        fmt.Url = $"{baseUrl}/{fmt.Path}";
+                }
+            }
+
+            return dto;
         }
 
 
@@ -264,16 +314,17 @@ namespace CMSBlog.Core.Application.Services.Media
             return true;
         }
 
-        public async Task<MediaFileDto?> GetByIdAsync(Guid id)
+        public async Task<bool> MoveToFolderAsync(Guid fileId, Guid newFolderId)
         {
-            var entity = await _repo.GetByIdAsync(id);
-            if (entity == null) return null;
-
-            var storage = await _storageFactory.GetStorageServiceAsync();
-            var baseUrl = storage.GetPublicBaseUrl();
-            var dto = _mapper.Map<MediaFileDto>(entity);
-            dto.FileUrl = $"{baseUrl}/{dto.FilePath}";
-            return dto;
+            var file = await _repo.GetByIdAsync(fileId);
+            if (file == null) return false;
+            var newFolder = await _folderRepo.GetByIdAsync(newFolderId);
+            if (newFolder == null) return false;
+            // Xóa liên kết hiện tại
+            await _fileFolderRepo.DeleteLinksByFileAsync(fileId);
+            // Tạo liên kết mới
+            await _fileFolderRepo.AddLinkAsync(fileId, newFolderId);
+            return true;
         }
 
         public async Task<bool> DeleteAsync(Guid id)

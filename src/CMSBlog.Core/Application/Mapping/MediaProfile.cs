@@ -35,7 +35,10 @@ namespace CMSBlog.Core.Application.Mapping
                     opt => opt.MapFrom(src =>
                         src.MediaFileTags != null
                             ? src.MediaFileTags.Select(t => t.MediaTag.TagName).ToList()
-                            : new List<string>()));
+                            : new List<string>()))
+
+                .ForMember(dest => dest.Formats,
+                    opt => opt.MapFrom(src => src.Formats));
 
             // -----------------------------------------------------
             // 2. CreatedMediaFileDto → MediaFile (Upload)
@@ -88,6 +91,10 @@ namespace CMSBlog.Core.Application.Mapping
                 .ForMember(dest => dest.ParentFolderId,
                     opt => opt.MapFrom(src => src.NewFolderId));
 
+            //
+            //
+            //
+            CreateMap<UpdateMediaFileDto, MediaFile>();
 
               
         }

@@ -27,8 +27,10 @@ namespace CMSBlog.Core.Application.DTOs.Media
         public Guid? FolderId { get; set; }
         public string? FolderName { get; set; }
         public string FileUrl { get; set; } = null!;
-
+        public MediaType MediaType { get; set; }
         public List<string> Tags { get; set; } = new List<string>();
+        public MediaFormats? Formats { get; set; }
+        public string Url => Formats?.Small?.Url ?? Formats?.Thumbnail?.Url ?? "";
     }
 
 }

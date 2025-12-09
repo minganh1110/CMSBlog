@@ -18,6 +18,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Scrutor;
 using System.Text.Json.Serialization;
+using System.IO;
+
+Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"));
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;

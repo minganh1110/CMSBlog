@@ -20,6 +20,7 @@ namespace CMSBlog.Core.Application.Interfaces.Media
             int targetWidth, string prefix, string ext, CancellationToken ct = default);
         Task<Dictionary<string, MediaFormat>> GenerateAllFormats(Stream original, string NameFile, string ext);
         Task<bool> ReplaceMediaAsync(Guid id, byte[] newContent, CancellationToken ct = default);
+        Task<bool> MoveToFolderAsync(Guid fileId, Guid newFolderId);
         public MediaType DetectMediaType(string mime);
     }
 }
