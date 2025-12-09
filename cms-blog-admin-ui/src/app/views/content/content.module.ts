@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { IconModule } from '@coreui/icons-angular';
 import { ChartjsModule } from '@coreui/angular-chartjs';
-
+import { FormsModule } from '@angular/forms';
 import { ContentRoutingModule } from './content-routing.module';
 import { PostCategoryComponent } from './post-categories/post-category.component';
 import { PostCategoryDetailComponent } from './post-categories/post-category-detail.component';
@@ -58,7 +58,9 @@ import { SeriesPostsComponent } from './series/series-posts.component';
     InputNumberModule,
     ImageModule,
     AutoCompleteModule,
-    DynamicDialogModule
+    DynamicDialogModule,
+    FormsModule,
+    EditorModule 
   ],
   declarations: [
     PostComponent,

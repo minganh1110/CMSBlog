@@ -1,8 +1,9 @@
-import { Component, OnInit, EventEmitter, OnDestroy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, EventEmitter, OnDestroy, ChangeDetectorRef, ViewChild, AfterViewInit } from '@angular/core';
 import { Validators, FormControl, FormGroup, FormBuilder } from '@angular/forms';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { forkJoin, Subject, takeUntil } from 'rxjs';
 import { UtilityService } from 'src/app/shared/services/utility.service';
+import { Editor } from 'primeng/editor';
 import { AdminApiPostApiClient, AdminApiPostCategoryApiClient, PostCategoryDto, PostDto } from 'src/app/api/admin-api.service.generated';
 import { UploadService } from 'src/app/shared/services/upload.service';
 import { environment } from 'src/environments/environment';
@@ -15,7 +16,7 @@ interface AutoCompleteCompleteEvent {
 @Component({
   templateUrl: 'post-detail.component.html',
 })
-export class PostDetailComponent implements OnInit, OnDestroy {
+export class PostDetailComponent implements OnInit, OnDestroy, AfterViewInit {
   private ngUnsubscribe = new Subject<void>();
 
   // Default
@@ -30,6 +31,8 @@ export class PostDetailComponent implements OnInit, OnDestroy {
 
   selectedEntity = {} as PostDto;
   public thumbnailImage: string = '';
+
+  @ViewChild('editor') editor: Editor | undefined;
 
   tags: string[] | undefined;
   filteredTags: string[] | undefined;
@@ -53,6 +56,13 @@ export class PostDetailComponent implements OnInit, OnDestroy {
     }
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
+  }
+
+  ngAfterViewInit(): void {
+    // If form already exists and content is present, ensure editor shows it
+    setTimeout(() => {
+      this.applyContentToEditor();
+    }, 0);
   }
 
   public generateSlug() {
@@ -117,6 +127,7 @@ export class PostDetailComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (response: PostDto) => {
           this.selectedEntity = response;
+            console.log('Loaded post content:', this.selectedEntity?.content);
           this.buildForm();
           this.toggleBlockUI(false);
         },
@@ -220,6 +231,34 @@ export class PostDetailComponent implements OnInit, OnDestroy {
     });
     if (this.selectedEntity.thumbnail) {
       this.thumbnailImage = environment.API_URL + this.selectedEntity.thumbnail;
+    }
+    // Ensure the rich text editor gets the content value (helps when editor initializes
+    // after the form control is created). Explicitly set the value and trigger change
+    // detection so PrimeNG `p-editor` shows the loaded HTML content.
+    try {
+      const contentCtrl = this.form.get('content');
+      if (contentCtrl && this.selectedEntity.content !== undefined && this.selectedEntity.content !== null) {
+        contentCtrl.setValue(this.selectedEntity.content);
+      }
+    } catch (e) {
+      // ignore
+    }
+    this.cdr.detectChanges();
+    // also try to apply content directly to Quill editor if available
+    setTimeout(() => {
+      this.applyContentToEditor();
+    }, 0);
+  }
+
+  private applyContentToEditor() {
+    try {
+      const html = this.selectedEntity?.content || this.form?.get('content')?.value || '';
+      if (this.editor && this.editor.quill) {
+        // Use Quill's API to insert HTML safely
+        this.editor.quill.clipboard.dangerouslyPasteHTML(html);
+      }
+    } catch (e) {
+      // ignore failures
     }
   }
     filterTag(event: AutoCompleteCompleteEvent) {

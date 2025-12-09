@@ -1,4 +1,7 @@
-﻿using CMSBlog.Core.Domain.Identity;
+﻿using CMSBlog.Core.ConfigOptions;
+using CMSBlog.Core.Domain.Content;
+using CMSBlog.Core.Domain.Identity;
+using CMSBlog.Core.Helpers;
 using CMSBlog.Core.SeedWorks;
 using CMSBlog.Core.SeedWorks.Constants;
 using CMSBlog.WebApp.Extensions;
@@ -7,6 +10,11 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Options;
+using System.Net;
+using System.Text.Json;
+using static Org.BouncyCastle.Math.EC.ECCurve;
 
 namespace CMSBlog.WebApp.Controllers
 {
@@ -16,13 +24,15 @@ namespace CMSBlog.WebApp.Controllers
         private readonly IUnitOfWork _unitOfWork;
         private readonly SignInManager<AppUser> _signInManager;
         private readonly UserManager<AppUser> _userManager;
+        private readonly SystemConfig _config;
         public ProfileController(IUnitOfWork unitOfWork,
             SignInManager<AppUser> signInManager,
-            UserManager<AppUser> userManager)
+            UserManager<AppUser> userManager, IOptions<SystemConfig> systemConfig)
         {
             _unitOfWork = unitOfWork;
             _signInManager = signInManager;
             _userManager = userManager;
+            _config = systemConfig.Value;
         }
         [Route("/profile")]
         public async Task<IActionResult> Index()
@@ -123,6 +133,108 @@ namespace CMSBlog.WebApp.Controllers
         {
             var userId = User.GetUserId();
             return await _userManager.FindByIdAsync(userId.ToString());
+        }
+        [HttpGet]
+        [Route("/profile/posts/create")]
+        public async Task<IActionResult> CreatePost()
+        {
+            return View(await SetCreatePostModel());
+        }
+
+        [Route("/profile/posts/create")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreatePost([FromForm] CreatePostViewModel model, IFormFile thumbnail)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(await SetCreatePostModel());
+            }
+            var user = await GetCurrentUser();
+            var category = await _unitOfWork.PostCategories.GetByIdAsync(model.CategoryId);
+            var post = new Post()
+            {
+                Name = model.Title,
+                CategoryName = category.Name,
+                CategorySlug = category.Slug,
+                Slug = TextHelper.ToUnsignedString(model.Title),
+                CategoryId = model.CategoryId,
+                Content = model.Content,
+                SeoDescription = model.SeoDescription,
+                Status = PostStatus.Draft,
+                AuthorUserId = user.Id,
+                AuthorName = user.GetFullName(),
+                AuthorUserName = user.UserName,
+                Description = model.Description
+            };
+            _unitOfWork.Posts.Add(post);
+            if (thumbnail != null)
+            {
+                await UploadThumbnail(thumbnail, post);
+            }
+            int result = await _unitOfWork.CompleteAsync();
+            if (result > 0)
+            {
+                TempData[SystemConsts.FormSuccessMsg] = "Post is created successful.";
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, "Create post failed");
+
+            }
+            return View(model);
+
+        }
+
+        private async Task UploadThumbnail(IFormFile thumbnail, Post post)
+        {
+            using (var client = new HttpClient())
+            {
+                client.BaseAddress = new Uri(_config.BackendApiUrl);
+
+                byte[] data;
+                using (var br = new BinaryReader(thumbnail.OpenReadStream()))
+                {
+                    data = br.ReadBytes((int)thumbnail.OpenReadStream().Length);
+                }
+
+                var bytes = new ByteArrayContent(data);
+
+                var multiContent = new MultipartFormDataContent
+                {
+                    { bytes, "file", thumbnail.FileName }
+                };
+
+                var uploadResult = await client.PostAsync("api/admin/media?type=posts", multiContent);
+                if (uploadResult.StatusCode != HttpStatusCode.OK)
+                {
+                    ModelState.AddModelError("", await uploadResult.Content.ReadAsStringAsync());
+                }
+                else
+                {
+                    var path = await uploadResult.Content.ReadAsStringAsync();
+                    var pathObj = JsonSerializer.Deserialize<UploadResponse>(path);
+                    post.Thumbnail = pathObj?.Path;
+                }
+
+            }
+        }
+
+        private async Task<CreatePostViewModel> SetCreatePostModel()
+        {
+            var model = new CreatePostViewModel()
+            {
+                Title = "Untitled",
+                Categories = new SelectList(await _unitOfWork.PostCategories.GetAllAsync(), "Id", "Name")
+            };
+            return model;
+        }
+
+        [HttpGet]
+        [Route("/profile/posts/list")]
+        public async Task<IActionResult> ListPosts()
+        {
+            return View(await SetCreatePostModel());
         }
     }
 }
