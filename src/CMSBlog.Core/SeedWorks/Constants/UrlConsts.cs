@@ -27,6 +27,7 @@ namespace CMSBlog.Core.SeedWorks.Constants
         public static string CreatePost = "/profile/posts/create";
         public static string PostListByUser = "/profile/posts/list";
         public static string ChangePassword = "/profile/change-password";
+        public static string SendApprovalPost = "/profile/post/send-approve";
 
     }
 }

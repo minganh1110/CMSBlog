@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Options;
 using System.Net;
 using System.Text.Json;
+using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 using static Org.BouncyCastle.Math.EC.ECCurve;
 
 namespace CMSBlog.WebApp.Controllers
@@ -232,9 +233,13 @@ namespace CMSBlog.WebApp.Controllers
 
         [HttpGet]
         [Route("/profile/posts/list")]
-        public async Task<IActionResult> ListPosts()
+        public async Task<IActionResult> ListPosts(string keyword, int page = 1)
         {
-            return View(await SetCreatePostModel());
+            var posts = await _unitOfWork.Posts.GetPostByUserPaging(keyword, User.GetUserId(), page, 12);
+            return View(new ListPostByUserViewModel()
+            {
+                Posts = posts
+            });
         }
     }
 }
