@@ -35,8 +35,11 @@ namespace CMSBlog.Data.Repositories.Media
         {
             return await _db.MediaFolders
                 .Include(f => f.ChildFolders)
+                .Include(f => f.FileFolderLinks)
+                    .ThenInclude(link => link.MediaFile)
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
+
 
         public async Task<List<MediaFolder>> GetAllAsync()
         {

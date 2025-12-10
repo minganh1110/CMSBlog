@@ -10,7 +10,7 @@ namespace CMSBlog.Core.Application.Interfaces.Media
     public interface IMediaFileService
     {
         Task<MediaFileDto> UploadAsync(CreatedMediaFileDto dto, CancellationToken ct = default);
-        Task<IEnumerable<MediaFileDto>> GetAllAsync();
+        Task<List<MediaFileDto>> GetAllAsync();
         Task<MediaFileDto?> GetByIdAsync(Guid id);
         Task<List<MediaFileDto>> GetInFolderAsync(Guid folderId);
         Task<bool> UpdateAsync(Guid id, UpdateMediaFileDto dto);

@@ -9,7 +9,7 @@ namespace CMSBlog.Core.Application.Interfaces.Media
     {
         Task<MediaFile> AddAsync(MediaFile entity);
         Task<MediaFile?> GetByIdAsync(Guid id);
-        Task<IEnumerable<MediaFile>> GetAllAsync(string providerName);
+        Task<List<MediaFile>> GetAllAsync(string providerName);
         Task<List<MediaFile>> GetByFolderIdAsync(Guid folderId, string providerName);
         Task SaveChangesAsync();
         Task DeleteAsync(Guid id);

@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CMSBlog.API.Controllers.MediaAPI
 {
-    
+
     [Produces("application/json")]
     [ApiController]
     [Route("api/folders")]
@@ -34,7 +34,7 @@ namespace CMSBlog.API.Controllers.MediaAPI
         // -------------------------------------------------------------
         [HttpGet("tree")]
         public async Task<IActionResult> GetTree()
-        {   
+        {
             var result = await _service.GetTreeAsync();
             return Ok(result);
         }
@@ -83,6 +83,42 @@ namespace CMSBlog.API.Controllers.MediaAPI
             var ok = await _service.DeleteAsync(id);
             if (!ok) return NotFound();
             return Ok();
+        }
+
+        // -------------------------------------------------------------
+        // 7) Lấy thông tin folder theo Id
+        // -------------------------------------------------------------
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(Guid id)
+        {
+            var result = await _service.GetByIdAsync(id);
+            if (result == null) return NotFound();
+            return Ok(result);
+        }
+
+        // -------------------------------------------------------------
+        // 8) Lấy danh sách folder con của folder hiện tại
+        // -------------------------------------------------------------
+        [HttpGet("{id}/children")]
+        public async Task<IActionResult> GetChildren(Guid id)
+        {
+            var filter = new FilterFolderDto
+            {
+                ParentId = id
+            };
+            var result = await _service.FilterAsync(filter);
+            return Ok(result);
+        }
+
+        // -------------------------------------------------------------
+        // 9) Lấy danh sách File trong folder hiện tại
+        // -------------------------------------------------------------
+        [HttpGet("{id}/files")]
+        public async Task<IActionResult> GetFiles(Guid id)
+        {
+            var result = await _service.GetByIdIncludeFilesAsync(id);
+            if (result == null) return NotFound();
+            return Ok(result);
         }
     }
 }

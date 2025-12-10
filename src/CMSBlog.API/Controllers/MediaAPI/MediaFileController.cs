@@ -20,8 +20,11 @@ namespace CMSBlog.API.Controllers.MediaAPI
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll() => Ok(await _mediaService.GetAllAsync());
-
+        public async Task<IActionResult> GetAll()
+        {
+            var items = await _mediaService.GetAllAsync();
+            return Ok(items);
+        }
         [AllowAnonymous]
         [HttpGet("{id:guid}")]
         public async Task<IActionResult> GetById([FromRoute] Guid id)

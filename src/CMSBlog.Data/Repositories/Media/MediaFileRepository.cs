@@ -32,7 +32,7 @@ namespace CMSBlog.Data.Repositories.Media
                 await _db.SaveChangesAsync();
             }
         }
-        public async Task<IEnumerable<MediaFile>> GetAllAsync(string providerName)
+        public async Task<List<MediaFile>> GetAllAsync(string providerName)
         {
             return await _db.MediaFiles
                     .Where(x => !x.IsDeleted && x.Provider == providerName)

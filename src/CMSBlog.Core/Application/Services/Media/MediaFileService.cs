@@ -175,7 +175,7 @@ namespace CMSBlog.Core.Application.Services.Media
 
 
 
-        public async Task<IEnumerable<MediaFileDto>> GetAllAsync()
+        public async Task<List<MediaFileDto>> GetAllAsync()
         {
             var storage = await _storageFactory.GetStorageServiceAsync();
             var providerName = storage.ProviderName;
@@ -192,12 +192,17 @@ namespace CMSBlog.Core.Application.Services.Media
                     //lấy full url cho file chính
                     file.FileUrl = $"{baseUrl}/{file.FilePath}";
                     //lấy full url cho từng format
-                    foreach (var fmt in new[] { file.Formats.Thumbnail, file.Formats.Small,
-                                file.Formats.Medium, file.Formats.Large })
+                    if(file.Formats != null)
                     {
-                        if (fmt != null)
-                            fmt.Url = $"{baseUrl}/{fmt.Path}";
+                        foreach (var fmt in new[] { file.Formats.Thumbnail, file.Formats.Small,
+                                    file.Formats.Medium, file.Formats.Large })
+                        {
+                            if (fmt != null)
+                                fmt.Url = $"{baseUrl}/{fmt.Path}";
+                        }
+
                     }
+                    
                 }
             }
                 

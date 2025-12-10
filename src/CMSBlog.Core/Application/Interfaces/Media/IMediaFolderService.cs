@@ -11,6 +11,7 @@ namespace CMSBlog.Core.Application.Interfaces.Media
     {
         Task<MediaFolderDto> CreateAsync(CreateMediaFolderDto dto, Guid? userId = null);
         Task<MediaFolderDto?> GetByIdAsync(Guid id);
+        Task<MediaFolderDto?> GetByIdIncludeFilesAsync(Guid id);
         Task<List<MediaFolderDto>> GetTreeAsync();
         Task<bool> RenameAsync(Guid id, string newName);
         Task<bool> MoveAsync(Guid id, Guid? newParentId);

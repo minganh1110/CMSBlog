@@ -1,6 +1,8 @@
 /* You can add global styles to this file, and also import other style files */
 // If you want to override variables do it here
 @import "variables";
+@import "quill/dist/quill.snow.css";
+
 
 $enable-ltr: true;
 $enable-rtl: true;

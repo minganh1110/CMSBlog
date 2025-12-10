@@ -12,7 +12,7 @@ namespace CMSBlog.Core.Application.Interfaces.Media
     {
         Task AddAsync(MediaFolder entity);
         Task<MediaFolder?> GetByIdAsync(Guid id);
-        Task<MediaFolder?> GetByIdWithChildrenAsync(Guid id); // include children if needed
+        Task<MediaFolder?> GetByIdWithChildrenAsync(Guid id); // include children + file if needed
         Task<List<MediaFolder>> GetAllAsync();
         Task<List<MediaFolder>> GetDescendantsAsync(string pathPrefix); // pathPrefix = "/1/2"
         Task UpdateAsync(MediaFolder entity);

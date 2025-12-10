@@ -69,6 +69,15 @@ namespace CMSBlog.Core.Application.Services.Media
             return entity == null ? null : _mapper.Map<MediaFolderDto>(entity);
         }
 
+        //
+        // GET BY ID INCLUDE FILES
+        //
+        public async Task<MediaFolderDto?> GetByIdIncludeFilesAsync(Guid id)
+        {
+            var entity = await _repo.GetByIdWithChildrenAsync(id);
+            return entity == null ? null : _mapper.Map<MediaFolderDto>(entity);
+        }
+
         // -----------------------------------------------------------
         // GET TREE
         // -----------------------------------------------------------
