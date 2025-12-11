@@ -1,0 +1,12 @@
+<div class="card" [class.list]="listView">
+  <div class="thumb">
+    <img *ngIf="getThumb(); else noThumb" [src]="getThumb()" alt="{{file.fileName}}">
+    <ng-template #noThumb>
+      <div class="no-thumb">Không có bản review</div>
+    </ng-template>
+  </div>
+  <div class="info">
+    <div class="title">{{ file.fileName }}</div>
+    <div class="meta">{{ file.mediaType }}</div>
+  </div>
+</div>

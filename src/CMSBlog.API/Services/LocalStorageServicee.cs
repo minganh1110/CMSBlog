@@ -1,56 +1,51 @@
 ﻿using CMSBlog.Core.Application.Interfaces.Media;
-using Microsoft.AspNetCore.Http;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace CMSBlog.API.Services
+public class LocalStorageServicee : IStorageServicee
 {
-    public class LocalStorageServicee : IStorageServicee
+    private readonly string _rootFolder;
+    private readonly string _requestPath;
+    private readonly IHttpContextAccessor _httpContext;
+
+    public LocalStorageServicee(IWebHostEnvironment env, IConfiguration config, IHttpContextAccessor httpContext)
     {
-        private readonly IWebHostEnvironment _env;
-        private readonly string _baseUrl;
-        private readonly string _rootPath;
-        private readonly string relativePath="";
+        // Thư mục lưu file bên trong wwwroot
+        _rootFolder = Path.Combine(env.ContentRootPath, "MediaLibrary", "uploads");
 
-        public LocalStorageServicee(IWebHostEnvironment env, IConfiguration config)
-        {
-            _env = env;
-             relativePath = config["Storage:Local:RootPath"] ?? "MediaLibrary/uploads";
-            _baseUrl = config["Storage:Local:BaseUrl"] ?? "/uploads";
+        // URL public
+        _requestPath = "/uploads";
 
-            // Đây là đường dẫn tuyệt đối nằm cạnh API (.exe)
-            _rootPath = Path.Combine(env.ContentRootPath, relativePath);
-        }
-
-        // =====================
-        // FILE
-        // =====================
-        // Core interface dùng byte[]
-        public async Task<string> SaveFileAsync(byte[] content, string fileName, CancellationToken ct = default)
-        {
-            if (!Directory.Exists(_rootPath))
-                Directory.CreateDirectory(_rootPath);
-
-            var uniqueFileName = $"{fileName}";
-            var filePath = Path.Combine(_rootPath, uniqueFileName);
-
-            await File.WriteAllBytesAsync(filePath, content, ct);
-
-            return $"{_baseUrl}/{uniqueFileName}";
-
-        }
-
-        // Lấy stream của file từ storage
-        public Task<Stream> GetFileStreamAsync(string filePath, CancellationToken ct = default)
-        {
-            var path = $"{_rootPath}/{filePath}";
-            return Task.FromResult<Stream>(new FileStream(path, FileMode.Open, FileAccess.Read));
-        }
-
-        public string GetPublicBaseUrl() => _baseUrl;
-
-        public string ProviderName => "Local";
-
+        if (!Directory.Exists(_rootFolder))
+            Directory.CreateDirectory(_rootFolder);
+        _httpContext = httpContext;
     }
+
+    public async Task<string> SaveFileAsync(byte[] content, string fileName, CancellationToken ct = default)
+    {
+        var filePath = Path.Combine(_rootFolder, fileName);
+        await File.WriteAllBytesAsync(filePath, content, ct);
+
+        // Trả về URL mà UI có thể dùng
+        return $"{_requestPath}/{fileName}";
+    }
+
+    public Task<Stream> GetFileStreamAsync(string fileUrl, CancellationToken ct = default)
+    {
+        // fileUrl = /uploads/abc.jpg
+        var fileName = Path.GetFileName(fileUrl);
+        var fullPath = Path.Combine(_rootFolder, fileName);
+
+        return Task.FromResult<Stream>(new FileStream(fullPath, FileMode.Open, FileAccess.Read));
+    }
+
+    public string GetPublicBaseUrl()
+    {
+        var request = _httpContext.HttpContext?.Request;
+        if (request == null)
+            return ""; // fallback khi chạy background task
+
+        var baseUrl = $"{request.Scheme}://{request.Host}";
+        return baseUrl.Replace("\\", "/");
+    }
+
+    public string ProviderName => "Local";
 }

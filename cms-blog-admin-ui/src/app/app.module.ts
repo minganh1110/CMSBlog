@@ -45,6 +45,7 @@ import { AlertService } from './shared/services/alert.service';
 import { HttpClientModule } from '@angular/common/http';
 import { TokenStorageService } from './shared/services/token-storage.service';
 import { AuthGuard } from './shared/auth.guard';
+import { MediaModule } from './views/media/media.module';
 const APP_CONTAINERS = [
   DefaultFooterComponent,
   DefaultHeaderComponent,
@@ -81,7 +82,8 @@ const APP_CONTAINERS = [
     CardModule,
     NgScrollbarModule,
     ToastModule,
-    HttpClientModule
+    HttpClientModule,
+    MediaModule
     
 
   ],

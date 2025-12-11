@@ -10,7 +10,7 @@ import { MediaFolder } from '../models/media-folder.model';
 export class MediaExplorerComponent implements OnInit {
 
   assets: any[] = [];
-  selectedFolderId: string = "10864534-F720-47E5-9012-D2906F25AF8B"; // root
+  selectedFolderId: string = "11111111-1111-1111-1111-111111111111"; // root
   currentPath = "";
   viewMode: 'thumbnail' | 'list' = 'thumbnail';
   filterText = "";

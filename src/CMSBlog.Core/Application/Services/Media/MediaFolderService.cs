@@ -10,15 +10,18 @@ namespace CMSBlog.Core.Application.Services.Media
         private readonly IMediaFolderRepository _repo;
         private readonly IFileFolderLinkRepository _linkRepo;
         private readonly IMapper _mapper;
+        private readonly IStorageFactory _storageFactory;
 
         public MediaFolderService(
             IMediaFolderRepository repo,
             IFileFolderLinkRepository linkRepo,
-            IMapper mapper)
+            IMapper mapper,
+            IStorageFactory storageFactory)
         {
             _repo = repo;
             _linkRepo = linkRepo;
             _mapper = mapper;
+            _storageFactory = storageFactory;
         }
 
         // -----------------------------------------------------------
@@ -74,7 +77,10 @@ namespace CMSBlog.Core.Application.Services.Media
         //
         public async Task<MediaFolderDto?> GetByIdIncludeFilesAsync(Guid id)
         {
-            var entity = await _repo.GetByIdWithChildrenAsync(id);
+            var storage = await _storageFactory.GetStorageServiceAsync();
+            var providerName = storage.ProviderName;
+
+            var entity = await _repo.GetByIdWithChildrenAsync(id, providerName);
             return entity == null ? null : _mapper.Map<MediaFolderDto>(entity);
         }
 

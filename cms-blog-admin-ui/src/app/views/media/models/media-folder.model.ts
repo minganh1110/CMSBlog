@@ -1,11 +1,12 @@
-import { MediaFile } from '../models/media-asset.model';
+import { MediaFile } from './media-file.model';
+
 export interface MediaFolder {
   id: string;
   folderName: string;
-  children?: MediaFolder[];
-  slugName: string;
+  slugName?: string;
   parentFolderId?: string | null;
-  path: string;
-  dateCreated: Date
-  file?: MediaFile[];
+  path?: string;
+  dateCreated?: string;
+  children?: MediaFolder[];
+  files?: MediaFile[]; // files in this folder
 }

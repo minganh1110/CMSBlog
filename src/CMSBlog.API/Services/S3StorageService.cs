@@ -45,7 +45,7 @@ public class S3StorageService : IStorageServicee
         return response.ResponseStream;
     }
 
-    public string GetPublicBaseUrl() => _publicBaseUrl;
+    public string GetPublicBaseUrl() => "";
 
     public string ProviderName => "S3";
 }

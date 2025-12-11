@@ -1,26 +1,23 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { MediaLibraryComponent } from './components/media-library/media-library.component';
+import { MediaCardComponent } from './components/media-card/media-card.component';
+import { FolderTreeComponent } from './components/folder-tree/folder-tree.component';
+import { MediaRoutingModule } from './media-routing.module';
+import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-
-import { MediaFolderTreeComponent } from './media-folder-tree/media-folder-tree.component';
-import { MediaFolderNodeComponent } from './media-folder-node/media-folder-node.component'; 
-import { MediaExplorerComponent } from './media-explorer/media-explorer.component';  
-import { MediaFolderContentComponent } from './media-folder-content/media-folder-content.component';
 
 @NgModule({
   declarations: [
-    MediaFolderTreeComponent,
-    MediaFolderNodeComponent,
-    MediaExplorerComponent,
-    MediaFolderContentComponent 
+    MediaLibraryComponent,
+    MediaCardComponent,
+    FolderTreeComponent
   ],
   imports: [
     CommonModule,
     FormsModule,
-    RouterModule.forChild([
-      { path: '', component: MediaExplorerComponent }
-    ])
+    HttpClientModule,
+    MediaRoutingModule
   ]
 })
-export class MediaModule { }
+export class MediaModule {}

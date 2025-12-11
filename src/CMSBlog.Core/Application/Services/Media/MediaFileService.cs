@@ -11,8 +11,10 @@ using SixLabors.ImageSharp.Formats.Webp;
 using SixLabors.ImageSharp.Processing;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using static System.Net.WebRequestMethods;
@@ -78,9 +80,9 @@ namespace CMSBlog.Core.Application.Services.Media
 
             // 4. Tạo formats: thumbnail, small, medium, large
 
-            var imagee = await storage.GetFileStreamAsync(dto.FileName, ct);
+            var imagee = await storage.GetFileStreamAsync(fileName, ct);
             var original = await ToMemoryStreamAsync(imagee);
-            var formats = await GenerateAllFormats(original,dto.FileName, ext);
+            var formats = await GenerateAllFormats(original,fileName, ext);
             var mediaFormats = new MediaFormats
             {
                 Thumbnail = formats["thumbnail"],
@@ -190,19 +192,19 @@ namespace CMSBlog.Core.Application.Services.Media
                 if (file.Formats != null)
                 {
                     //lấy full url cho file chính
-                    file.FileUrl = $"{baseUrl}/{file.FilePath}";
+                    file.FileUrl = $"{baseUrl}{file.FilePath}".Replace("\\", "/");
                     //lấy full url cho từng format
-                    if(file.Formats != null)
+                    if (file.Formats != null)
                     {
                         foreach (var fmt in new[] { file.Formats.Thumbnail, file.Formats.Small,
                                     file.Formats.Medium, file.Formats.Large })
                         {
                             if (fmt != null)
-                                fmt.Url = $"{baseUrl}/{fmt.Path}";
+                                fmt.Url = $"{baseUrl}{fmt.Url}".Replace("\\", "/");
                         }
 
                     }
-                    
+
                 }
             }
                 
@@ -224,7 +226,7 @@ namespace CMSBlog.Core.Application.Services.Media
             foreach (var file in result)
             {
                 //lấy full url cho file chính
-                file.FileUrl = $"{baseUrl}/{file.FilePath}";
+                file.FileUrl = $"{baseUrl}{file.FilePath}".Replace("\\", "/");
                 //lấy full url cho từng format
                 if (file.Formats != null)
                 {
@@ -232,7 +234,7 @@ namespace CMSBlog.Core.Application.Services.Media
                                 file.Formats.Medium, file.Formats.Large })
                     {
                         if (fmt != null)
-                            fmt.Url = $"{baseUrl}/{fmt.Path}";
+                            fmt.Url = $"{baseUrl}{fmt.Url}".Replace("\\", "/")  ;
                     }
                 }
             }
@@ -249,14 +251,14 @@ namespace CMSBlog.Core.Application.Services.Media
             var storage = await _storageFactory.GetStorageServiceAsync();
             var baseUrl = storage.GetPublicBaseUrl();
             var dto = _mapper.Map<MediaFileDto>(entity);
-            dto.FileUrl = $"{baseUrl}/{dto.FilePath}";
+            dto.FileUrl = $"{baseUrl}{dto.FilePath}".Replace("\\","/");
             if (dto.Formats != null)
             {
                 foreach (var fmt in new[] { dto.Formats.Thumbnail, dto.Formats.Small,
                                 dto.Formats.Medium, dto.Formats.Large })
                 {
                     if (fmt != null)
-                        fmt.Url = $"{baseUrl}/{fmt.Path}";
+                        fmt.Url = $"{baseUrl}{fmt.Path}".Replace("\\","/");
                 }
             }
 
@@ -340,7 +342,13 @@ namespace CMSBlog.Core.Application.Services.Media
 
         private string GenerateSlug(string input)
         {
-            return input.ToLowerInvariant().Replace(" ", "-");
+            var noDiacritics = input.Normalize(NormalizationForm.FormD);
+            var chars = noDiacritics.Where(c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark).ToArray();
+            var cleaned = new string(chars).Normalize(NormalizationForm.FormC);
+
+            cleaned = cleaned.ToLower().Replace(" ", "-");
+
+            return cleaned;
         }
 
         public MediaType DetectMediaType(string mime)
@@ -402,5 +410,17 @@ namespace CMSBlog.Core.Application.Services.Media
             // otherwise assume it's already a key or filepath; if it's a full local path, take filename
             return Path.GetFileName(pathOrUrl);
         }
+
+        public static string NormalizeSlug(string filename)
+        {
+            var noDiacritics = filename.Normalize(NormalizationForm.FormD);
+            var chars = noDiacritics.Where(c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark).ToArray();
+            var cleaned = new string(chars).Normalize(NormalizationForm.FormC);
+
+            cleaned = cleaned.ToLower().Replace(" ", "-");
+
+            return cleaned;
+        }
+
     }
 }

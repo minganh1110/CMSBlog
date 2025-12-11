@@ -1,0 +1,7 @@
+.card { background:#17171b; border-radius:8px; padding:12px; color:#ddd; }
+.card.list { display:flex; gap:12px; align-items:center; }
+.thumb { height:150px; background:#111; border-radius:6px; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+.thumb img { width:100%; height:100%; object-fit:cover; }
+.no-thumb { color:#999; font-size:14px; padding:6px; text-align:center; }
+.info { margin-top:8px; }
+.card.list .thumb { width:160px; height:100px; flex:0 0 160px; }

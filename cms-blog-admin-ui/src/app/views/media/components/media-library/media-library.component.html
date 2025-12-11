@@ -1,0 +1,40 @@
+<div class="media-wrapper">
+  <header class="media-header">
+    <h1>Media Library</h1>
+    <div class="actions">
+      <button (click)="loadAssets()" class="btn">All</button>
+      <button class="btn">Add new folder</button>
+      <button class="btn primary">Add new assets</button>
+    </div>
+  </header>
+
+  <section class="folders">
+    <h3>Folders</h3>
+    <div class="folder-list">
+      <div *ngFor="let f of folders" class="folder-card" (click)="onFolderSelected(f)">
+        <div class="icon">📁</div>
+        <div class="meta">
+          <div class="name">{{f.folderName}}</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr />
+
+  <section class="assets">
+    <h3>Assets ({{assets?.length || 0}})</h3>
+    <div class="view-toggle">
+      <button (click)="isGrid = true">Grid</button>
+      <button (click)="isGrid = false">List</button>
+    </div>
+
+    <div *ngIf="isGrid" class="grid">
+      <app-media-card *ngFor="let a of assets" [file]="a"></app-media-card>
+    </div>
+
+    <div *ngIf="!isGrid" class="list">
+      <app-media-card *ngFor="let a of assets" [file]="a" [listView]="true"></app-media-card>
+    </div>
+  </section>
+</div>

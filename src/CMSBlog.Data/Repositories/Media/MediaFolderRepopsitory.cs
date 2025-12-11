@@ -31,12 +31,15 @@ namespace CMSBlog.Data.Repositories.Media
             return await _db.MediaFolders.FirstOrDefaultAsync(x => x.Id == id);
         }
 
-        public async Task<MediaFolder?> GetByIdWithChildrenAsync(Guid id)
+        public async Task<MediaFolder?> GetByIdWithChildrenAsync(Guid id, string providerName)
         {
             return await _db.MediaFolders
+                .Where(f => f.Id == id)
                 .Include(f => f.ChildFolders)
-                .Include(f => f.FileFolderLinks)
+                .Include(f => f.FileFolderLinks
+                    .Where( link => link.MediaFile.Provider == providerName))
                     .ThenInclude(link => link.MediaFile)
+
                 .FirstOrDefaultAsync(x => x.Id == id);
         }
 

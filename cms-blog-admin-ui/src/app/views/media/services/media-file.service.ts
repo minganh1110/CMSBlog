@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { MediaFolder } from '../models/media-folder.model';
-import { MediaFile } from '../models/media-asset.model';
+import { MediaFile } from '../models/media-file.model';
 
 @Injectable({ providedIn: 'root' })
 export class MediaFileService {

@@ -16,9 +16,10 @@ using CMSBlog.Data.SeedWorks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Scrutor;
-using System.Text.Json.Serialization;
 using System.IO;
+using System.Text.Json.Serialization;
 
 Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"));
 
@@ -146,6 +147,8 @@ builder.Services.AddSwaggerGen(c =>
 // ------------------------- App Pipeline -------------------------
 var app = builder.Build();
 
+
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -156,6 +159,12 @@ app.UseCors(CMSCorsPolicy);
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(builder.Environment.ContentRootPath, "MediaLibrary")),
+    RequestPath = ""
+});
 
 // Migrate DB + Seed
 app.MigrateDatabase();
