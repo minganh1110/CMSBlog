@@ -80,5 +80,17 @@ namespace CMSBlog.Core.SeedWorks.Constants
             [Description("Trả nhuận bút")]
             public const string Pay = "Permissions.Royalty.Pay";
         }
+        
+        public static class Menus
+        {
+            [Description("Xem menu")]
+            public const string View = "Permissions.Menus.View";
+            [Description("Tạo menu")]
+            public const string Create = "Permissions.Menus.Create";
+            [Description("Sửa menu")]
+            public const string Edit = "Permissions.Menus.Edit";
+            [Description("Xóa menu")]
+            public const string Delete = "Permissions.Menus.Delete";
+        }
     }
 }

@@ -46,8 +46,8 @@ import { ImageModule } from 'primeng/image';
 
   ],
   declarations: [
-    UserComponent, 
-    RoleComponent, 
+    UserComponent,
+    RoleComponent,
     RolesDetailComponent,
     PermissionGrantComponent,
     ChangeEmailComponent,

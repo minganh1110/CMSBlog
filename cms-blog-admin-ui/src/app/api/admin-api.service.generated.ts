@@ -147,6 +147,291 @@ export class AdminApiMediaApiClient {
 }
 
 @Injectable()
+export class AdminApiMenuApiClient {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(ADMIN_API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    /**
+     * @return OK
+     */
+    getMenuItems(): Observable<MenuItemDto[]> {
+        let url_ = this.baseUrl + "/api/Menu";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetMenuItems(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetMenuItems(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<MenuItemDto[]>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<MenuItemDto[]>;
+        }));
+    }
+
+    protected processGetMenuItems(response: HttpResponseBase): Observable<MenuItemDto[]> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            if (Array.isArray(resultData200)) {
+                result200 = [] as any;
+                for (let item of resultData200)
+                    result200!.push(MenuItemDto.fromJS(item));
+            }
+            else {
+                result200 = null as any;
+            }
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    createMenuItem(body?: CreateMenuItemRequest | undefined): Observable<MenuItemDto> {
+        let url_ = this.baseUrl + "/api/Menu";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processCreateMenuItem(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processCreateMenuItem(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<MenuItemDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<MenuItemDto>;
+        }));
+    }
+
+    protected processCreateMenuItem(response: HttpResponseBase): Observable<MenuItemDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = MenuItemDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    getMenuItem(id: string): Observable<MenuItemDto> {
+        let url_ = this.baseUrl + "/api/Menu/{id}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetMenuItem(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetMenuItem(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<MenuItemDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<MenuItemDto>;
+        }));
+    }
+
+    protected processGetMenuItem(response: HttpResponseBase): Observable<MenuItemDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = MenuItemDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    updateMenuItem(id: string, body?: UpdateMenuItemRequest | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/Menu/{id}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("put", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdateMenuItem(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdateMenuItem(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processUpdateMenuItem(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @return OK
+     */
+    deleteMenuItem(id: string): Observable<void> {
+        let url_ = this.baseUrl + "/api/Menu/{id}";
+        if (id === undefined || id === null)
+            throw new globalThis.Error("The parameter 'id' must be defined.");
+        url_ = url_.replace("{id}", encodeURIComponent("" + id));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDeleteMenuItem(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDeleteMenuItem(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processDeleteMenuItem(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable()
 export class AdminApiPostApiClient {
     private http: HttpClient;
     private baseUrl: string;
@@ -3373,6 +3658,74 @@ export interface IChangeMyPasswordRequest {
     newPassword?: string | undefined;
 }
 
+export class CreateMenuItemRequest implements ICreateMenuItemRequest {
+    name!: string;
+    parentId?: string | undefined;
+    sortOrder?: number;
+    isActive?: boolean;
+    menuGroup!: string;
+    linkType!: string;
+    entityId?: string | undefined;
+    customUrl?: string | undefined;
+    openInNewTab?: boolean;
+
+    constructor(data?: ICreateMenuItemRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.parentId = _data["parentId"];
+            this.sortOrder = _data["sortOrder"];
+            this.isActive = _data["isActive"];
+            this.menuGroup = _data["menuGroup"];
+            this.linkType = _data["linkType"];
+            this.entityId = _data["entityId"];
+            this.customUrl = _data["customUrl"];
+            this.openInNewTab = _data["openInNewTab"];
+        }
+    }
+
+    static fromJS(data: any): CreateMenuItemRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new CreateMenuItemRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["parentId"] = this.parentId;
+        data["sortOrder"] = this.sortOrder;
+        data["isActive"] = this.isActive;
+        data["menuGroup"] = this.menuGroup;
+        data["linkType"] = this.linkType;
+        data["entityId"] = this.entityId;
+        data["customUrl"] = this.customUrl;
+        data["openInNewTab"] = this.openInNewTab;
+        return data;
+    }
+}
+
+export interface ICreateMenuItemRequest {
+    name: string;
+    parentId?: string | undefined;
+    sortOrder?: number;
+    isActive?: boolean;
+    menuGroup: string;
+    linkType: string;
+    entityId?: string | undefined;
+    customUrl?: string | undefined;
+    openInNewTab?: boolean;
+}
+
 export class CreateUpdatePostCategoryRequest implements ICreateUpdatePostCategoryRequest {
     name!: string | undefined;
     slug!: string | undefined;
@@ -3727,6 +4080,78 @@ export class LoginRequest implements ILoginRequest {
 export interface ILoginRequest {
     userName: string | undefined;
     password: string | undefined;
+}
+
+export class MenuItemDto implements IMenuItemDto {
+    id?: string;
+    name!: string | undefined;
+    parentId?: string | undefined;
+    sortOrder?: number;
+    isActive?: boolean;
+    menuGroup?: string | undefined;
+    linkType?: string | undefined;
+    entityId?: string | undefined;
+    customUrl?: string | undefined;
+    openInNewTab?: boolean;
+
+    constructor(data?: IMenuItemDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.name = _data["name"];
+            this.parentId = _data["parentId"];
+            this.sortOrder = _data["sortOrder"];
+            this.isActive = _data["isActive"];
+            this.menuGroup = _data["menuGroup"];
+            this.linkType = _data["linkType"];
+            this.entityId = _data["entityId"];
+            this.customUrl = _data["customUrl"];
+            this.openInNewTab = _data["openInNewTab"];
+        }
+    }
+
+    static fromJS(data: any): MenuItemDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new MenuItemDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["name"] = this.name;
+        data["parentId"] = this.parentId;
+        data["sortOrder"] = this.sortOrder;
+        data["isActive"] = this.isActive;
+        data["menuGroup"] = this.menuGroup;
+        data["linkType"] = this.linkType;
+        data["entityId"] = this.entityId;
+        data["customUrl"] = this.customUrl;
+        data["openInNewTab"] = this.openInNewTab;
+        return data;
+    }
+}
+
+export interface IMenuItemDto {
+    id?: string;
+    name: string | undefined;
+    parentId?: string | undefined;
+    sortOrder?: number;
+    isActive?: boolean;
+    menuGroup?: string | undefined;
+    linkType?: string | undefined;
+    entityId?: string | undefined;
+    customUrl?: string | undefined;
+    openInNewTab?: boolean;
 }
 
 export class PermissionDto implements IPermissionDto {
@@ -5018,6 +5443,74 @@ export interface ITransactionDtoPagedResult {
 
 export enum TransactionType {
     _0 = 0,
+}
+
+export class UpdateMenuItemRequest implements IUpdateMenuItemRequest {
+    name!: string;
+    parentId?: string | undefined;
+    sortOrder?: number;
+    isActive?: boolean;
+    menuGroup!: string;
+    linkType!: string;
+    entityId?: string | undefined;
+    customUrl?: string | undefined;
+    openInNewTab?: boolean;
+
+    constructor(data?: IUpdateMenuItemRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.name = _data["name"];
+            this.parentId = _data["parentId"];
+            this.sortOrder = _data["sortOrder"];
+            this.isActive = _data["isActive"];
+            this.menuGroup = _data["menuGroup"];
+            this.linkType = _data["linkType"];
+            this.entityId = _data["entityId"];
+            this.customUrl = _data["customUrl"];
+            this.openInNewTab = _data["openInNewTab"];
+        }
+    }
+
+    static fromJS(data: any): UpdateMenuItemRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdateMenuItemRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["name"] = this.name;
+        data["parentId"] = this.parentId;
+        data["sortOrder"] = this.sortOrder;
+        data["isActive"] = this.isActive;
+        data["menuGroup"] = this.menuGroup;
+        data["linkType"] = this.linkType;
+        data["entityId"] = this.entityId;
+        data["customUrl"] = this.customUrl;
+        data["openInNewTab"] = this.openInNewTab;
+        return data;
+    }
+}
+
+export interface IUpdateMenuItemRequest {
+    name: string;
+    parentId?: string | undefined;
+    sortOrder?: number;
+    isActive?: boolean;
+    menuGroup: string;
+    linkType: string;
+    entityId?: string | undefined;
+    customUrl?: string | undefined;
+    openInNewTab?: boolean;
 }
 
 export class UpdateUserRequest implements IUpdateUserRequest {

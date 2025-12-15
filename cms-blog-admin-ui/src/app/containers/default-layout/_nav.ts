@@ -42,7 +42,7 @@ export const navItems: INavData[] = [
     ],
 
   },
-    {
+  {
     name: 'Nhuận bút',
     url: '/royalty',
     iconComponent: { name: 'cil-puzzle' },

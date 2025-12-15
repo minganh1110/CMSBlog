@@ -27,6 +27,7 @@ namespace CMSBlog.Data.SeedWorks
             Transactions = new TransactionRepository(context, mapper);
             Users = new UserRepository(context);
             Tags = new TagRepository(context, mapper);
+            Menu = new MenuRepository(context);
         }
         public IPostRepository Posts { get; private set; }
         public IPostCategoryRepository PostCategories { get; private set; }
@@ -34,6 +35,7 @@ namespace CMSBlog.Data.SeedWorks
         public ITransactionRepository Transactions { get; private set; }
         public IUserRepository Users { get; private set; }
         public ITagRepository Tags { get; private set; }
+        public IMenuRepository Menu { get; private set; }
 
 
         public async Task<int> CompleteAsync()

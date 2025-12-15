@@ -1,5 +1,6 @@
 ﻿using CMSBlog.Core.Domain.Content;
 using CMSBlog.Core.Domain.Identity;
+using CMSBlog.Core.Domain.Menu;
 using CMSBlog.Core.Domain.Royalty;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -25,6 +26,7 @@ namespace CMSBlog.Data
         public DbSet<Series> Series { get; set; }
         public DbSet<PostInSeries> PostInSeries { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
+        public DbSet<MenuItem> MenuItem { get; set; }
 
 
 

@@ -13,6 +13,7 @@ namespace CMSBlog.Core.SeedWorks
         ITransactionRepository Transactions { get; }
         IUserRepository Users { get; }
         ITagRepository Tags { get; }
+        IMenuRepository Menu { get; }
         Task<int> CompleteAsync();
     }
 }
