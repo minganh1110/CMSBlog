@@ -39,9 +39,17 @@ export const navItems: INavData[] = [
           "policyName": "Permissions.Series.View"
         }
       },
+    ],
+
+  },
+  {
+    name: 'Nhuận bút',
+    url: '/royalty',
+    iconComponent: { name: 'cil-puzzle' },
+    children: [
       {
-        name: 'Nhuận bút',
-        url: '/content/royalty',
+        name: 'Thống kê tháng',
+        url: '/royalty/royalty-month',
         attributes: {
           "policyName": "Permissions.Loyalty.View"
         }
@@ -56,6 +64,27 @@ export const navItems: INavData[] = [
     children: [
       {
         name: 'Quyền',
+        url: '/system/roles',
+        attributes: {
+          "policyName": "Permissions.Roles.View"
+        }
+      },
+      {
+        name: 'Người dùng',
+        url: '/system/users',
+        attributes: {
+          "policyName": "Permissions.Users.View"
+        }
+      }
+    ],
+  },
+  {
+    name: 'Quản lý giao diện ',
+    url: '/system',
+    iconComponent: { name: 'cil-notes' },
+    children: [
+      {
+        name: 'Quản lý menu',
         url: '/system/roles',
         attributes: {
           "policyName": "Permissions.Roles.View"
