@@ -9,25 +9,28 @@ namespace CMSBlog.Core.Domain.Content
     public class Post
     {
         [Key]
-        public Guid? Id { get; set; } // Guid có thể null
+        public Guid Id { get; set; }
 
+        [Required]
         [MaxLength(250)]
-        public string? Name { get; set; }
+        public required string Name { get; set; }
 
+        [Required]
         [Column(TypeName = "varchar(250)")]
-        public string? Slug { get; set; }
+        public required string Slug { get; set; }
 
         [MaxLength(500)]
         public string? Description { get; set; }
 
-        public Guid? CategoryId { get; set; }
+        [Required]
+        public Guid CategoryId { get; set; }
 
         [MaxLength(500)]
         public string? Thumbnail { get; set; }
-
         public string? Content { get; set; }
 
-        public Guid? AuthorUserId { get; set; }
+        [MaxLength(500)]
+        public Guid AuthorUserId { get; set; }
 
         [MaxLength(128)]
         public string? Source { get; set; }
@@ -38,26 +41,27 @@ namespace CMSBlog.Core.Domain.Content
         [MaxLength(160)]
         public string? SeoDescription { get; set; }
 
-        public int? ViewCount { get; set; }
-        public DateTime? DateCreated { get; set; }
+        public int ViewCount { get; set; }
+        public DateTime DateCreated { get; set; }
         public DateTime? DateModified { get; set; }
-        public bool? IsPaid { get; set; }
-        public double? RoyaltyAmount { get; set; }
-        public PostStatus? Status { get; set; }
+        public bool IsPaid { get; set; }
+        public double RoyaltyAmount { get; set; }
+        public PostStatus Status { get; set; }
 
+        [Required]
         [Column(TypeName = "varchar(250)")]
-        public string? CategorySlug { get; set; }
+        public required string CategorySlug { set; get; }
 
         [MaxLength(250)]
-        public string? CategoryName { get; set; }
-
+        [Required]
+        public required string CategoryName { set; get; }
         [MaxLength(250)]
-        public string? AuthorUserName { get; set; }
-
+        public string AuthorUserName { set; get; }
         [MaxLength(250)]
-        public string? AuthorName { get; set; }
-
+        public string AuthorName { set; get; }
+        
         public DateTime? PaidDate { get; set; }
+
     }
 
     public enum PostStatus

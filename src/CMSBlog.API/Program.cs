@@ -1,13 +1,17 @@
 using CMSBlog.API;
+using CMSBlog.API.Authorization;
 using CMSBlog.API.Services;
 using CMSBlog.Core.ConfigOptions;
 using CMSBlog.Core.Domain.Identity;
 using CMSBlog.Core.Models.Content;
 using CMSBlog.Core.SeedWorks;
+using CMSBlog.Core.Services;
 using CMSBlog.Data;
 using CMSBlog.Data.Repositories;
 using CMSBlog.Data.SeedWorks;
+using CMSBlog.Data.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,6 +24,9 @@ var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 var connectionString = configuration.GetConnectionString("DefaultConnection");
 var CMSCorsPolicy = "_cmsCorsPolicy";
+builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
+builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
+
 builder.Services.AddCors(o => o.AddPolicy(CMSCorsPolicy, builder =>
 {
     builder.AllowAnyMethod()
@@ -77,10 +84,13 @@ builder.Services.AddAutoMapper(typeof(PostInListDto));
 
 // Authen anf Athor
 builder.Services.Configure<JwtTokenSettings>(configuration.GetSection("JwtTokenSettings"));
+builder.Services.Configure<MediaSettings>(configuration.GetSection("MediaSettings"));
 builder.Services.AddScoped<SignInManager<AppUser>, SignInManager<AppUser>>();
 builder.Services.AddScoped<UserManager<AppUser>, UserManager<AppUser>>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<RoleManager<AppRole>, RoleManager<AppRole>>();
+builder.Services.AddScoped<IRoyaltyService, RoyaltyService>();
+
 //Default config for ASP.NET core 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -128,6 +138,7 @@ if (app.Environment.IsDevelopment())
         c.DisplayRequestDuration();
     });
 }
+app.UseStaticFiles();
 app.UseCors(CMSCorsPolicy);
 app.UseHttpsRedirection();
 app.UseAuthentication();

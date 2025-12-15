@@ -30,6 +30,11 @@ const routes: Routes = [
         loadChildren: () =>
           import('./views/content/content.module').then((m) => m.ContentModule)
       },
+      {
+        path: 'royalty',
+        loadChildren: () =>
+          import('./views/royalty/royalty.module').then((m) => m.RoyaltyModule),
+      },
 
       
     ]

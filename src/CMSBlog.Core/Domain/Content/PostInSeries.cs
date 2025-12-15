@@ -10,25 +10,11 @@ using System.Threading.Tasks;
 namespace CMSBlog.Core.Domain.Content
 {
     [Table("PostInSeries")]
-    [Index(nameof(Slug), IsUnique = true)]
+    [PrimaryKey(nameof(PostId), nameof(SeriesId))]
     public class PostInSeries
     {
-        [Key]
-        public Guid Id { get; set; }
-
-        [MaxLength(250)]
-        public required string Name { set; get; }
-
-        [Column(TypeName = "varchar(250)")]
-        public required string Slug { set; get; }
-
-        public Guid? ParentId { set; get; }
-        public bool IsActive { set; get; }
-        public DateTime DateCreated { set; get; }
-        public DateTime? DateModified { set; get; }
-
-        [MaxLength(160)]
-        public string? SeoDescription { set; get; }
-        public int SortOrder { set; get; }
+        public Guid PostId { get; set; }
+        public Guid SeriesId { get; set; }
+        public int DisplayOrder { get; set; }
     }
 }
