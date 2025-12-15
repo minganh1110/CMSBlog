@@ -1,31 +1,44 @@
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import {LoginRequest,AdminApiAuthApiClient, AuthenticatedResult } from '../../../api/admin-api.service.generated';
+import { LoginRequest, AdminApiAuthApiClient, AuthenticatedResult } from '../../../api/admin-api.service.generated';
 import { AlertService } from '../../../shared/services/alert.service';
 import { Router } from '@angular/router';
 import { UrlConstants } from '../../../shared/constants/url.constants';
 import { TokenStorageService } from '../../../shared/services/token-storage.service';
 import { Subject, take, takeUntil } from 'rxjs';
+import { BroadcastService } from '../../../shared/services/boardcast.service';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
-export class LoginComponent implements OnDestroy{
+export class LoginComponent implements OnInit, OnDestroy {
   loginForm: FormGroup;
   private ngUnsubscribe = new Subject<void>();
   loading = false;
-  constructor(private fb:FormBuilder , private authApiClient: AdminApiAuthApiClient, private alertService: AlertService, private router: Router, private tokenService: TokenStorageService) { 
+  constructor(
+    private fb: FormBuilder,
+    private authApiClient: AdminApiAuthApiClient,
+    private alertService: AlertService,
+    private router: Router,
+    private tokenSerivce: TokenStorageService,
+    private broadCastService: BroadcastService
+  ) {
     this.loginForm = this.fb.group({
-      username: new FormControl('',Validators.required),
-      password: new FormControl('',Validators.required),
+      username: new FormControl('', Validators.required),
+      password: new FormControl('', Validators.required),
+    });
+  }
+  ngOnInit(): void {
+    this.broadCastService.httpError.asObservable().subscribe(values => {
+      this.loading = false;
     });
   }
   ngOnDestroy(): void {
     this.ngUnsubscribe.next();
     this.ngUnsubscribe.complete();
   }
-   login() {
+  login() {
     this.loading = true;
     var request: LoginRequest = new LoginRequest({
       userName: this.loginForm.controls['username'].value,
@@ -33,21 +46,21 @@ export class LoginComponent implements OnDestroy{
     });
 
     this.authApiClient.login(request)
-    .pipe(takeUntil(this.ngUnsubscribe))
-    .subscribe({
-      next: (res: AuthenticatedResult) => {
-        //Save token and refresh token to localstorage
-        this.tokenService.saveToken(res.token);
-        this.tokenService.saveRefreshToken(res.refreshToken);
-        this.tokenService.saveUser(res);
-        // Navigate to home page
-        this.router.navigate([UrlConstants.HOME]);
-      },
-      error: (error: any) => {
-        console.log(error);
-        this.alertService.showError('Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin đăng nhập.');
-        this.loading = false;
-      },
-    });
+      .pipe(takeUntil(this.ngUnsubscribe))
+      .subscribe({
+        next: (res: AuthenticatedResult) => {
+          //Save token and refresh token to localstorage
+          this.tokenSerivce.saveToken(res.token);
+          this.tokenSerivce.saveRefreshToken(res.refreshToken);
+          this.tokenSerivce.saveUser(res);
+          // Navigate to home page
+          this.router.navigate([UrlConstants.HOME]);
+        },
+        error: (error: any) => {
+          console.log(error);
+          this.alertService.showError('Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin đăng nhập.');
+          this.loading = false;
+        },
+      });
   }
 }

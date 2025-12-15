@@ -40,13 +40,13 @@ namespace CMSBlog.API.Controllers.AdminApi
             var user = await _userManager.FindByNameAsync(request.UserName);
             if (user == null || user.IsActive == false || user.LockoutEnabled)
             {
-                return Unauthorized();
+                return BadRequest("Đăng nhập không đúng");
             }
 
             var result = await _signInManager.PasswordSignInAsync(request.UserName, request.Password, false, true);
             if (!result.Succeeded)
             {
-                return Unauthorized();
+                return BadRequest("Đăng nhập không đúng");
             }
             // Authorization
             var roles = await _userManager.GetRolesAsync(user);
