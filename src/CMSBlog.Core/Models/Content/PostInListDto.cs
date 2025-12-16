@@ -16,6 +16,7 @@ namespace CMSBlog.Core.Models.Content
         public string? Description { get; set; }
 
         public string? Thumbnail { get; set; }
+        public int SortOrder { get; set; }
         public int ViewCount { get; set; }
         public DateTime DateCreated { get; set; }
         public required string CategorySlug { set; get; }
@@ -28,6 +29,7 @@ namespace CMSBlog.Core.Models.Content
         public bool IsPaid { get; set; }
         public double RoyaltyAmount { get; set; }
         public DateTime? PaidDate { get; set; }
+      
         public class AutoMapperProfiles : Profile
         {
             public AutoMapperProfiles()

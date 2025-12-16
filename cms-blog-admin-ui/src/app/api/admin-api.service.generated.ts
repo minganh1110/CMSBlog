@@ -1178,6 +1178,111 @@ export class AdminApiPostApiClient {
         }
         return _observableOf(null as any);
     }
+
+    /**
+     * @return OK
+     */
+    swapSortOrder(id1: string, id2: string): Observable<void> {
+        let url_ = this.baseUrl + "/api/admin/post/swap-order/{id1}/{id2}";
+        if (id1 === undefined || id1 === null)
+            throw new globalThis.Error("The parameter 'id1' must be defined.");
+        url_ = url_.replace("{id1}", encodeURIComponent("" + id1));
+        if (id2 === undefined || id2 === null)
+            throw new globalThis.Error("The parameter 'id2' must be defined.");
+        url_ = url_.replace("{id2}", encodeURIComponent("" + id2));
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processSwapSortOrder(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processSwapSortOrder(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processSwapSortOrder(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    /**
+     * @param body (optional) 
+     * @return OK
+     */
+    updateSortOrder(body?: UpdatePostSortOrderRequest | undefined): Observable<void> {
+        let url_ = this.baseUrl + "/api/admin/post/update-sort-order";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(body);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processUpdateSortOrder(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processUpdateSortOrder(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<void>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<void>;
+        }));
+    }
+
+    protected processUpdateSortOrder(response: HttpResponseBase): Observable<void> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return _observableOf(null as any);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
 }
 
 @Injectable()
@@ -3796,6 +3901,7 @@ export class CreateUpdatePostRequest implements ICreateUpdatePostRequest {
     source?: string | undefined;
     tags?: string[] | undefined;
     seoDescription?: string | undefined;
+    sortOrder?: number;
 
     constructor(data?: ICreateUpdatePostRequest) {
         if (data) {
@@ -3821,6 +3927,7 @@ export class CreateUpdatePostRequest implements ICreateUpdatePostRequest {
                     this.tags!.push(item);
             }
             this.seoDescription = _data["seoDescription"];
+            this.sortOrder = _data["sortOrder"];
         }
     }
 
@@ -3846,6 +3953,7 @@ export class CreateUpdatePostRequest implements ICreateUpdatePostRequest {
                 data["tags"].push(item);
         }
         data["seoDescription"] = this.seoDescription;
+        data["sortOrder"] = this.sortOrder;
         return data;
     }
 }
@@ -3860,6 +3968,7 @@ export interface ICreateUpdatePostRequest {
     source?: string | undefined;
     tags?: string[] | undefined;
     seoDescription?: string | undefined;
+    sortOrder?: number;
 }
 
 export class CreateUpdateRoleRequest implements ICreateUpdateRoleRequest {
@@ -4400,6 +4509,7 @@ export class PostDto implements IPostDto {
     slug!: string | undefined;
     description?: string | undefined;
     thumbnail?: string | undefined;
+    sortOrder?: number;
     viewCount?: number;
     dateCreated?: Date;
     categorySlug!: string | undefined;
@@ -4434,6 +4544,7 @@ export class PostDto implements IPostDto {
             this.slug = _data["slug"];
             this.description = _data["description"];
             this.thumbnail = _data["thumbnail"];
+            this.sortOrder = _data["sortOrder"];
             this.viewCount = _data["viewCount"];
             this.dateCreated = _data["dateCreated"] ? new Date(_data["dateCreated"].toString()) : undefined as any;
             this.categorySlug = _data["categorySlug"];
@@ -4468,6 +4579,7 @@ export class PostDto implements IPostDto {
         data["slug"] = this.slug;
         data["description"] = this.description;
         data["thumbnail"] = this.thumbnail;
+        data["sortOrder"] = this.sortOrder;
         data["viewCount"] = this.viewCount;
         data["dateCreated"] = this.dateCreated ? this.dateCreated.toISOString() : undefined as any;
         data["categorySlug"] = this.categorySlug;
@@ -4495,6 +4607,7 @@ export interface IPostDto {
     slug: string | undefined;
     description?: string | undefined;
     thumbnail?: string | undefined;
+    sortOrder?: number;
     viewCount?: number;
     dateCreated?: Date;
     categorySlug: string | undefined;
@@ -4520,6 +4633,7 @@ export class PostInListDto implements IPostInListDto {
     slug!: string | undefined;
     description?: string | undefined;
     thumbnail?: string | undefined;
+    sortOrder?: number;
     viewCount?: number;
     dateCreated?: Date;
     categorySlug!: string | undefined;
@@ -4547,6 +4661,7 @@ export class PostInListDto implements IPostInListDto {
             this.slug = _data["slug"];
             this.description = _data["description"];
             this.thumbnail = _data["thumbnail"];
+            this.sortOrder = _data["sortOrder"];
             this.viewCount = _data["viewCount"];
             this.dateCreated = _data["dateCreated"] ? new Date(_data["dateCreated"].toString()) : undefined as any;
             this.categorySlug = _data["categorySlug"];
@@ -4574,6 +4689,7 @@ export class PostInListDto implements IPostInListDto {
         data["slug"] = this.slug;
         data["description"] = this.description;
         data["thumbnail"] = this.thumbnail;
+        data["sortOrder"] = this.sortOrder;
         data["viewCount"] = this.viewCount;
         data["dateCreated"] = this.dateCreated ? this.dateCreated.toISOString() : undefined as any;
         data["categorySlug"] = this.categorySlug;
@@ -4594,6 +4710,7 @@ export interface IPostInListDto {
     slug: string | undefined;
     description?: string | undefined;
     thumbnail?: string | undefined;
+    sortOrder?: number;
     viewCount?: number;
     dateCreated?: Date;
     categorySlug: string | undefined;
@@ -5511,6 +5628,50 @@ export interface IUpdateMenuItemRequest {
     entityId?: string | undefined;
     customUrl?: string | undefined;
     openInNewTab?: boolean;
+}
+
+export class UpdatePostSortOrderRequest implements IUpdatePostSortOrderRequest {
+    postIds?: string[] | undefined;
+
+    constructor(data?: IUpdatePostSortOrderRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (this as any)[property] = (data as any)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["postIds"])) {
+                this.postIds = [] as any;
+                for (let item of _data["postIds"])
+                    this.postIds!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): UpdatePostSortOrderRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new UpdatePostSortOrderRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.postIds)) {
+            data["postIds"] = [];
+            for (let item of this.postIds)
+                data["postIds"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface IUpdatePostSortOrderRequest {
+    postIds?: string[] | undefined;
 }
 
 export class UpdateUserRequest implements IUpdateUserRequest {

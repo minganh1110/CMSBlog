@@ -47,6 +47,8 @@ namespace CMSBlog.Core.Domain.Content
         public bool IsPaid { get; set; }
         public double RoyaltyAmount { get; set; }
         public PostStatus Status { get; set; }
+        public int SortOrder { get; set; }
+
 
         [Required]
         [Column(TypeName = "varchar(250)")]
@@ -61,6 +63,8 @@ namespace CMSBlog.Core.Domain.Content
         public string AuthorName { set; get; }
         
         public DateTime? PaidDate { get; set; }
+
+
 
     }
 

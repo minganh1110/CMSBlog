@@ -28,6 +28,7 @@ namespace CMSBlog.Core.Models.Content
         public string[] Tags { get; set; }
 
         public string? SeoDescription { get; set; }
+        public int SortOrder { get; set; }
         public class AutoMapperProfiles : Profile
         {
             public AutoMapperProfiles()

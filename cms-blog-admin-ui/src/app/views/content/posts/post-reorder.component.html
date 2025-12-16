@@ -1,0 +1,22 @@
+<div class="reorder-container">
+    <p-blockUI [target]="pnl" [blocked]="blockedPanel">
+        <p-progressSpinner [style]="{width: '100px', height: '100px', position:'absolute',top:'25%',left:'50%'}"
+            strokeWidth="2" animationDuration=".5s"></p-progressSpinner>
+    </p-blockUI>
+    <p-panel #pnl header="Sắp xếp bài viết">
+        <div cdkDropList class="post-list" (cdkDropListDropped)="drop($event)">
+            <div class="post-box" *ngFor="let post of posts" cdkDrag>
+                <div class="post-content">
+                    <span class="post-title">{{post.name}}</span>
+                    <span class="post-category badge bg-info">{{post.categoryName}}</span>
+                </div>
+                <i class="pi pi-bars handle" cdkDragHandle></i>
+            </div>
+        </div>
+
+        <div class="footer mt-3 d-flex justify-content-end gap-2">
+            <button pButton type="button" label="Hủy" class="p-button-secondary" (click)="close()"></button>
+            <button pButton type="button" label="Lưu thay đổi" class="p-button-primary" (click)="saveOrder()"></button>
+        </div>
+    </p-panel>
+</div>

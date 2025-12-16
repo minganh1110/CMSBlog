@@ -63,7 +63,8 @@ namespace CMSBlog.Data.Repositories
 
             var totalRow = await query.CountAsync();
 
-            query = query.OrderByDescending(x => x.DateCreated)
+            query = query.OrderBy(x => x.SortOrder)
+               .ThenByDescending(x => x.DateCreated)
                .Skip((pageIndex - 1) * pageSize)
                .Take(pageSize);
 
@@ -211,8 +212,9 @@ namespace CMSBlog.Data.Repositories
         public async Task<List<PostInListDto>> GetLatestPublishPost(int top)
         {
             var query = _context.Posts.Where(x => x.Status == PostStatus.Published)
-                .Take(top)
-                .OrderByDescending(x => x.DateCreated);
+                .OrderBy(x => x.SortOrder)
+                .ThenByDescending(x => x.DateCreated)
+                .Take(top);
 
             return await _mapper.ProjectTo<PostInListDto>(query).ToListAsync();
         }
@@ -228,7 +230,8 @@ namespace CMSBlog.Data.Repositories
 
             var totalRow = await query.CountAsync();
 
-            query = query.OrderByDescending(x => x.DateCreated)
+            query = query.OrderBy(x => x.SortOrder)
+               .ThenByDescending(x => x.DateCreated)
                .Skip((pageIndex - 1) * pageSize)
                .Take(pageSize);
 
@@ -284,7 +287,8 @@ namespace CMSBlog.Data.Repositories
 
             var totalRow = await query.CountAsync();
 
-            query = query.OrderByDescending(x => x.DateCreated)
+            query = query.OrderBy(x => x.SortOrder)
+               .ThenByDescending(x => x.DateCreated)
                .Skip((pageIndex - 1) * pageSize)
                .Take(pageSize);
 
@@ -327,7 +331,8 @@ namespace CMSBlog.Data.Repositories
 
             var totalRow = await query.CountAsync();
 
-            query = query.OrderByDescending(x => x.DateCreated)
+            query = query.OrderBy(x => x.SortOrder)
+               .ThenByDescending(x => x.DateCreated)
                .Skip((pageIndex - 1) * pageSize)
                .Take(pageSize);
 

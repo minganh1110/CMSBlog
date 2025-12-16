@@ -33,6 +33,9 @@ import { PostActivityLogsComponent } from './posts/post-activity-logs.component'
 import { SeriesComponent } from './series/series.component';
 import { SeriesDetailComponent } from './series/series-detail.component';
 import { SeriesPostsComponent } from './series/series-posts.component';
+import { DragDropModule } from '@angular/cdk/drag-drop';
+import { PostReorderComponent } from './posts/post-reorder.component';
+
 @NgModule({
   imports: [
     ContentRoutingModule,
@@ -60,7 +63,8 @@ import { SeriesPostsComponent } from './series/series-posts.component';
     AutoCompleteModule,
     DynamicDialogModule,
     FormsModule,
-    EditorModule 
+    EditorModule,
+    DragDropModule
   ],
   declarations: [
     PostComponent,
@@ -72,7 +76,8 @@ import { SeriesPostsComponent } from './series/series-posts.component';
     PostReturnReasonComponent,
     PostSeriesComponent,
     SeriesPostsComponent,
-    PostActivityLogsComponent
+    PostActivityLogsComponent,
+    PostReorderComponent
   ]
 })
 export class ContentModule {

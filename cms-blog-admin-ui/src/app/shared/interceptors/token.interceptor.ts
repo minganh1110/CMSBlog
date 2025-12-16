@@ -83,14 +83,29 @@ export class TokenInterceptor implements HttpInterceptor {
     this.router.navigate(["login"]);
   }
 
-  async handleResponseError(error, request?, next?) {
+  intercept(request: HttpRequest<any>, next: HttpHandler): Observable<any> {
+    // Handle request
+    request = this.addAuthHeader(request);
+
+    // Handle response
+    return next.handle(request).pipe(
+      catchError(error => {
+        return this.handleResponseError(error, request, next);
+      })
+    );
+  }
+
+  handleResponseError(error, request?, next?) {
     // Business error
     if (error.status === 400) {
-      const errMessage = await (new Response(error.error)).text();
-      this.alertService.showError(errMessage);
-      this.boardCastService.httpError.next(true);
+      return this.blobToText(error.error).pipe(
+        switchMap((errMessage: string) => {
+          this.alertService.showError(errMessage);
+          this.boardCastService.httpError.next(true);
+          return throwError(error);
+        })
+      );
     }
-
     // Invalid token error
     else if (error.status === 401) {
       return this.refreshToken().pipe(
@@ -103,16 +118,15 @@ export class TokenInterceptor implements HttpInterceptor {
             return this.handleResponseError(e);
           } else {
             this.logout();
+            return throwError(e);
           }
         }));
     }
-
     // Access denied error
     else if (error.status === 403) {
       // Logout
       this.logout();
       this.boardCastService.httpError.next(true);
-
     }
     // Maintenance error
     else if (error.status === 500) {
@@ -123,13 +137,26 @@ export class TokenInterceptor implements HttpInterceptor {
     return throwError(error);
   }
 
-  intercept(request: HttpRequest<any>, next: HttpHandler): Observable<any> {
-    // Handle request
-    request = this.addAuthHeader(request);
-
-    // Handle response
-    return next.handle(request).pipe(catchError(error => {
-      return this.handleResponseError(error, request, next);
-    }));
+  private blobToText(blob: any): Observable<string> {
+    if (blob instanceof Blob) {
+      return new Observable<string>((observer) => {
+        const reader = new FileReader();
+        reader.onload = (e: any) => {
+          observer.next(e.target.result);
+          observer.complete();
+        };
+        reader.readAsText(blob);
+      });
+    }
+    if (typeof blob === 'string') {
+      return new Observable<string>(obs => {
+        obs.next(blob);
+        obs.complete();
+      });
+    }
+    return new Observable<string>(obs => {
+      obs.next(JSON.stringify(blob));
+      obs.complete();
+    });
   }
 }

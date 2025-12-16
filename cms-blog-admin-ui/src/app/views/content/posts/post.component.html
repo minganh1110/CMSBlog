@@ -5,6 +5,8 @@
       <div class="col-4">
         <button appPermission appPolicy="Permissons.Posts.Add" pButton type="button" label="Thêm" icon="fa fa-plus"
           (click)="showAddModal()" class="p-button-sm p-button-success ms-1"></button>
+        <button appPermission appPolicy="Permissons.Posts.Edit" pButton type="button" label="Chỉnh sửa vị trí"
+          icon="fa fa-sort" (click)="showReorderModal()" class="p-button-sm p-button-info ms-1"></button>
         <button appPermission appPolicy="Permissons.Posts.Delete" pButton type="button" label="Xóa" icon="fa fa-trash"
           class="p-button-sm p-button-danger ms-1" *ngIf="selectedItems.length > 0" (click)="deleteItems()"></button>
         <button appPermission appPolicy="Permissons.Posts.Edit" pButton type="button" label="Sửa" icon="fa fa-edit"
@@ -18,8 +20,9 @@
               placeholder="Nhập từ khóa..." type="text" />
           </div>
           <div class="col">
-            <p-dropdown [options]="postCategories" optionLabel="name" [optionValue]="null" (onChange)="loadData()" [style]="{ width: '100%' }"
-              placeholder="Chọn danh mục" [showClear]="true" [(ngModel)]="selectedCategory" name="categoryId">
+            <p-dropdown [options]="postCategories" optionLabel="name" [optionValue]="null" (onChange)="loadData()"
+              [style]="{ width: '100%' }" placeholder="Chọn danh mục" [showClear]="true" [(ngModel)]="selectedCategory"
+              name="categoryId">
             </p-dropdown>
           </div>
           <div class="col">
@@ -37,6 +40,7 @@
               <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
             </th>
             <th>Tiêu đề</th>
+            <th>Thứ tự</th>
             <th>Danh mục</th>
             <th>Lượt xem</th>
             <th>Ngày tạo</th>
@@ -52,6 +56,7 @@
               <p-tableCheckbox [value]="row"></p-tableCheckbox>
             </td>
             <td>{{ row.name }}</td>
+            <td>{{ row.sortOrder }}</td>
             <td>{{ row.categoryName }}</td>
             <td>{{ row.viewCount | number }}</td>
             <td>{{ row.dateCreated | date : 'dd-MM-yyyy hh:mm' }}</td>
@@ -68,14 +73,14 @@
             <td>
               <button pButton pRipple type="button" icon="pi pi-list" pTooltip="Loạt bài" tooltipPosition="top"
                 (click)="addToSeries(row.id)" class="p-button-rounded p-button-text"></button>
-              <button *ngIf="row.status != 3" pButton appPermission appPolicy="Permissons.Posts.Approve" pRipple type="button"
-                icon="pi pi-check" pTooltip="Duyệt bài" tooltipPosition="top" (click)="approve(row.id)"
+              <button *ngIf="row.status != 3" pButton appPermission appPolicy="Permissons.Posts.Approve" pRipple
+                type="button" icon="pi pi-check" pTooltip="Duyệt bài" tooltipPosition="top" (click)="approve(row.id)"
                 class="p-button-rounded p-button-text p-button-success"></button>
-              <button *ngIf="row.status != 3 && row.status != 1" pButton pRipple type="button" icon="pi pi-forward" pTooltip="Gửi duyệt" tooltipPosition="top"
-                (click)="sendToApprove(row.id)" appPermission appPolicy="Permissons.Posts.Edit"
-                class="p-button-rounded p-button-text p-button-danger"></button>
-              <button *ngIf="row.status != 3" pButton pRipple type="button" icon="pi pi-backward" pTooltip="Trả lại" tooltipPosition="top"
-                (click)="reject(row.id)" appPermission appPolicy="Permissons.Posts.Approve"
+              <button *ngIf="row.status != 3 && row.status != 1" pButton pRipple type="button" icon="pi pi-forward"
+                pTooltip="Gửi duyệt" tooltipPosition="top" (click)="sendToApprove(row.id)" appPermission
+                appPolicy="Permissons.Posts.Edit" class="p-button-rounded p-button-text p-button-danger"></button>
+              <button *ngIf="row.status != 3" pButton pRipple type="button" icon="pi pi-backward" pTooltip="Trả lại"
+                tooltipPosition="top" (click)="reject(row.id)" appPermission appPolicy="Permissons.Posts.Approve"
                 class="p-button-rounded p-button-text p-button-danger"></button>
               <button pButton pRipple type="button" icon="pi pi-history" pTooltip="Xem lịch sử" tooltipPosition="top"
                 (click)="showLogs(row.id)" appPermission appPolicy="Permissons.Posts.View"

@@ -9,6 +9,7 @@ import { AdminApiPostApiClient, AdminApiPostCategoryApiClient, PostCategoryDto, 
 import { PostSeriesComponent } from 'src/app/views/content/posts/post-series.component';
 import { PostReturnReasonComponent } from 'src/app/views/content/posts/post-return-reason.component';
 import { PostActivityLogsComponent } from 'src/app/views/content/posts/post-activity-logs.component';
+import { PostReorderComponent } from './post-reorder.component';
 
 @Component({
   selector: 'app-post',
@@ -95,8 +96,28 @@ export class PostComponent implements OnInit, OnDestroy {
     });
   }
 
+  showReorderModal() {
+    const ref = this.dialogService.open(PostReorderComponent, {
+      header: 'Sắp xếp bài viết',
+      width: '70%',
+      data: {
+        categoryId: this.selectedCategory?.id
+      }
+    });
+    const dialogRef = this.dialogService.dialogComponentRefMap.get(ref);
+    const dynamicComponent = dialogRef?.instance as DynamicDialogComponent;
+    const ariaLabelledBy = dynamicComponent.getAriaLabelledBy();
+    dynamicComponent.getAriaLabelledBy = () => ariaLabelledBy;
+    ref.onClose.subscribe((result: boolean) => {
+      if (result) {
+        this.selectedItems = [];
+        this.loadData();
+      }
+    });
+  }
+
   pageChanged(event: any): void {
-    this.pageIndex = event.page+1;
+    this.pageIndex = event.page + 1;
     this.pageSize = event.rows;
     this.loadData();
   }

@@ -266,5 +266,47 @@ namespace CMSBlog.API.Controllers.AdminApi
             return Ok(tagNames);
         }
 
+        [HttpPost("swap-order/{id1}/{id2}")]
+        [Authorize(Posts.Edit)]
+        public async Task<IActionResult> SwapSortOrder(Guid id1, Guid id2)
+        {
+            var post1 = await _unitOfWork.Posts.GetByIdAsync(id1);
+            var post2 = await _unitOfWork.Posts.GetByIdAsync(id2);
+
+            if (post1 == null || post2 == null)
+            {
+                return NotFound();
+            }
+
+            var tempOrder = post1.SortOrder;
+            post1.SortOrder = post2.SortOrder;
+            post2.SortOrder = tempOrder;
+
+            await _unitOfWork.CompleteAsync();
+            return Ok();
+        }
+
+        [HttpPost("update-sort-order")]
+        [Authorize(Posts.Edit)]
+        public async Task<IActionResult> UpdateSortOrder([FromBody] UpdatePostSortOrderRequest request)
+        {
+            if (request.PostIds == null || request.PostIds.Count == 0)
+            {
+                return BadRequest("Danh sách bài viết không được để trống");
+            }
+
+            for (int i = 0; i < request.PostIds.Count; i++)
+            {
+                var post = await _unitOfWork.Posts.GetByIdAsync(request.PostIds[i]);
+                if (post != null)
+                {
+                    post.SortOrder = i;
+                }
+            }
+
+            await _unitOfWork.CompleteAsync();
+            return Ok();
+        }
+
     }
 }
