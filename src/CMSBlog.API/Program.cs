@@ -90,6 +90,7 @@ builder.Services.AddScoped<UserManager<AppUser>, UserManager<AppUser>>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<RoleManager<AppRole>, RoleManager<AppRole>>();
 builder.Services.AddScoped<IRoyaltyService, RoyaltyService>();
+builder.Services.AddScoped<IFooterService, FooterService>();
 
 //Default config for ASP.NET core 
 builder.Services.AddControllers();

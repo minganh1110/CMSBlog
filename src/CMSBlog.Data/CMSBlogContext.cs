@@ -1,5 +1,6 @@
 ﻿using CMSBlog.Core.Domain.Content;
 using CMSBlog.Core.Domain.Identity;
+using CMSBlog.Core.Domain.Info;
 using CMSBlog.Core.Domain.Royalty;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -25,6 +26,8 @@ namespace CMSBlog.Data
         public DbSet<Series> Series { get; set; }
         public DbSet<PostInSeries> PostInSeries { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
+        public DbSet<FooterSettings> FooterSettings { get; set; }
+        public DbSet<FooterLink> FooterLinks { get; set; }
 
 
 

@@ -77,6 +77,7 @@ builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Login
 builder.Services.AddScoped(typeof(IRepository<,>), typeof(RepositoryBase<,>));
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<CMSBlog.WebApp.Services.IEmailSender,EmailSender>();
+builder.Services.AddScoped<CMSBlog.Core.Services.IFooterService, CMSBlog.Data.Services.FooterService>();
 
 // Business services and repositories
 var services = typeof(PostRepository).Assembly.GetTypes()

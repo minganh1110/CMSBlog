@@ -1,34 +1,94 @@
-﻿﻿<footer class="border-top">
+﻿﻿@using System.Linq
+@inject CMSBlog.Core.Services.IFooterService _footerService
+@{
+    var footerSettings = await _footerService.GetActiveSettingsAsync();
+    var footerLinks = await _footerService.GetActiveLinksAsync();
+}
+<footer class="border-top">
     <div class="container px-4 px-lg-5">
         <div class="row gx-4 gx-lg-5 justify-content-center">
             <div class="col-md-10 col-lg-8 col-xl-7">
-                <ul class="list-inline text-center">
-                    <li class="list-inline-item">
-                        <a href="#!">
-                            <span class="fa-stack fa-lg">
-                                <i class="fas fa-circle fa-stack-2x"></i>
-                                <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
-                            </span>
-                        </a>
-                    </li>
-                    <li class="list-inline-item">
-                        <a href="#!">
-                            <span class="fa-stack fa-lg">
-                                <i class="fas fa-circle fa-stack-2x"></i>
-                                <i class="fab fa-facebook-f fa-stack-1x fa-inverse"></i>
-                            </span>
-                        </a>
-                    </li>
-                    <li class="list-inline-item">
-                        <a href="#!">
-                            <span class="fa-stack fa-lg">
-                                <i class="fas fa-circle fa-stack-2x"></i>
-                                <i class="fab fa-github fa-stack-1x fa-inverse"></i>
-                            </span>
-                        </a>
-                    </li>
-                </ul>
-                <div class="small text-center text-muted fst-italic">Copyright &copy; Your Website 2023</div>
+                @if (footerLinks != null && footerLinks.Any())
+                {
+                    <ul class="list-inline text-center">
+                        @foreach (var link in footerLinks)
+                        {
+                            <li class="list-inline-item">
+                                <a href="@link.Url" @(link.TargetBlank ? "target=\"_blank\"" : "") title="@link.Label">
+                                    @if (!string.IsNullOrEmpty(link.Icon))
+                                    {
+                                        <span class="fa-stack fa-lg">
+                                            <i class="fas fa-circle fa-stack-2x"></i>
+                                            <i class="@link.Icon fa-stack-1x fa-inverse"></i>
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span>@link.Label</span>
+                                    }
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                }
+                @if (footerSettings != null)
+                {
+                    @if (!string.IsNullOrEmpty(footerSettings.LogoUrl))
+                    {
+                        <div class="text-center mb-3">
+                            <img src="@footerSettings.LogoUrl" alt="@footerSettings.Title" style="max-height: 50px;" />
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(footerSettings.Title))
+                    {
+                        <div class="text-center mb-2">
+                            <h6>@footerSettings.Title</h6>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(footerSettings.Subtitle))
+                    {
+                        <div class="text-center mb-2">
+                            <p class="small">@footerSettings.Subtitle</p>
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(footerSettings.ContactEmail) || !string.IsNullOrEmpty(footerSettings.Phone) || !string.IsNullOrEmpty(footerSettings.Address))
+                    {
+                        <div class="text-center mb-2 small">
+                            @if (!string.IsNullOrEmpty(footerSettings.ContactEmail))
+                            {
+                                <span>Email: <a href="mailto:@footerSettings.ContactEmail">@footerSettings.ContactEmail</a></span>
+                            }
+                            @if (!string.IsNullOrEmpty(footerSettings.Phone))
+                            {
+                                <span> | Phone: @footerSettings.Phone</span>
+                            }
+                            @if (!string.IsNullOrEmpty(footerSettings.Address))
+                            {
+                                <div>@footerSettings.Address</div>
+                            }
+                        </div>
+                    }
+                    @if (!string.IsNullOrEmpty(footerSettings.FooterNote))
+                    {
+                        <div class="text-center mb-2 small text-muted">
+                            @footerSettings.FooterNote
+                        </div>
+                    }
+                    <div class="small text-center text-muted fst-italic">
+                        @if (!string.IsNullOrEmpty(footerSettings.CopyrightText))
+                        {
+                            @Html.Raw(footerSettings.CopyrightText)
+                        }
+                        else
+                        {
+                            <text>Copyright &copy; @DateTime.Now.Year</text>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="small text-center text-muted fst-italic">Copyright &copy; @DateTime.Now.Year</div>
+                }
             </div>
         </div>
     </div>
