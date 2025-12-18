@@ -28,8 +28,10 @@ namespace CMSBlog.Data.Repositories.Media
 
         public async Task<MediaFolder?> GetByIdAsync(Guid id)
         {
-            return await _db.MediaFolders.FirstOrDefaultAsync(x => x.Id == id);
+            return await _db.MediaFolders
+                .FirstOrDefaultAsync(x => x.Id == id);
         }
+
 
         public async Task<MediaFolder?> GetByIdWithChildrenAsync(Guid id, string providerName)
         {
@@ -48,6 +50,15 @@ namespace CMSBlog.Data.Repositories.Media
         {
             return await _db.MediaFolders.OrderBy(f => f.Path).ToListAsync();
         }
+
+        public async Task<Dictionary<Guid, int>> GetFileCountsAsync(string providerName )
+        {
+            return await _db.MediaFileFolderLinks
+                .Where(f => f.MediaFile.Provider == providerName)
+                .GroupBy(f => f.MediaFolderId)
+                .ToDictionaryAsync(g => g.Key, g => g.Count());
+        }
+
 
         public async Task<List<MediaFolder>> GetDescendantsAsync(string pathPrefix)
         {

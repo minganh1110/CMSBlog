@@ -70,7 +70,10 @@ namespace CMSBlog.Core.Application.Mapping
                     opt => opt.MapFrom(src =>
                         src.FileFolderLinks != null
                             ? src.FileFolderLinks.Select(l => l.MediaFile)
-                            : new List<MediaFile>()));
+                            : new List<MediaFile>()))
+                .ForMember(dest => dest.Children, opt => opt.Ignore());
+
+
 
             // -----------------------------------------------------
             // 4. CreateMediaFolderDto → MediaFolder

@@ -49,30 +49,38 @@ namespace CMSBlog.API.Controllers.MediaAPI
         }
 
 
-        [HttpPost("upload")]
+        [HttpPost("upload-multiple")]
         [Consumes("multipart/form-data")]
-        public async Task<IActionResult> Upload([FromForm] CreateMediaFileRequest request)
+        public async Task<IActionResult> UploadMultiple([FromForm] CreateMediaFilesRequest request)
         {
-            if (request.File == null || request.File.Length == 0)
-                return BadRequest("No file uploaded");
+            if (request.Files == null || !request.Files.Any())
+                return BadRequest("No files uploaded");
 
-            using var ms = new MemoryStream();
-            await request.File.CopyToAsync(ms);
+            var results = new List<MediaFileDto>();
 
-            var mediaType = _mediaService.DetectMediaType(request.File.ContentType);
-            // map sang DTO của Core
-            var dto = new CreatedMediaFileDto
+            foreach (var file in request.Files)
             {
-                FileContent = ms.ToArray(),
-                FileName = request.File.FileName,
-                FolderId = request.FolderId,
-                MimeType = request.File.ContentType,
-                MediaType = mediaType
-            };
+                using var ms = new MemoryStream();
+                await file.CopyToAsync(ms);
 
-            var result = await _mediaService.UploadAsync(dto);
-            return Ok(result);
+                var mediaType = _mediaService.DetectMediaType(file.ContentType);
+
+                var dto = new CreatedMediaFileDto
+                {
+                    FileContent = ms.ToArray(),
+                    FileName = file.FileName,
+                    FolderId = request.FolderId,
+                    MimeType = file.ContentType,
+                    MediaType = mediaType
+                };
+
+                var uploaded = await _mediaService.UploadAsync(dto);
+                results.Add(uploaded);
+            }
+
+            return Ok(results);
         }
+
 
         [HttpPatch("{id:guid}/move")]
         public async Task<IActionResult> MoveToFolder([FromRoute] Guid id, [FromBody] MoveMediaFileDto dto)

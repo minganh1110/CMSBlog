@@ -2,13 +2,14 @@
 
 namespace CMSBlog.API.DTOs
 {
-    public class CreateMediaFileRequest
+    public class CreateMediaFilesRequest
     {
         [FromForm]
-        public IFormFile File { get; set; } = null!;
+        public List<IFormFile> Files { get; set; } = new();
 
         [FromForm]
         public Guid? FolderId { get; set; }
     }
+
 
 }

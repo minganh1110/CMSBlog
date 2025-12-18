@@ -1,6 +1,29 @@
 <ul class="tree">
-  <li *ngFor="let f of folders" (click)="select.emit(f)">
-    {{ f.folderName }}
-    <app-folder-tree *ngIf="f.children?.length" [folders]="f.children" (select)="select.emit($event)"></app-folder-tree>
+  <li class="node" *ngFor="let f of folders">
+
+    <div class="folder-item"
+         [class.active]="f.id === selectedId"
+         [class.disabled]="isDisabled(f)"
+         (click)="onSelect(f, $event)">
+
+      <span class="arrow"
+            *ngIf="f.children?.length"
+            [class.open]="f._open"
+            (click)="toggle(f, $event)">
+        ▶
+      </span>
+
+      <span class="label">{{ f.folderName }}</span>
+    </div>
+
+    <ul class="children" *ngIf="f.children?.length && f._open">
+      <app-folder-tree
+        [folders]="f.children"
+        [selectedId]="selectedId"
+        [disabledIds]="disabledIds"
+        (select)="select.emit($event)">
+      </app-folder-tree>
+    </ul>
+
   </li>
 </ul>

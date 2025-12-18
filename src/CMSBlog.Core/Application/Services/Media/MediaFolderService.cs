@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using CMSBlog.Core.Application.DTOs.Media;
 using CMSBlog.Core.Application.Interfaces.Media;
+using CMSBlog.Core.Domain.Constants;
 using CMSBlog.Core.Domain.Media;
 
 namespace CMSBlog.Core.Application.Services.Media
@@ -29,12 +30,14 @@ namespace CMSBlog.Core.Application.Services.Media
         // -----------------------------------------------------------
         public async Task<MediaFolderDto> CreateAsync(CreateMediaFolderDto dto, Guid? userId = null)
         {
+            // 3. Xác định folderId (nếu null thì gán ROOT)
+            Guid folderId = dto.ParentFolderId ?? MediaFolderConstants.RootFolderId;
             var entity = new MediaFolder()
             {
                 Id = Guid.NewGuid(),
                 FolderName = dto.FolderName,
                 SlugName = GenerateSlug(dto.FolderName),
-                ParentFolderId = dto.ParentFolderId,
+                ParentFolderId = folderId,
                 DateCreated = DateTime.UtcNow,
                 DateModified = DateTime.UtcNow
             };
@@ -68,9 +71,36 @@ namespace CMSBlog.Core.Application.Services.Media
         // -----------------------------------------------------------
         public async Task<MediaFolderDto?> GetByIdAsync(Guid id)
         {
-            var entity = await _repo.GetByIdAsync(id);
-            return entity == null ? null : _mapper.Map<MediaFolderDto>(entity);
+            var all = await _repo.GetAllAsync();  // 🚀 lấy tất cả folders 1 lần
+            var storage = await _storageFactory.GetStorageServiceAsync();
+            var providerName = storage.ProviderName;
+
+            var fileCounts = await _repo.GetFileCountsAsync(providerName);
+
+            // Dùng dictionary
+            var map = all.ToDictionary(x => x.Id, x => _mapper.Map<MediaFolderDto>(x));
+
+            // Set count
+            foreach (var item in map.Values)
+                item.FileCount = fileCounts.ContainsKey(item.Id) ? fileCounts[item.Id] : 0;
+
+            // Tạo rỗng children
+            foreach (var item in map.Values)
+                item.Children = new List<MediaFolderDto>();
+
+            // Build cây
+            foreach (var f in all)
+            {
+                if (f.ParentFolderId.HasValue)
+                    map[f.ParentFolderId.Value].Children.Add(map[f.Id]);
+            }
+
+            // Trả lại đúng folder user đang cần
+            return map[id];
         }
+
+
+
 
         //
         // GET BY ID INCLUDE FILES
@@ -91,9 +121,27 @@ namespace CMSBlog.Core.Application.Services.Media
         {
             var all = await _repo.GetAllAsync();
 
-            var dtoMap = all.ToDictionary(x => x.Id, x => _mapper.Map<MediaFolderDto>(x));
-            foreach (var dto in dtoMap.Values)
-                dto.Children = new List<MediaFolderDto>();
+            var storage = await _storageFactory.GetStorageServiceAsync();
+            var providerName = storage.ProviderName;
+
+            // 👇 Lấy số lượng file theo folderId
+            var fileCounts = await _repo.GetFileCountsAsync(providerName);
+
+            // Map DTO
+            var dtoMap = all.ToDictionary(
+                x => x.Id,
+                x =>
+                {
+                    var dto = _mapper.Map<MediaFolderDto>(x);
+                    dto.Children = new List<MediaFolderDto>();
+
+                    // 👇 Gán số lượng file
+                    dto.FileCount = fileCounts.ContainsKey(x.Id)
+                        ? fileCounts[x.Id]
+                        : 0;
+
+                    return dto;
+                });
 
             var roots = new List<MediaFolderDto>();
 
@@ -102,6 +150,7 @@ namespace CMSBlog.Core.Application.Services.Media
                 if (f.ParentFolderId.HasValue)
                 {
                     dtoMap[f.ParentFolderId.Value].Children!.Add(dtoMap[f.Id]);
+
                 }
                 else
                 {
@@ -309,6 +358,7 @@ namespace CMSBlog.Core.Application.Services.Media
             };
 
             return query.Select(x => _mapper.Map<MediaFolderDto>(x)).ToList();
+            
         }
 
         // -----------------------------------------------------------
@@ -316,5 +366,31 @@ namespace CMSBlog.Core.Application.Services.Media
         // -----------------------------------------------------------
         private string GenerateSlug(string input)
             => input.Trim().ToLower().Replace(" ", "-");
+
+        private MediaFolderDto MapFolderTree(
+        MediaFolder entity,
+        Dictionary<Guid, int> fileCounts)
+            {
+                var dto = _mapper.Map<MediaFolderDto>(entity);
+
+                dto.FileCount = fileCounts.TryGetValue(entity.Id, out var count)
+                    ? count
+                    : 0;
+
+                dto.Children = new List<MediaFolderDto>();
+
+                if (entity.ChildFolders == null || !entity.ChildFolders.Any())
+                    return dto;
+
+                foreach (var child in entity.ChildFolders)
+                {
+                    dto.Children.Add(MapFolderTree(child, fileCounts));
+                }
+
+                return dto;
+            }
+
+
+
     }
 }

@@ -1,29 +1,49 @@
-.folder-tree {
-  padding: 10px;
+.tree {
+  list-style: none;
+  margin: 0;
+  padding-left: 0;
+}
+
+.node {
+  padding-left: 10px;
+}
+
+.folder-item {
+  display: flex;
+  align-items: center;
+  padding: 6px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+  color: #ddd;
+}
+
+.folder-item:hover {
+  background: #2b2b3c;
+}
+
+.folder-item.active {
+  background: #3d3d52;
+  font-weight: 600;
   color: #fff;
+}
 
-  .folder-item {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    padding: 4px 8px;
-    border-radius: 4px;
+.folder-item.disabled {
+  opacity: .4;
+  pointer-events: none;
+}
 
-    &:hover {
-      background: rgba(255, 255, 255, 0.1);
-    }
+.arrow {
+  font-size: 12px;
+  margin-right: 6px;
+  transition: transform .15s;
+}
 
-    &.active {
-      background: rgba(255, 255, 255, 0.2);
-    }
+.arrow.open {
+  transform: rotate(90deg);
+}
 
-    .icon {
-      margin-right: 6px;
-      font-size: 18px;
-    }
-  }
-
-  .children {
-    margin-left: 18px;
-  }
+.children {
+  padding-left: 18px;
+  border-left: 1px dashed #444;
+  margin-left: 6px;
 }

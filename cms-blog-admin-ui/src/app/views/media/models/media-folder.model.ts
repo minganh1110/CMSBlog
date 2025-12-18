@@ -9,4 +9,5 @@ export interface MediaFolder {
   dateCreated?: string;
   children?: MediaFolder[];
   files?: MediaFile[]; // files in this folder
+  fileCount: Int16Array;
 }

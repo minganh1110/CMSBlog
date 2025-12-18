@@ -25,7 +25,7 @@ export class MediaService {
   }
 
   upload(formData: FormData) {
-    return this.http.post(`${API_BASE}/media/upload`, formData);
+    return this.http.post(`${API_BASE}/media/upload-multiple`, formData);
   }
 
   move(id: string, newParentId: string | null) {
@@ -57,6 +57,10 @@ export class MediaService {
     return this.http.get<MediaFolder[]>(`${API_BASE}/folders/${id}/children`);
   }
 
+  getAllInfolder(id: string) {
+    return this.http.get<MediaFolder[]>(`${API_BASE}/folders/${id}/files`);
+  }
+
   moveFolder(id: string, newParentId: string | null) {
     return this.http.patch(`${API_BASE}/folders/${id}/move`, { parentId: newParentId });
   }
@@ -68,4 +72,6 @@ export class MediaService {
   deleteFolder(id: string) {
     return this.http.delete(`${API_BASE}/folders/${id}`);
   }
+
+
 }

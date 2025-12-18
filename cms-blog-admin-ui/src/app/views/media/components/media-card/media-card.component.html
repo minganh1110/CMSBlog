@@ -1,12 +1,29 @@
-<div class="card" [class.list]="listView">
-  <div class="thumb">
-    <img *ngIf="getThumb(); else noThumb" [src]="getThumb()" alt="{{file.fileName}}">
-    <ng-template #noThumb>
-      <div class="no-thumb">Không có bản review</div>
-    </ng-template>
+<div class="media-card" [class.selected]="isSelected">
+  <!-- CHECKBOX -->
+  <div class="select-box" (click)="toggle.emit()">
+    <input
+      type="checkbox"
+      [checked]="isSelected"
+      (click)="$event.stopPropagation()" />
   </div>
-  <div class="info">
-    <div class="title">{{ file.fileName }}</div>
-    <div class="meta">{{ file.mediaType }}</div>
+
+  <!-- Edit -->
+  <div class="edit-box" (click)="toggle.emit()">
+    <i class="fa fa-edit"></i>
+    <input type="text">
+  </div>
+
+
+  <div class="card media-panel" [class.list]="listView">
+    <div class="thumb">
+      <img *ngIf="getThumb(); else noThumb" [src]="getThumb()" alt="{{file.fileName}}">
+      <ng-template #noThumb>
+        <div class="no-thumb">Không có bản review</div>
+      </ng-template>
+    </div>
+    <div class="info">
+      <div class="title">{{ file.fileName }}</div>
+      <div class="meta">{{ MediaType[file.mediaType] }}</div>
+    </div>
   </div>
 </div>

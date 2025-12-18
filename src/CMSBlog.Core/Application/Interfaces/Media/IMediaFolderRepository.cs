@@ -18,7 +18,7 @@ namespace CMSBlog.Core.Application.Interfaces.Media
         Task UpdateAsync(MediaFolder entity);
         Task DeleteRangeAsync(IEnumerable<MediaFolder> entities);
         Task SaveChangesAsync();
-
+        Task<Dictionary<Guid, int>> GetFileCountsAsync(string providerName);
         void Attach<TEntity>(TEntity entity) where TEntity : class;
         void SetPropertyModified<TEntity, TProperty>(
             TEntity entity,

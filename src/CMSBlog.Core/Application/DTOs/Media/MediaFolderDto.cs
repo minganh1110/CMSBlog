@@ -16,6 +16,7 @@ namespace CMSBlog.Core.Application.DTOs.Media
         public Guid? ParentFolderId { get; set; }
         public string Path { get; set; } = null!;
         public DateTime DateCreated { get; set; }
+        public int FileCount { get; set; }
 
         public List<MediaFolderDto>? Children { get; set; }
         public List<MediaFileDto>? Files { get; set; }

@@ -22,4 +22,6 @@ export interface MediaFile {
   mediaType: MediaType;
   tags?: string[];
   formats?: Formats | null;
+
+  isSelected?: boolean;
 }

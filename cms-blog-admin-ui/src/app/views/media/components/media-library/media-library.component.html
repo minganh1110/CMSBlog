@@ -1,40 +1,268 @@
-<div class="media-wrapper">
+<div class="media-wrapper"
+     [ngClass]="isDark ? 'dark-theme' : 'light-theme'"> 
   <header class="media-header">
-    <h1>Media Library</h1>
+    <div>
+      <h1>Media Library</h1>
+      <nav class="breadcrumb">
+        <span (click)="goRoot()">Media Library</span>
+        <ng-container *ngFor="let step of path">
+          <span>/</span>
+          <span class="crumb" (click)="goTo(step)">{{step.folderName}}</span>
+        </ng-container>
+      </nav>
+    </div>
+
     <div class="actions">
-      <button (click)="loadAssets()" class="btn">All</button>
-      <button class="btn">Add new folder</button>
-      <button class="btn primary">Add new assets</button>
+      <button class="btn media-panel" (click)="openAddFolder()">Add new folder</button>
+      <button class="btn primary media-panel" (click)="openAddAsset()">Add new assets</button>
     </div>
   </header>
+  <!-- TREE VIEW
+    <aside class="sidebar">
+      <h3>Folder Tree</h3>
+      <app-folder-tree
+        [folders]="folders"
+        (select)="onFolderSelected($event)">
+      </app-folder-tree>
+    </aside> -->
 
-  <section class="folders">
-    <h3>Folders</h3>
-    <div class="folder-list">
-      <div *ngFor="let f of folders" class="folder-card" (click)="onFolderSelected(f)">
-        <div class="icon">📁</div>
-        <div class="meta">
-          <div class="name">{{f.folderName}}</div>
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <ng-container *ngIf="selectedCount > 0">
+
+      <button class="action-btn move">
+        <i class="fa fa-folder-open"></i>
+        Move
+      </button>
+
+      <button class="action-btn delete">
+        <i class="fa fa-trash"></i>
+        Delete ({{selectedCount}})
+      </button>
+
+    </ng-container>
+    <!-- Checkbox All -->
+      <div class="grid-header">
+        <input type="checkbox" [(ngModel)]="checkAll" (change)="toggleAll()" />
+        <span>Select All</span>
+      </div>
+    <button class="icon-btn"><i class="fa fa-cog"></i></button>
+
+    <!-- SEARCH ICON -->
+    <button class="icon-btn" (click)="toggleSearch()">
+      <i class="fa fa-search"></i>
+    </button>
+
+    <!-- SEARCH INPUT -->
+    <input *ngIf="isGrid && isSearchOpen"
+          type="text"
+          placeholder="Search..."
+          class="filter-input"
+          [(ngModel)]="filterText"
+          (blur)="closeSearch()"
+          (keydown.escape)="closeSearch()" />
+
+    <button class="icon-btn" (click)="toggleView()">
+      <i class="fa" [ngClass]="isGrid ? 'fa-bars' : 'fa-th-large'"></i>
+    </button>
+  </div>
+
+  <main class="content">
+
+    <!-- GRID VIEW -->
+    <ng-container *ngIf="isGrid">
+
+      <!-- FOLDERS -->
+      <section class="folders">
+        <h3>Folders</h3>
+
+        <div class="folder-list">
+          <div *ngFor="let f of folders"
+              class="folder-card compact"
+              [class.selected]="selectedFolderIds.has(f.id)"
+              (click)="onFolderSelected(f)">
+
+            <!-- CHECKBOX -->
+            <div class="select-box"
+                (click)="$event.stopPropagation(); toggleFolderSelect(f)">
+              <input
+                type="checkbox"
+                [checked]="selectedFolderIds.has(f.id)"
+                (click)="$event.stopPropagation()" />
+            </div>
+
+            <!-- EDIT -->
+            <div class="edit-box"
+                title="Edit folder"
+                (click)="$event.stopPropagation(); openEditFolder(f)">
+              <i class="fa fa-pen"></i>
+            </div>
+
+            <!-- CONTENT -->
+            <div class="folder-content">
+              <div class="folder-icon">
+                <i class="fa fa-folder"></i>
+              </div>
+
+              <div class="folder-info">
+                <div class="folder-name">{{ f.folderName }}</div>
+                <div class="folder-meta">
+                  {{ f.children?.length || 0 }} folder ·
+                  {{ f.fileCount || 0 }} asset
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+
+
+      <!-- ASSETS -->
+      <section class="assets">
+        <h3>Assets ({{ assets?.length || 0 }})</h3>
+        <div class="grid">
+          <app-media-card
+            *ngFor="let a of assets"
+            [file]="a"
+            [isSelected]="a.isSelected"
+            (toggle)="a.isSelected = !a.isSelected; onItemToggle()"
+            >
+          </app-media-card>
+        </div>
+      </section>
+
+    </ng-container>
+
+
+    <!-- LIST VIEW -->
+    <div *ngIf="!isGrid" class="list-view">
+
+      <table class="media-table">
+        <thead>
+          <tr>
+            <th style="width:40px">
+              <input type="checkbox"
+                    [(ngModel)]="checkAll"
+                    (change)="toggleAll()" />
+            </th>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Size</th>
+            <th>Created</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let item of filteredItems"
+              (click)="onItemClick(item)">
+
+            <td>
+              <input type="checkbox"
+                    [(ngModel)]="item.isSelected"
+                    (click)="$event.stopPropagation()" />
+            </td>
+
+            <td>
+              <i class="fa"
+                [ngClass]="item.isFolder ? 'fa-folder' : 'fa-file'"></i>
+              {{ item.name || item.folderName }}
+            </td>
+
+            <td>
+              {{ item.isFolder ? 'Folder' : (item.extension || '-') }}
+            </td>
+
+            <td>{{ item.size || '-' }}</td>
+            <td>{{ item.created | date:'medium' }}</td>
+
+          </tr>
+        </tbody>
+      </table>
+
+    </div>
+  </main>
+
+
+
+  <!-- ADD FOLDER MODAL -->
+  <div class="modal" *ngIf="folderModalOpen">
+    <div class="modal-content">
+
+      <h2>
+        {{ folderModalMode === 'add' ? 'Create Folder' : 'Edit Folder' }}
+      </h2>
+
+      <label>Folder name</label>
+      <input type="text"
+            [(ngModel)]="folderForm.name"
+            placeholder="Enter folder name" />
+
+
+      <label>Parent folder</label>
+
+      <div class="dropdown-tree">
+        <div class="selected" (click)="toggleTree()">
+          {{ getFolderName(folderForm.parentId) }}
+        </div>
+
+        <div class="tree-panel" *ngIf="isTreeOpen">
+          <app-folder-tree
+            [folders]="folderTree"
+            [selectedId]="folderForm.parentId"
+            [disabledIds]="disabledFolderIds"
+            (select)="onParentSelected($event)">
+          </app-folder-tree>
         </div>
       </div>
-    </div>
-  </section>
 
-  <hr />
 
-  <section class="assets">
-    <h3>Assets ({{assets?.length || 0}})</h3>
-    <div class="view-toggle">
-      <button (click)="isGrid = true">Grid</button>
-      <button (click)="isGrid = false">List</button>
-    </div>
+      <div class="form-error" *ngIf="folderError">
+        {{ folderError }}
+      </div>
 
-    <div *ngIf="isGrid" class="grid">
-      <app-media-card *ngFor="let a of assets" [file]="a"></app-media-card>
-    </div>
+      <div class="actions">
+        <button class="btn" (click)="folderModalOpen = false">Cancel</button>
+        <button class="btn primary" (click)="submitFolder()">
+           {{ folderModalMode === 'add' ? 'Create' : 'Save' }}
+        </button>
+      </div>
 
-    <div *ngIf="!isGrid" class="list">
-      <app-media-card *ngFor="let a of assets" [file]="a" [listView]="true"></app-media-card>
     </div>
-  </section>
+  </div>
+
+  <!-- ADD ASSET MODAL -->
+  <div class="modal" *ngIf="showAddAsset">
+    <div class="modal-content">
+
+      <h2>Add Asset</h2>
+
+      <!-- Drag & Drop Zone -->
+      <div class="upload-zone"
+          (drop)="onFileDrop($event)"
+          (dragover)="onDragOver($event)"
+          
+          >
+        <p>Drag & drop files here</p>
+        <span>or</span>
+        <button (click)="fileInput.click()">Browse files</button>
+        <input type="file" #fileInput hidden multiple (change)="onFileSelect($event)" />
+      </div>
+
+      <div *ngIf="previews.length" class="preview-list">
+        <div class="preview-item" *ngFor="let img of previews">
+          <img [src]="img" />
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="btn" (click)="showAddAsset = false">Cancel</button>
+        <button class="btn primary" (click)="submitUpload()" [disabled]="!selectedFiles" *ngIf="selectedFiles.length > 0">
+          Upload
+        </button>
+      </div>
+    </div>
+  </div>
+
 </div>
