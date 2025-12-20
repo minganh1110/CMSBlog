@@ -6,12 +6,14 @@ import { FolderTreeComponent } from './components/folder-tree/folder-tree.compon
 import { MediaRoutingModule } from './media-routing.module';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { EditAssetModalComponent } from './components/edit-asset-modal/edit-asset-modal.component';
 
 @NgModule({
   declarations: [
     MediaLibraryComponent,
     MediaCardComponent,
-    FolderTreeComponent
+    FolderTreeComponent,
+    EditAssetModalComponent
   ],
   imports: [
     CommonModule,

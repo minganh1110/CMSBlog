@@ -30,12 +30,12 @@
   <div class="toolbar">
     <ng-container *ngIf="selectedCount > 0">
 
-      <button class="action-btn move">
+      <button class="action-btn move" (click)="moveSelected()">
         <i class="fa fa-folder-open"></i>
         Move
       </button>
 
-      <button class="action-btn delete">
+      <button class="action-btn delete" (click)="deleteSelected()">
         <i class="fa fa-trash"></i>
         Delete ({{selectedCount}})
       </button>
@@ -84,11 +84,11 @@
 
             <!-- CHECKBOX -->
             <div class="select-box"
-                (click)="$event.stopPropagation(); toggleFolderSelect(f)">
-              <input
-                type="checkbox"
-                [checked]="selectedFolderIds.has(f.id)"
-                (click)="$event.stopPropagation()" />
+                (click)="$event.stopPropagation(); toggleSelect('folder', f.id)">
+              <input type="checkbox"
+                [checked]="isSelected('folder', f.id)"
+                (click)=" $event.stopPropagation();toggleSelect('folder', f.id)" />
+
             </div>
 
             <!-- EDIT -->
@@ -126,9 +126,9 @@
           <app-media-card
             *ngFor="let a of assets"
             [file]="a"
-            [isSelected]="a.isSelected"
-            (toggle)="a.isSelected = !a.isSelected; onItemToggle()"
-            >
+            [isSelected]="isSelected('asset', a.id)"
+            (toggle)="onAssetToggle(a)"
+            (edit)="openEditAsset(a)">
           </app-media-card>
         </div>
       </section>
@@ -160,8 +160,12 @@
 
             <td>
               <input type="checkbox"
-                    [(ngModel)]="item.isSelected"
-                    (click)="$event.stopPropagation()" />
+                [checked]="isSelected(item.isFolder ? 'folder' : 'asset', item.data.id)"
+                (click)="toggleSelect(
+                  item.isFolder ? 'folder' : 'asset',
+                  item.data.id
+                ); $event.stopPropagation()" />
+
             </td>
 
             <td>
@@ -191,14 +195,19 @@
     <div class="modal-content">
 
       <h2>
-        {{ folderModalMode === 'add' ? 'Create Folder' : 'Edit Folder' }}
+        {{
+          folderModalMode === 'add' ? 'Create Folder' :
+          folderModalMode === 'edit' ? 'Edit Folder' :
+          'Move selected items'
+        }}
       </h2>
 
-      <label>Folder name</label>
-      <input type="text"
-            [(ngModel)]="folderForm.name"
-            placeholder="Enter folder name" />
-
+      <label *ngIf="folderModalMode !== 'move'">Folder name</label>
+      <input
+        *ngIf="folderModalMode !== 'move'"
+        type="text"
+        [(ngModel)]="folderForm.name"
+        placeholder="Enter folder name" />
 
       <label>Parent folder</label>
 
@@ -264,5 +273,14 @@
       </div>
     </div>
   </div>
-
 </div>
+  
+
+<!-- EDIT ASSET MODAL -->
+   <app-edit-asset-modal
+    *ngIf="editingAsset"
+    [asset]="editingAsset"
+    [folderTree]="folderTree"
+    (close)="editingAsset = null"
+    (saved)="reloadCurrentFolder()">
+  </app-edit-asset-modal>

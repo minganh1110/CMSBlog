@@ -29,7 +29,7 @@ export class MediaService {
   }
 
   move(id: string, newParentId: string | null) {
-    return this.http.patch(`${API_BASE}/media/${id}/move`, { parentId: newParentId });
+    return this.http.patch(`${API_BASE}/media/${id}/move`, { newFolderId: newParentId });
   }
 
   update(id: string, payload: any) {
@@ -62,7 +62,7 @@ export class MediaService {
   }
 
   moveFolder(id: string, newParentId: string | null) {
-    return this.http.patch(`${API_BASE}/folders/${id}/move`, { parentId: newParentId });
+    return this.http.patch(`${API_BASE}/folders/${id}/move`, { newParentId: newParentId });
   }
 
   editFolder(id: string, payload: any) {

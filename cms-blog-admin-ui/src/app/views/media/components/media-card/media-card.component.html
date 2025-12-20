@@ -1,16 +1,19 @@
-<div class="media-card" [class.selected]="isSelected">
+<div class="media-card" [class.selected]="isSelected" (click)="edit.emit(file)">
   <!-- CHECKBOX -->
-  <div class="select-box" (click)="toggle.emit()">
+  <div class="select-box"
+       (click)="toggle.emit(); $event.stopPropagation()">
     <input
       type="checkbox"
       [checked]="isSelected"
-      (click)="$event.stopPropagation()" />
+      (click)="$event.stopPropagation(); toggle.emit()" />
   </div>
 
   <!-- Edit -->
-  <div class="edit-box" (click)="toggle.emit()">
-    <i class="fa fa-edit"></i>
-    <input type="text">
+  <!-- EDIT -->
+  <div class="edit-box"
+      title="Edit"
+      (click)="$event.stopPropagation(); edit.emit(file)">
+    <i class="fa fa-pen"></i>
   </div>
 
 

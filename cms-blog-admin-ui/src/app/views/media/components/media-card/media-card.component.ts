@@ -14,9 +14,15 @@ export class MediaCardComponent {
   @Input() MediaType = MediaType;
 
   @Output() toggle = new EventEmitter<void>();
+  @Output() edit = new EventEmitter<MediaFile>();
+
+
 
   getThumb(): string | null {
-    return this.file.formats?.thumbnail?.url ?? this.file.formats?.small?.url ?? null;
+    const base = this.file.formats?.thumbnail?.url ?? this.file.formats?.small?.url ?? null;
+    if (!base) return null;
+
+    return `${base}?v=${this.file.dateModified}`;
   }
 
-} 
+}

@@ -2,7 +2,15 @@ import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { MediaService } from '../../services/media.service';
 import { MediaFile } from '../../models/media-file.model';
 import { MediaFolder } from '../../models/media-folder.model';
-import { forkJoin } from 'rxjs';
+import { Observable, forkJoin } from 'rxjs';
+
+
+type SelectType = 'folder' | 'asset';
+
+interface SelectedItem {
+  id: string;
+  type: SelectType;
+}
 
 @Component({
   selector: 'app-media-library',
@@ -12,6 +20,7 @@ import { forkJoin } from 'rxjs';
 export class MediaLibraryComponent implements OnInit {
   @Output() toggle = new EventEmitter<void>();
 
+
   folders: MediaFolder[] = [];
   assets: MediaFile[] = [];
   items: any[] = [];        // Dùng chung cho MODE LIST
@@ -20,7 +29,6 @@ export class MediaLibraryComponent implements OnInit {
   isGrid = true;
   rootFolderId = "11111111-1111-1111-1111-111111111111";
   path: MediaFolder[] = [];
-  isSelected = false;
 
   constructor(private mediaService: MediaService) {}
 
@@ -129,13 +137,6 @@ export class MediaLibraryComponent implements OnInit {
     );
   }
 
-  toggleAll() {
-    this.filteredItems.forEach(i => i.isSelected = this.checkAll);
-    const value = this.checkAll;
-
-    this.assets.forEach(a => a.isSelected = value);
-  }
-
   addAsset() {
     console.log("Add asset clicked");
   }
@@ -237,11 +238,6 @@ export class MediaLibraryComponent implements OnInit {
     });
   }
 
-  get selectedCount(): number {
-    return this.assets.filter(a => a.isSelected).length;
-  }
-
-
 // Add folder or edit folder
   showAddFolder = false;
   newFolderName = '';
@@ -316,15 +312,15 @@ submitAddFolder() {
 
 
   submitFolder() {
-    if (!this.folderForm.name?.trim()) {
-      alert("Tên folder không được để trống!");
-      return;
-    }
 
     if (this.folderModalMode === 'add') {
       this.addFolder();
-    } else {
+    } 
+    else if (this.folderModalMode === 'edit') {
       this.updateFolder();
+    } 
+    else if (this.folderModalMode === 'move') {
+      this.submitMove();
     }
   }
 
@@ -413,7 +409,8 @@ submitAddFolder() {
   }
 
   folderModalOpen = false;
-  folderModalMode: 'add' | 'edit' = 'add';
+  folderModalMode: 'add' | 'edit' | 'move' = 'add';
+
 
   editingFolder: any = null;
 
@@ -475,6 +472,160 @@ submitAddFolder() {
     for (const child of folder.children) {
       set.add(child.id);
       this.collectDescendants(child, set);
+    }
+  }
+
+  //Select to move or edit
+  
+  selected = new Map<string, SelectedItem>();
+    getKey(type: 'folder' | 'asset', id: string) {
+    return `${type}:${id}`;
+  }
+
+  isSelected(type: 'folder' | 'asset', id: string): boolean {
+    return this.selected.has(this.getKey(type, id));
+  }
+
+  toggleSelect(type: 'folder' | 'asset', id: string) {
+    const key = this.getKey(type, id);
+    this.selected.has(key)
+      ? this.selected.delete(key)
+      : this.selected.set(key, { id, type });
+  }
+
+  clearSelection() {
+    this.selected.clear();
+  }
+
+  // parent
+  onAssetToggle(asset: MediaFile) {
+    this.toggleSelect('asset', asset.id);
+  }
+
+  toggleAll() {
+    const shouldSelect = this.selected.size === 0;
+
+    this.items.forEach(i => {
+      const type = i.isFolder ? 'folder' : 'asset';
+      const key = this.getKey(type, i.data.id);
+
+      shouldSelect
+        ? this.selected.set(key, { id: i.data.id, type })
+        : this.selected.delete(key);
+    });
+  }
+
+  get selectedCount(): number {
+    return this.selected.size;
+  }
+
+  // delete selected items
+  deleteSelected() {
+    if (this.selected.size === 0) return;
+
+    const ok = confirm(
+      `Bạn có chắc muốn xóa ${this.selected.size} item đã chọn?\n` +
+      `Folder sẽ bị xóa cùng toàn bộ asset con bên trong.`
+    );
+    if (!ok) return;
+
+    const tasks: Observable<any>[] = [];
+
+    this.selected.forEach(item => {
+      if (item.type === 'folder') {
+        tasks.push(this.mediaService.deleteFolder(item.id));
+      } else {
+        tasks.push(this.mediaService.delete(item.id));
+      }
+    });
+
+    forkJoin(tasks).subscribe({
+      next: () => {
+        this.clearSelection();
+        this.reloadCurrentFolder();
+        alert('Xóa thành công!');
+      },
+      error: () => {
+        alert('Xóa thất bại!');
+      }
+    });
+  }
+
+
+  //move selected items
+  moveSelected() {
+    if (this.selected.size === 0) return;
+
+    this.folderModalMode = 'move';
+    this.editingFolder = null;
+
+    this.folderForm = {
+      name: '',
+      parentId: this.selectedFolder?.id || null
+    };
+
+    this.folderModalOpen = true;
+
+    this.mediaService.getTree().subscribe(res => {
+      this.folderTree = res;
+    });
+  }
+
+  submitMove() {
+    const targetParentId = this.folderForm.parentId ?? null;
+    if (!targetParentId) return;
+
+    const ok = confirm(
+      `Bạn có chắc muốn di chuyển ${this.selected.size} item ` +
+      `đến folder đã chọn?`
+    );
+    if (!ok) return;
+
+    const tasks: Observable<any>[] = [];
+
+    this.selected.forEach(item => {
+      if (item.type === 'folder') {
+        tasks.push(
+          this.mediaService.moveFolder(item.id, targetParentId)
+        );
+      } else {
+        tasks.push(
+          this.mediaService.move(item.id, targetParentId)
+        );
+      }
+    });
+
+    forkJoin(tasks).subscribe({
+      next: () => {
+        this.folderModalOpen = false;
+        this.clearSelection();
+        this.reloadCurrentFolder();
+        alert('Di chuyển thành công!');
+      },
+      error: () => {
+        alert('Di chuyển thất bại!');
+      }
+    });
+  }
+
+
+  reloadCurrentFolder() {
+    const id = this.selectedFolder?.id || this.rootFolderId;
+    this.loadFolderById(id);
+    this.loadAssets(id);
+  }
+
+  //edit asset
+  editingAsset: MediaFile | null = null;
+
+  openEditAsset(asset: MediaFile) {
+    this.editingAsset = asset;
+  console.log('EDIT ASSET', asset);
+    // nếu folderTree chưa load thì nên load ở đây
+    if (!this.folderTree || this.folderTree.length === 0) {
+      this.mediaService.getTree().subscribe(tree => {
+        this.folderTree = tree;
+      });
     }
   }
 

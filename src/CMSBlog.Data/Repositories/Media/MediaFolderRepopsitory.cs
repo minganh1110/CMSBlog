@@ -39,7 +39,7 @@ namespace CMSBlog.Data.Repositories.Media
                 .Where(f => f.Id == id)
                 .Include(f => f.ChildFolders)
                 .Include(f => f.FileFolderLinks
-                    .Where( link => link.MediaFile.Provider == providerName))
+                    .Where( link => link.MediaFile.Provider == providerName && !link.MediaFile.IsDeleted))
                     .ThenInclude(link => link.MediaFile)
 
                 .FirstOrDefaultAsync(x => x.Id == id);
@@ -54,7 +54,7 @@ namespace CMSBlog.Data.Repositories.Media
         public async Task<Dictionary<Guid, int>> GetFileCountsAsync(string providerName )
         {
             return await _db.MediaFileFolderLinks
-                .Where(f => f.MediaFile.Provider == providerName)
+                .Where(f => f.MediaFile.Provider == providerName && !f.MediaFile.IsDeleted)
                 .GroupBy(f => f.MediaFolderId)
                 .ToDictionaryAsync(g => g.Key, g => g.Count());
         }

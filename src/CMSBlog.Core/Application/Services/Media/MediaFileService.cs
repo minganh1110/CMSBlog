@@ -225,17 +225,22 @@ namespace CMSBlog.Core.Application.Services.Media
 
             foreach (var file in result)
             {
-                //lấy full url cho file chính
-                file.FileUrl = $"{baseUrl}{file.FilePath}".Replace("\\", "/");
-                //lấy full url cho từng format
                 if (file.Formats != null)
                 {
-                    foreach (var fmt in new[] { file.Formats.Thumbnail, file.Formats.Small,
-                                file.Formats.Medium, file.Formats.Large })
+                    //lấy full url cho file chính
+                    file.FileUrl = $"{baseUrl}{file.FilePath}".Replace("\\", "/");
+                    //lấy full url cho từng format
+                    if (file.Formats != null)
                     {
-                        if (fmt != null)
-                            fmt.Url = $"{baseUrl}{fmt.Url}".Replace("\\", "/")  ;
+                        foreach (var fmt in new[] { file.Formats.Thumbnail, file.Formats.Small,
+                                    file.Formats.Medium, file.Formats.Large })
+                        {
+                            if (fmt != null)
+                                fmt.Url = $"{baseUrl}{fmt.Url}".Replace("\\", "/");
+                        }
+
                     }
+
                 }
             }
                 
@@ -258,7 +263,7 @@ namespace CMSBlog.Core.Application.Services.Media
                                 dto.Formats.Medium, dto.Formats.Large })
                 {
                     if (fmt != null)
-                        fmt.Url = $"{baseUrl}{fmt.Path}".Replace("\\","/");
+                        fmt.Url = $"{baseUrl}{fmt.Url}".Replace("\\","/");
                 }
             }
 

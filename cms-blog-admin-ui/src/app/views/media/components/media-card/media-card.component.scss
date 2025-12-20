@@ -114,3 +114,39 @@
   transform: translateY(-2px);
   box-shadow: 0 6px 14px rgba(0,0,0,.08);
 }
+
+// hover edit box
+.media-card .edit-box {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: #fff;
+  border: 1px solid #6b6bb2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: .15s;
+}
+
+.media-card:hover .edit-box {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.media-card .edit-box i {
+  font-size: 13px;
+  color: #4e4e97;
+}
+
+.media-card .edit-box:hover {
+  background: #6f6fae;
+}
+
+.media-card .edit-box:hover i {
+  color: #fff;
+}

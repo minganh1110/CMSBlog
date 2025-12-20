@@ -1,0 +1,70 @@
+<div class="modal">
+  <div class="modal-content edit-asset">
+
+    <h2>Edit Asset</h2>
+
+    <div class="edit-body">
+      <!-- LEFT -->
+      <div class="left">
+        <div class="preview">
+          <img *ngIf="previewUrl; else noPreview" [src]="previewUrl" />
+          <ng-template #noPreview>
+            <div class="no-preview">No preview</div>
+          </ng-template>
+        </div>
+         <!-- REPLACE -->
+        <div class="replace">
+          <label class="btn">
+            Replace asset
+            <input type="file" hidden (change)="onReplaceSelect($event)" />
+          </label>
+          <small>* File mới phải cùng loại</small>
+        </div>
+      </div>
+
+      <!-- RIGHT -->
+      <div class="right">
+       
+        <!-- FORM -->
+        <div class="form">
+          <label>File name</label>
+          <input type="text" [(ngModel)]="form.fileName" />
+
+          <label>Description</label>
+          <textarea [(ngModel)]="form.description"></textarea>
+
+          <label>Alt text</label>
+          <input type="text" [(ngModel)]="form.altText" />
+
+          <label>Caption</label>
+          <input type="text" [(ngModel)]="form.caption" />
+
+          <label>Folder</label>
+          <div class="dropdown-tree">
+            <div class="selected" (click)="toggleTree()">
+              {{ getFolderName(form.folderId) }}
+            </div>
+
+            <div class="tree-panel" *ngIf="isTreeOpen">
+              <app-folder-tree
+                [folders]="folderTree"
+                [selectedId]="form.folderId"
+                (select)="onFolderSelected($event)">
+              </app-folder-tree>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- ACTIONS -->
+    <div class="actions">
+        <button class="btn" (click)="close.emit()">Cancel</button>
+        <button class="btn primary"
+                [disabled]="isSubmitting"
+                (click)="submit()">
+        Save
+        </button>
+    </div>
+
+  </div>
+</div>

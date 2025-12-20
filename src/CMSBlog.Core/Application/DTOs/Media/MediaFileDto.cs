@@ -31,6 +31,8 @@ namespace CMSBlog.Core.Application.DTOs.Media
         public List<string> Tags { get; set; } = new List<string>();
         public MediaFormats? Formats { get; set; }
         public string Url => Formats?.Small?.Url ?? Formats?.Thumbnail?.Url ?? "";
+        public string? AltText { get; set; }
+        public string? Caption { get; set; }
     }
 
 }
