@@ -46,14 +46,22 @@ namespace CMSBlog.API.Controllers.AdminApi
         
         public async Task<ActionResult<MenuItemDto>> CreateMenuItem(CreateMenuItemRequest request)
         {
-            var item = _mapper.Map<MenuItem>(request);
-            item.Id = Guid.NewGuid(); // Ensure ID is set if not handled by DB defaults for Guid (usually better to set in code for GUIDs)
+            try
+            {
+                var item = _mapper.Map<MenuItem>(request);
+                item.Id = Guid.NewGuid();
             
-            _unitOfWork.Menu.Add(item);
-            await _unitOfWork.CompleteAsync();
+                _unitOfWork.Menu.Add(item);
+                await _unitOfWork.CompleteAsync();
 
-            var dto = _mapper.Map<MenuItemDto>(item);
-            return CreatedAtAction(nameof(GetMenuItem), new { id = item.Id }, dto);
+                var dto = _mapper.Map<MenuItemDto>(item);
+                // Changing CreatedAtAction to Ok to avoid potential route generation errors
+                return Ok(dto);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal Server Error: {ex.Message}");
+            }
         }
 
         [HttpPut("{id}")]

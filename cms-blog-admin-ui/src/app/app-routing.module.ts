@@ -6,7 +6,7 @@ const routes: Routes = [
   {
     path: 'auth',
     loadChildren: () =>
-    import('./views/auth/auth.module').then((m) => m.AuthModule)
+      import('./views/auth/auth.module').then((m) => m.AuthModule)
   },
   {
     path: '',
@@ -35,11 +35,16 @@ const routes: Routes = [
         loadChildren: () =>
           import('./views/royalty/royalty.module').then((m) => m.RoyaltyModule),
       },
+      {
+        path: 'ui_manager',
+        loadChildren: () =>
+          import('./views/ui_manager/ui-manager.module').then((m) => m.UiManagerModule),
+      },
 
-      
+
     ]
   },
-  {path: '**', redirectTo: 'dashboard'}
+  { path: '**', redirectTo: 'dashboard' }
 ];
 
 @NgModule({

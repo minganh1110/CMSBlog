@@ -1,0 +1,56 @@
+<form [formGroup]="menuForm" (ngSubmit)="saveChange()">
+    <div class="field">
+        <label for="name" class="block">Tên hiển thị <span class="text-danger">*</span></label>
+        <input id="name" type="text" pInputText formControlName="name" [style]="{ 'width': '100%' }" />
+        <small class="p-error block" *ngIf="submitted && menuForm.get('name')?.invalid">Bạn cần nhập tên hiển
+            thị</small>
+    </div>
+
+    <div class="field">
+        <label for="menuGroup" class="block">Nhóm Menu <span class="text-danger">*</span></label>
+        <p-dropdown [options]="menuGroups" formControlName="menuGroup" [style]="{ 'width': '100%' }"></p-dropdown>
+    </div>
+
+    <div class="field">
+        <label for="linkType" class="block">Loại liên kết <span class="text-danger">*</span></label>
+        <p-dropdown [options]="linkTypes" formControlName="linkType" (onChange)="onLinkTypeChange()"
+            [style]="{ 'width': '100%' }"></p-dropdown>
+    </div>
+
+    <div class="field" *ngIf="menuForm.get('linkType')?.value === 'Custom'">
+        <label for="customUrl" class="block">URL</label>
+        <input id="customUrl" type="text" pInputText formControlName="customUrl" [style]="{ 'width': '100%' }" />
+    </div>
+
+    <div class="field" *ngIf="menuForm.get('linkType')?.value !== 'Custom'">
+        <label for="entityId" class="block">Chọn đối tượng</label>
+        <p-dropdown [options]="entities" formControlName="entityId" [filter]="true" filterBy="label"
+            placeholder="Chọn đối tượng" [style]="{ 'width': '100%' }"></p-dropdown>
+    </div>
+
+    <div class="field">
+        <label for="parentId" class="block">Menu cha</label>
+        <p-dropdown [options]="parents" formControlName="parentId" placeholder="Chọn menu cha"
+            [style]="{ 'width': '100%' }"></p-dropdown>
+    </div>
+
+    <div class="field">
+        <label for="sortOrder" class="block">Thứ tự</label>
+        <p-inputNumber id="sortOrder" formControlName="sortOrder" [style]="{ 'width': '100%' }"></p-inputNumber>
+    </div>
+
+    <div class="field-checkbox">
+        <p-checkbox formControlName="isActive" [binary]="true" inputId="isActive"></p-checkbox>
+        <label for="isActive">Kích hoạt</label>
+    </div>
+
+    <div class="field-checkbox">
+        <p-checkbox formControlName="openInNewTab" [binary]="true" inputId="openInNewTab"></p-checkbox>
+        <label for="openInNewTab">Mở tab mới</label>
+    </div>
+
+    <div class="flex justify-content-end mt-3">
+        <button pButton type="button" label="Hủy" class="p-button-secondary mr-2" (click)="ref.close()"></button>
+        <button pButton type="submit" label="Lưu" class="p-button-success" [disabled]="btnDisabled"></button>
+    </div>
+</form>

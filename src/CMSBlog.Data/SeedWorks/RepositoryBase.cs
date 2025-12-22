@@ -25,6 +25,10 @@ namespace CMSBlog.Data.SeedWorks
         {
             return _dbSet.Where(expression);
         }
+        public async Task<IEnumerable<T>> FindAllAsync(Expression<Func<T, bool>> expression)
+        {
+            return await _dbSet.Where(expression).ToListAsync();
+        }
         public async Task<IEnumerable<T>> GetAllAsync()
         {
             return await _dbSet.ToListAsync();

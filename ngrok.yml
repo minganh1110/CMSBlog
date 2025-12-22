@@ -1,0 +1,12 @@
+version: "2"
+authtoken: 2gxirDWJKEGuDrNZaE449YkhADs_5s2xtt1qbC8nRADpe4Tut
+tunnels:
+  frontend:
+    proto: http
+    addr: 4200
+    host_header: localhost:4200
+  backend:
+    proto: http
+    addr: https://127.0.0.1:7048
+    host_header: localhost:7048
+    verify_upstream_tls: false

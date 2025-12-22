@@ -49,7 +49,7 @@ namespace CMSBlog.Core.Domain.Menu
 
         [MaxLength(500)]
         // Chỉ dùng khi LinkType = "CustomLink"
-        public string CustomUrl { get; set; }
+        public string? CustomUrl { get; set; }
 
         // 6. THÔNG TIN BỔ SUNG
         // Có thể tùy chọn mở liên kết trong cửa sổ/tab mới

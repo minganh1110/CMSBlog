@@ -96,19 +96,19 @@ export const navItems: INavData[] = [
   },
   {
     name: 'Quản lý giao diện ',
-    url: '/system',
+    url: '/ui_manager',
     iconComponent: { name: 'cil-notes' },
     children: [
       {
         name: 'Quản lý menu',
-        url: '/system/roles',
+        url: '/ui_manager/menu',
         attributes: {
           "policyName": "Permissions.Roles.View"
         }
       },
       {
-        name: 'Người dùng',
-        url: '/system/users',
+        name: 'Quản lý template',
+        url: '/ui_manager/template',
         attributes: {
           "policyName": "Permissions.Users.View"
         }

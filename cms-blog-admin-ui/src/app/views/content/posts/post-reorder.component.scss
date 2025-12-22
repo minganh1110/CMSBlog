@@ -1,0 +1,81 @@
+// Styles for the container layout
+.reorder-container {
+    .post-list {
+        width: 100%;
+        max-width: 100%;
+        min-height: 60px;
+        display: block;
+        background: white;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+}
+
+// Styles for the post item - defined outside .reorder-container so they apply to the drag preview in body
+.post-box {
+    padding: 20px 10px;
+    border-bottom: solid 1px #ccc;
+    color: rgba(0, 0, 0, 0.87);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: border-box;
+    cursor: move;
+    background: white;
+    font-size: 14px;
+    transition: box-shadow 200ms cubic-bezier(0, 0, 0.2, 1);
+
+    &:last-child {
+        border: none;
+    }
+
+    .post-content {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+
+        .post-title {
+            font-weight: 500;
+        }
+    }
+
+    .handle {
+        color: #ccc;
+        cursor: move;
+        width: 24px;
+        height: 24px;
+
+        &:hover {
+            color: #666;
+        }
+    }
+}
+
+// Global styles for CDK drag elements need to be accessible when in body
+// We use ::ng-deep to ensure these apply even if the component is encapsulated
+::ng-deep .cdk-drag-preview {
+    box-sizing: border-box;
+    border-radius: 4px;
+    box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
+        0 8px 10px 1px rgba(0, 0, 0, 0.14),
+        0 3px 14px 2px rgba(0, 0, 0, 0.12);
+    // Ensure the preview looks like the item (background is critical)
+    background: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 10px; // Match .post-box padding
+}
+
+.cdk-drag-placeholder {
+    opacity: 0;
+}
+
+.cdk-drag-animating {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.post-list.cdk-drop-list-dragging .post-box:not(.cdk-drag-placeholder) {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}

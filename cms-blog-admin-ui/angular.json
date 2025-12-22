@@ -113,7 +113,6 @@
               "src/assets"
             ],
             "styles": [
-
               "src/scss/styles.scss"
             ],
             "scripts": []
