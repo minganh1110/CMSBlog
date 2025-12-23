@@ -25,7 +25,7 @@
     <div class="field" *ngIf="menuForm.get('linkType')?.value !== 'Custom'">
         <label for="entityId" class="block">Chọn đối tượng</label>
         <p-dropdown [options]="entities" formControlName="entityId" [filter]="true" filterBy="label"
-            placeholder="Chọn đối tượng" [style]="{ 'width': '100%' }"></p-dropdown>
+            placeholder="Chọn đối tượng" [style]="{ 'width': '100%' }" optionLabel="label"></p-dropdown>
     </div>
 
     <div class="field">

@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DynamicDialogRef, DynamicDialogConfig } from 'primeng/dynamicdialog';
-import { Subject, takeUntil } from 'rxjs';
+import { Subject, takeUntil, forkJoin } from 'rxjs';
 import { AdminApiMenuApiClient, AdminApiPostApiClient, CreateMenuItemRequest, MenuItemDto, PostInListDto, UpdateMenuItemRequest } from '../../../api/admin-api.service.generated';
 import { MessageConstants } from '../../../shared/constants/messages.constant';
 import { SelectItem } from 'primeng/api';
@@ -58,17 +58,7 @@ export class MenuDetailComponent implements OnInit, OnDestroy {
             { label: 'Category (Series)', value: 'Series' }
         ];
 
-        this.loadParents();
-        this.loadPosts();
-
-        // Check if Update mode
-        if (this.config.data?.id) {
-            this.itemId = this.config.data.id;
-            this.loadDetail(this.itemId);
-        } else {
-            // Create mode defaults
-            this.onLinkTypeChange();
-        }
+        this.loadData();
     }
 
     ngOnDestroy(): void {
@@ -76,9 +66,50 @@ export class MenuDetailComponent implements OnInit, OnDestroy {
         this.ngUnsubscribe.complete();
     }
 
+    loadData() {
+        // Load dependencies first
+        const parents$ = this.menuService.getMenuItems();
+        const posts$ = this.postService.getPostsPaging('', '', 1, 100);
+
+        forkJoin({
+            parents: parents$,
+            posts: posts$
+        }).pipe(takeUntil(this.ngUnsubscribe)).subscribe({
+            next: (result: any) => {
+                // Process Parents
+                this.parents = result.parents.map((x: any) => ({ label: x.name, value: x.id }));
+                this.parents.unshift({ label: 'None', value: null });
+
+                // Process Posts
+                this.posts = result.posts.results || [];
+
+                // Check Validation
+                if (this.config.data?.id) {
+                    this.itemId = this.config.data.id;
+                    this.loadDetail(this.itemId!);
+                } else {
+                    this.onLinkTypeChange();
+                }
+            },
+            error: (err) => {
+                console.error(err);
+                this.ref.close(); // Close if deps fail? Or allow continue? Use caution.
+            }
+        });
+    }
+
     loadDetail(id: string) {
         this.menuService.getMenuItem(id).pipe(takeUntil(this.ngUnsubscribe)).subscribe({
             next: (item: MenuItemDto) => {
+                // Populate entities based on saved link type
+                this.updateEntities(item.linkType);
+
+                // Find the matching object for entityId
+                let selectedEntity = null;
+                if (item.entityId && this.entities.length > 0) {
+                    selectedEntity = this.entities.find(x => x.value === item.entityId);
+                }
+
                 this.menuForm.patchValue({
                     name: item.name,
                     parentId: item.parentId,
@@ -86,35 +117,23 @@ export class MenuDetailComponent implements OnInit, OnDestroy {
                     isActive: item.isActive,
                     menuGroup: item.menuGroup,
                     linkType: item.linkType,
-                    entityId: item.entityId,
+                    entityId: selectedEntity, // Bind the object
                     customUrl: item.customUrl,
                     openInNewTab: item.openInNewTab
                 });
-                this.onLinkTypeChange();
+
+                // Set enable/disable state without resetting values
+                if (item.linkType === 'Custom') {
+                    this.menuForm.get('customUrl')?.enable();
+                    this.menuForm.get('entityId')?.disable();
+                } else {
+                    this.menuForm.get('customUrl')?.disable();
+                    this.menuForm.get('entityId')?.enable();
+                }
             },
             error: (err) => {
                 console.error(err);
                 this.ref.close();
-            }
-        });
-    }
-
-    loadParents() {
-        this.menuService.getMenuItems().pipe(takeUntil(this.ngUnsubscribe)).subscribe(items => {
-            this.parents = items.map(x => ({ label: x.name, value: x.id }));
-            this.parents.unshift({ label: 'None', value: null });
-            // If update mode, filter out self to avoid recursion? Validation usually handles backend, but good UX here.
-        });
-    }
-
-    loadPosts() {
-        // Load simplified list or rely on specific search API. 
-        // For now, loading first page as before.
-        this.postService.getPostsPaging('', '', 1, 100).pipe(takeUntil(this.ngUnsubscribe)).subscribe(res => {
-            this.posts = res.results || [];
-            // If current type is post, update entities
-            if (this.menuForm.get('linkType')?.value === 'Post') {
-                this.updateEntities('Post');
             }
         });
     }
@@ -139,7 +158,6 @@ export class MenuDetailComponent implements OnInit, OnDestroy {
         if (type === 'Post') {
             this.entities = this.posts.map(p => ({ label: p.name || 'Untitled', value: p.id }));
         } else if (type === 'Series') {
-            // Mock or load series if service available
             this.entities = [{ label: 'Technology', value: 'tech-id-mock' }];
         }
     }
@@ -152,6 +170,12 @@ export class MenuDetailComponent implements OnInit, OnDestroy {
         this.btnDisabled = true;
         const formValue = this.menuForm.value;
 
+        // Extract ID if entityId is an object
+        let entityIdValue = formValue.entityId;
+        if (entityIdValue && typeof entityIdValue === 'object') {
+            entityIdValue = entityIdValue.value;
+        }
+
         if (this.itemId) {
             // Update
             const updateReq = new UpdateMenuItemRequest({
@@ -161,14 +185,14 @@ export class MenuDetailComponent implements OnInit, OnDestroy {
                 isActive: formValue.isActive,
                 menuGroup: formValue.menuGroup,
                 linkType: formValue.linkType,
-                entityId: formValue.entityId,
+                entityId: entityIdValue,
                 customUrl: formValue.customUrl,
                 openInNewTab: formValue.openInNewTab
             });
             this.menuService.updateMenuItem(this.itemId, updateReq).pipe(takeUntil(this.ngUnsubscribe)).subscribe({
                 next: () => {
                     this.btnDisabled = false;
-                    this.ref.close(true); // Return true to indicate success
+                    this.ref.close(true);
                 },
                 error: (err) => {
                     this.btnDisabled = false;
@@ -184,7 +208,7 @@ export class MenuDetailComponent implements OnInit, OnDestroy {
                 isActive: formValue.isActive,
                 menuGroup: formValue.menuGroup,
                 linkType: formValue.linkType,
-                entityId: formValue.entityId,
+                entityId: entityIdValue,
                 customUrl: formValue.customUrl,
                 openInNewTab: formValue.openInNewTab
             });
