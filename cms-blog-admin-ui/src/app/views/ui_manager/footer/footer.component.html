@@ -1,0 +1,103 @@
+<div class="animated fadeIn">
+  <p-tabView>
+    <!-- TAB 1: THÔNG TIN CUỐI TRANG -->
+    <p-tabPanel header="Thông tin cuối trang">
+      <p-panel #pnl [style]="{ 'margin-bottom': '10px' }">
+        <p-header>Quản lý thông tin cuối trang</p-header>
+
+        <div class="row">
+          <div class="col">
+            <button
+              pButton
+              type="button"
+              label="Thêm"
+              icon="fa fa-plus"
+              class="p-button-sm p-button-success ms-1"
+              (click)="showAddModal()"
+            ></button>
+
+            <button
+              pButton
+              type="button"
+              label="Xóa"
+              icon="fa fa-trash"
+              class="p-button-sm p-button-danger ms-1"
+              *ngIf="selectedSettings.length > 0"
+              (click)="deleteItems()"
+            ></button>
+
+            <button
+              pButton
+              type="button"
+              label="Sửa"
+              icon="fa fa-edit"
+              class="p-button-sm p-button-warning ms-1"
+              *ngIf="selectedSettings.length === 1"
+              (click)="showEditModal()"
+            ></button>
+          </div>
+        </div>
+
+        <div class="row mt-3">
+          <p-table
+            #dt
+            [value]="settings"
+            dataKey="id"
+            selectionMode="multiple"
+            [(selection)]="selectedSettings"
+            [metaKeySelection]="true"
+          >
+            <ng-template pTemplate="header">
+              <tr>
+                <th style="width: 10px">
+                  <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                </th>
+                <th>Tiêu đề</th>
+                <th>Email</th>
+                <th>Điện thoại</th>
+                <th>Địa chỉ</th>
+                <th style="width: 100px">Trạng thái</th>
+              </tr>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-row>
+              <tr [pSelectableRow]="row">
+                <td>
+                  <p-tableCheckbox [value]="row"></p-tableCheckbox>
+                </td>
+                <td>{{ row.title || "-" }}</td>
+                <td>{{ row.contactEmail || "-" }}</td>
+                <td>{{ row.phone || "-" }}</td>
+                <td>{{ row.address || "-" }}</td>
+                <td>
+                  <span
+                    [class]="
+                      'badge ' + (row.isActive ? 'bg-success' : 'bg-secondary')
+                    "
+                  >
+                    {{ row.isActive ? "Kích hoạt" : "Tắt" }}
+                  </span>
+                </td>
+              </tr>
+            </ng-template>
+
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="6">Không có dữ liệu</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </p-panel>
+    </p-tabPanel>
+
+    <!-- TAB 2: LIÊN KẾT -->
+    <p-tabPanel header="Liên kết">
+      <app-footer-links></app-footer-links>
+    </p-tabPanel>
+  </p-tabView>
+
+  <p-blockUI [target]="pnl" [blocked]="blockedPanel">
+    <i class="fa fa-lock fa-spin fa-3x"></i>
+  </p-blockUI>
+</div>

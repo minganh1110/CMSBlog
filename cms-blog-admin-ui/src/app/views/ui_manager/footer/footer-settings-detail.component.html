@@ -1,0 +1,116 @@
+<form [formGroup]="form" (ngSubmit)="saveChange()">
+  <div class="row">
+    <div class="col-12">
+      <div class="form-group">
+        <label>Tiêu đề</label>
+        <input
+          type="text"
+          pInputText
+          formControlName="title"
+          class="form-control"
+        />
+      </div>
+    </div>
+    <div class="col-12">
+      <div class="form-group">
+        <label>Phụ đề</label>
+        <input
+          type="text"
+          pInputText
+          formControlName="subtitle"
+          class="form-control"
+        />
+      </div>
+    </div>
+    <div class="col-12">
+      <div class="form-group">
+        <label>Bản quyền</label>
+        <textarea
+          pInputTextarea
+          formControlName="copyrightText"
+          rows="3"
+          class="form-control"
+        ></textarea>
+      </div>
+    </div>
+    <div class="col-12">
+      <div class="form-group">
+        <label>Ghi chú</label>
+        <textarea
+          pInputTextarea
+          formControlName="footerNote"
+          rows="3"
+          class="form-control"
+        ></textarea>
+      </div>
+    </div>
+    <div class="col-6">
+      <div class="form-group">
+        <label>Email liên hệ</label>
+        <input
+          type="email"
+          pInputText
+          formControlName="contactEmail"
+          class="form-control"
+        />
+      </div>
+    </div>
+    <div class="col-6">
+      <div class="form-group">
+        <label>Điện thoại</label>
+        <input
+          type="text"
+          pInputText
+          formControlName="phone"
+          class="form-control"
+        />
+      </div>
+    </div>
+    <div class="col-12">
+      <div class="form-group">
+        <label>Địa chỉ</label>
+        <textarea
+          pInputTextarea
+          formControlName="address"
+          rows="2"
+          class="form-control"
+        ></textarea>
+      </div>
+    </div>
+    <div class="col-12">
+      <div class="form-group">
+        <label>Logo URL</label>
+        <input
+          type="text"
+          pInputText
+          formControlName="logoUrl"
+          class="form-control"
+        />
+      </div>
+    </div>
+    <div class="col-12">
+      <div class="form-group">
+        <p-checkbox formControlName="isActive" label="Kích hoạt"></p-checkbox>
+      </div>
+    </div>
+  </div>
+  <div class="form-actions">
+    <button
+      type="button"
+      pButton
+      label="Hủy"
+      (click)="ref.close()"
+      class="p-button-secondary"
+    ></button>
+    <button
+      type="submit"
+      pButton
+      label="Lưu"
+      [disabled]="form.invalid"
+      class="p-button-primary"
+    ></button>
+  </div>
+</form>
+<p-blockUI [blocked]="blockedPanelDetail">
+  <i class="fa fa-lock fa-spin fa-3x"></i>
+</p-blockUI>

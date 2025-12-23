@@ -24,6 +24,7 @@ import { UserDetailComponent } from './users/user-detail.component';
 import { BadgeModule } from 'primeng/badge';
 import { PickListModule } from 'primeng/picklist';
 import { ImageModule } from 'primeng/image';
+
 @NgModule({
   imports: [
     SystemRoutingModule,
@@ -42,20 +43,17 @@ import { ImageModule } from 'primeng/image';
     TeduSharedModule,
     BadgeModule,
     PickListModule,
-    ImageModule
-
+    ImageModule,
   ],
   declarations: [
-    UserComponent, 
-    RoleComponent, 
+    UserComponent,
+    RoleComponent,
     RolesDetailComponent,
     PermissionGrantComponent,
     ChangeEmailComponent,
     RoleAssignComponent,
     SetPasswordComponent,
-    UserDetailComponent
-
+    UserDetailComponent,
   ],
 })
-export class SystemModule {
-}
+export class SystemModule {}

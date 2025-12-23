@@ -1,0 +1,80 @@
+<form [formGroup]="form" (ngSubmit)="saveChange()">
+  <div class="row">
+    <div class="col-12">
+      <div class="form-group">
+        <label>Nhãn <span class="text-danger">*</span></label>
+        <input
+          type="text"
+          pInputText
+          formControlName="label"
+          class="form-control"
+        />
+      </div>
+    </div>
+    <div class="col-12">
+      <div class="form-group">
+        <label>URL <span class="text-danger">*</span></label>
+        <input
+          type="text"
+          pInputText
+          formControlName="url"
+          class="form-control"
+        />
+      </div>
+    </div>
+    <div class="col-12">
+      <div class="form-group">
+        <label>Icon (FontAwesome class, ví dụ: fab fa-twitter)</label>
+        <input
+          type="text"
+          pInputText
+          formControlName="icon"
+          class="form-control"
+        />
+      </div>
+    </div>
+    <div class="col-6">
+      <div class="form-group">
+        <label>Thứ tự</label>
+        <input
+          type="number"
+          pInputText
+          formControlName="sortOrder"
+          class="form-control"
+        />
+      </div>
+    </div>
+    <div class="col-6">
+      <div class="form-group">
+        <p-checkbox
+          formControlName="targetBlank"
+          label="Mở tab mới"
+        ></p-checkbox>
+      </div>
+    </div>
+    <div class="col-12">
+      <div class="form-group">
+        <p-checkbox formControlName="isActive" label="Kích hoạt"></p-checkbox>
+      </div>
+    </div>
+  </div>
+  <div class="form-actions">
+    <button
+      type="button"
+      pButton
+      label="Hủy"
+      (click)="ref.close()"
+      class="p-button-secondary"
+    ></button>
+    <button
+      type="submit"
+      pButton
+      label="Lưu"
+      [disabled]="form.invalid"
+      class="p-button-primary"
+    ></button>
+  </div>
+</form>
+<p-blockUI [blocked]="blockedPanelDetail">
+  <i class="fa fa-lock fa-spin fa-3x"></i>
+</p-blockUI>

@@ -1,0 +1,84 @@
+<p-panel #pnl [style]="{ 'margin-bottom': '10px' }">
+  <p-header> Quản lý liên kết </p-header>
+  <div class="row">
+    <div class="col">
+      <button
+        pButton
+        type="button"
+        label="Thêm"
+        icon="fa fa-plus"
+        (click)="showAddModal()"
+        class="p-button-sm p-button-success ms-1"
+      ></button>
+      <button
+        pButton
+        type="button"
+        label="Xóa"
+        icon="fa fa-trash"
+        *ngIf="selectedLinks.length > 0"
+        (click)="deleteItems()"
+        class="p-button-sm p-button-danger ms-1"
+      ></button>
+      <button
+        pButton
+        type="button"
+        label="Sửa"
+        icon="fa fa-edit"
+        *ngIf="selectedLinks.length == 1"
+        (click)="showEditModal()"
+        class="p-button-sm p-button-warning ms-1"
+      ></button>
+    </div>
+  </div>
+  <div class="row mt-3">
+    <p-table
+      #dt
+      [value]="links"
+      selectionMode="multiple"
+      dataKey="id"
+      [(selection)]="selectedLinks"
+      [metaKeySelection]="true"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th style="width: 10px">
+            <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+          </th>
+          <th>Nhãn</th>
+          <th>URL</th>
+          <th>Icon</th>
+          <th>Thứ tự</th>
+          <th style="width: 100px">Trạng thái</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-row>
+        <tr [pSelectableRow]="row">
+          <td style="width: 10px">
+            <p-tableCheckbox [value]="row"></p-tableCheckbox>
+          </td>
+          <td>{{ row.label }}</td>
+          <td>{{ row.url }}</td>
+          <td>{{ row.icon || "-" }}</td>
+          <td>{{ row.sortOrder }}</td>
+          <td>
+            <span
+              [class]="
+                'badge ' + (row.isActive ? 'bg-success' : 'bg-secondary')
+              "
+            >
+              {{ row.isActive ? "Kích hoạt" : "Tắt" }}
+            </span>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="6">Không có dữ liệu</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</p-panel>
+<p-blockUI [target]="pnl" [blocked]="blockedPanel">
+  <i class="fa fa-lock fa-spin fa-3x"></i>
+</p-blockUI>
