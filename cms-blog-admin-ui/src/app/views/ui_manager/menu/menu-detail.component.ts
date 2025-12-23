@@ -110,9 +110,20 @@ export class MenuDetailComponent implements OnInit, OnDestroy {
                     selectedEntity = this.entities.find(x => x.value === item.entityId);
                 }
 
+                // Find the matching object for parentId
+                let selectedParent = null;
+                if (this.parents.length > 0) {
+                    if (item.parentId) {
+                        selectedParent = this.parents.find(x => x.value === item.parentId);
+                    } else {
+                        // Select 'None' option if parentId is null
+                        selectedParent = this.parents.find(x => x.value === null);
+                    }
+                }
+
                 this.menuForm.patchValue({
                     name: item.name,
-                    parentId: item.parentId,
+                    parentId: selectedParent,
                     sortOrder: item.sortOrder,
                     isActive: item.isActive,
                     menuGroup: item.menuGroup,
@@ -176,11 +187,17 @@ export class MenuDetailComponent implements OnInit, OnDestroy {
             entityIdValue = entityIdValue.value;
         }
 
+        // Extract ID if parentId is an object
+        let parentIdValue = formValue.parentId;
+        if (parentIdValue && typeof parentIdValue === 'object') {
+            parentIdValue = parentIdValue.value;
+        }
+
         if (this.itemId) {
             // Update
             const updateReq = new UpdateMenuItemRequest({
                 name: formValue.name,
-                parentId: formValue.parentId,
+                parentId: parentIdValue,
                 sortOrder: formValue.sortOrder,
                 isActive: formValue.isActive,
                 menuGroup: formValue.menuGroup,
@@ -203,7 +220,7 @@ export class MenuDetailComponent implements OnInit, OnDestroy {
             // Create
             const createReq = new CreateMenuItemRequest({
                 name: formValue.name,
-                parentId: formValue.parentId,
+                parentId: parentIdValue,
                 sortOrder: formValue.sortOrder,
                 isActive: formValue.isActive,
                 menuGroup: formValue.menuGroup,

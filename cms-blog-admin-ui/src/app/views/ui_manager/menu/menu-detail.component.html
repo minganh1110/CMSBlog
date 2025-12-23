@@ -8,13 +8,14 @@
 
     <div class="field">
         <label for="menuGroup" class="block">Nhóm Menu <span class="text-danger">*</span></label>
-        <p-dropdown [options]="menuGroups" formControlName="menuGroup" [style]="{ 'width': '100%' }"></p-dropdown>
+        <p-dropdown [options]="menuGroups" formControlName="menuGroup" [style]="{ 'width': '100%' }"
+            appendTo="body"></p-dropdown>
     </div>
 
     <div class="field">
         <label for="linkType" class="block">Loại liên kết <span class="text-danger">*</span></label>
         <p-dropdown [options]="linkTypes" formControlName="linkType" (onChange)="onLinkTypeChange()"
-            [style]="{ 'width': '100%' }"></p-dropdown>
+            [style]="{ 'width': '100%' }" appendTo="body"></p-dropdown>
     </div>
 
     <div class="field" *ngIf="menuForm.get('linkType')?.value === 'Custom'">
@@ -25,13 +26,14 @@
     <div class="field" *ngIf="menuForm.get('linkType')?.value !== 'Custom'">
         <label for="entityId" class="block">Chọn đối tượng</label>
         <p-dropdown [options]="entities" formControlName="entityId" [filter]="true" filterBy="label"
-            placeholder="Chọn đối tượng" [style]="{ 'width': '100%' }" optionLabel="label"></p-dropdown>
+            placeholder="Chọn đối tượng" [style]="{ 'width': '100%' }" optionLabel="label" appendTo="body"></p-dropdown>
     </div>
 
     <div class="field">
         <label for="parentId" class="block">Menu cha</label>
         <p-dropdown [options]="parents" formControlName="parentId" placeholder="Chọn menu cha"
-            [style]="{ 'width': '100%' }"></p-dropdown>
+            [style]="{ 'width': '100%' }" optionLabel="label" [filter]="true" filterBy="label"
+            appendTo="body"></p-dropdown>
     </div>
 
     <div class="field">
